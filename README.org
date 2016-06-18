@@ -1,0 +1,17 @@
+* 前言
+  + 初学配置emacs.d/，日后对配置文件的内容和使用说明进行补充。
+* 目录说明
+  #+BEGIN_EXAMPLE
+  ~/.emacs.d/
+        init.el              #Emacs会自动从init.el开始执行
+        lisp/                #加载各个插件的初始化文件的位置
+              init-xxx.el    #某初始化文件
+	site-list/           #配置扩展包
+  #+END_EXAMPLE
+* 参考
+  + [[https://www.zybuluo.com/qqiseeu/note/17692][Emacs 配置文件---新手攻略]]
+  + [[https://github.com/xyguo/emacs.d][xyguo's emacs.d]]
+  + [[https://github.com/purcell/emacs.d/blob/master/init.el#L68][purcell's emacs.d]]
+
+
+
