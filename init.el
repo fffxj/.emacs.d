@@ -19,6 +19,7 @@
 ;; Programming
 (require 'init-yasnippet)
 (require 'init-auto-complete)
+(require 'init-flycheck)
 
 ;; Color Theme
 (require 'init-theme)
