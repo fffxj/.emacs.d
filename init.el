@@ -18,6 +18,7 @@
 (require 'init-yasnippet)
 (require 'init-auto-complete)
 (require 'init-fonts)
+(require 'init-whitespace)
 
 (require 'init-theme)
 
