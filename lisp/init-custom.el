@@ -6,10 +6,10 @@
 (setq inhibit-startup-message 1)
 
 ;; 关闭出错时的提示声
-;(setq visible-bell t) 
+;(setq visible-bell t)
 
 ;; 关闭自动备份
-(setq make-backup-files nil) 
+(setq make-backup-files nil)
 
 ;; 逗号后自动加空格
 (global-set-key (kbd ",")
