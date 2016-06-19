@@ -11,6 +11,7 @@
 (require 'init-ido)
 (require 'init-dired)
 (require 'init-ibuffer)
+(require 'init-recentf)
 
 ;; Utils
 (require 'init-fonts)
