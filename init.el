@@ -1,25 +1,26 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
-;;----------------------------------------------------------------------------
-;; Bootstrap config
-;;----------------------------------------------------------------------------
+;; Package Manager
 (require 'init-utils)
 (require 'init-elpa)
 
+;; Customization
 (require 'init-custom)
 
+;; Interface Enhancement
+(require 'init-ido)
+(require 'init-dired)
+(require 'init-ibuffer)
 
-;;----------------------------------------------------------------------------
-;; Load configs for specific features and modes
-;;----------------------------------------------------------------------------
-
-;(require 'init-ido)
-;(require 'init-dired)
-(require 'init-yasnippet)
-(require 'init-auto-complete)
+;; Utils
 (require 'init-fonts)
 (require 'init-whitespace)
 
+;; Programming
+(require 'init-yasnippet)
+(require 'init-auto-complete)
+
+;; Color Theme
 (require 'init-theme)
 
 
