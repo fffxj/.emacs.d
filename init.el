@@ -28,6 +28,7 @@
 (require 'init-flyspell)
 (require 'init-fonts)
 (require 'init-whitespace)
+(require 'init-fci)
 
 ;; Programming
 (require 'init-yasnippet)
