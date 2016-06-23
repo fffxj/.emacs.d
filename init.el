@@ -13,6 +13,7 @@
 (require 'init-smex)
 (require 'init-ibuffer)
 (require 'init-recentf)
+(require 'init-flyspell)
 
 ;; Utils
 (require 'init-fonts)
