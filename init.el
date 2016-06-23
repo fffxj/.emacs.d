@@ -10,6 +10,7 @@
 ;; Interface Enhancement
 (require 'init-ido)
 (require 'init-dired)
+(require 'init-smex)
 (require 'init-ibuffer)
 (require 'init-recentf)
 
