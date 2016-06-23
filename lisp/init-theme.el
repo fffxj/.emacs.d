@@ -1,10 +1,3 @@
-;(add-to-list 'custom-theme-load-path "~/.emacs.d/site-lisp/emacs-color-theme-solarized")
-;(load-theme 'solarized t)
-;(set-frame-parameter nil 'background-mode 'dark)    ;;选择solarized dark
-;(enable-theme 'solarized)
-
-
-
 (require 'solarized-theme)
 
 ;; If you don't customize it, this is the theme you get.
