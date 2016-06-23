@@ -31,6 +31,7 @@
 ;; Programming
 (require 'init-yasnippet)
 (require 'init-auto-complete)
+; (require 'init-company)
 (require 'init-hippie-expand)
 (require 'init-flycheck)
 
