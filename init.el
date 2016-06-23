@@ -18,9 +18,10 @@
 (require 'init-dired)
 (require 'init-smex)
 (require 'init-ibuffer)
+(require 'init-recentf)
+(require 'init-mmm)
 
 ;; Utils
-(require 'init-recentf)
 (require 'init-uniquify)
 
 ;; Editor
