@@ -41,6 +41,66 @@ ELPA 具有了自己的 repository，但是它有些保守。因此，我们还�
 
   (setq load-prefer-newer t)
 #+END_SRC
+* Basic Settings
+** Personal Information
+
+一些关于我的个人信息。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq user-full-name "Xiaojie Feng"
+        user-mail-address "fengxiaojie1997@gmail.com")
+#+END_SRC
+** Library
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package dash)
+#+END_SRC
+** Backups
+
+自动备份，这可能是大多数人最想首先更改的一项了吧。
+Emacs 会在当前文件夹下自动备份文件，弄得混乱不堪，我选择把它关掉。
+
+#+begin_src emacs-lisp :tangle yes
+  (setq make-backup-files nil)
+#+end_src   
+* Interface Enhancement
+** Helm
+
+[[https://github.com/emacs-helm/helm][Helm]] 使得许多事情易于完成，我倾向于用它来取代 ido，为了在尽可能多的地方使用它。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm
+    :ensure t
+    :init
+    (require 'helm-config)
+    :bind (
+           ("C-c h" . helm-command-prefix)
+           ("M-x" . helm-M-x)
+           ("C-x C-f" . helm-find-files)
+           ("C-x b" . helm-buffers-list)
+           ("C-c h o" . helm-occur)
+           :map helm-map
+           ("<tab>" . helm-execute-persistent-action)
+           ("C-i" . helm-execute-persistent-action)
+           ))
+#+END_SRC
+
+进阶学习参考: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]]
+
+** Undo-tree
+
+Undo-tree 可以将所有的编辑状态用树状结构在一个 buffer 中显示出来。
+然后我们轻松地可以找到我们需要的状态，甚至可以 diff 不同的状态。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package undo-tree
+    :ensure t
+    :init (global-undo-tree-mode)
+    :diminish undo-tree-mode)
+#+END_SRC
+
+C-x u 开启 undo-tree-visualizer-mode 后，n p 上下移动，b f 左右切换子树，t 显示时间戳，
+d 显示 diff， q 退出。
 
 * Auto Completion
 ** Hippie-expand
@@ -99,3 +159,36 @@ M-/ 执行补全。
 #+END_SRC
 
 在键入几个字母后会开启 Company，M-n 和 M-p 选择，<RET> 或 <TAB> 完成补全。
+* Appearance
+** Color Theme
+
+From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-24/23794179#23794179][stackoverflow]]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package color-theme)
+  (use-package solarized-theme)
+  (use-package color-theme-sanityinc-solarized)
+
+  (setq my-themes (list
+                   'solarized-light
+                   'solarized-dark
+                   'sanityinc-solarized-light
+                   'sanityinc-solarized-dark))
+                   
+  (setq curr-theme my-themes)
+
+  (defun my-theme-cycle ()
+    (interactive)
+    (disable-theme (car curr-theme)) ;;Nee flickeringded to stop even worse
+    (setq curr-theme (cdr curr-theme))
+    (if (null curr-theme) (setq curr-theme my-themes))
+    (load-theme (car curr-theme) t)
+    (message "%s" (car curr-theme)))
+
+  (global-set-key [f12] 'my-theme-cycle)
+  (setq curr-theme my-themes)
+  (load-theme (car curr-theme) t)
+#+END_SRC
+
+F12 在 my-themes 列表中快速切换主题。
+
