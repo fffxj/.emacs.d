@@ -1,0 +1,101 @@
+#+TITLE: fffxj's Emacs configuration
+#+AUTHOR: Xiaojie Feng
+#+EMAIL: fengxiaojie1997@gmail.com
+
+* Package Manager
+** ELPA
+
+Emacs24 之后， Emacs就像其他操作系统一样有了自己的包管理工具，如内置的 [[https://www.emacswiki.org/emacs/ELPA][ELPA(package.el)]]
+，[[https://github.com/dimitri/el-get][El-Get]] ，可以使得下载插件非常方便，还能够带着一份配置文件走天下了。
+
+ELPA 具有了自己的 repository，但是它有些保守。因此，我们还要再添加几个的软件源。
+如果你没有使用过 package，现在就用它吧。你所要做的只是如下这样：
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'package)
+
+  (setq package-archives
+	'(("gnu" . "https://elpa.gnu.org/packages/")
+	  ("org" . "http://orgmode.org/elpa/")
+	  ("melpa" . "https://melpa.org/packages/")
+	  ("popkit" . "http://elpa.popkit.org/packages/")))
+
+  (package-initialize)
+  (setq package-enable-at-startup nil)
+#+END_SRC
+** Use-package
+
+[[https://github.com/jwiegley/use-package][Use-package]] 也是一个好东西，提供分离配置和提高整洁度的宏，
+它还能确保软件包的安装，并提高启动速度。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (setq use-package-verbose t
+	use-package-always-ensure t)
+
+  (eval-when-compile
+    (require 'use-package))
+
+  (setq load-prefer-newer t)
+#+END_SRC
+
+* Auto Completion
+** Hippie-expand
+
+[[https://www.emacswiki.org/emacs/HippieExpand][Hippie-expand]] 自动补全，通过搜寻已输入的单词完成操作，包括查看当前和其他的 buffers，filenames，kill ring...
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "M-/") 'hippie-expand)
+  (setq hippie-expand-try-functions-list
+   '(try-expand-dabbrev
+     try-expand-dabbrev-all-buffers
+     try-expand-dabbrev-from-kill
+     try-complete-file-name-partially
+     try-complete-file-name
+     try-expand-all-abbrevs
+     try-expand-list
+     try-expand-line
+     try-complete-lisp-symbol-partially
+     try-complete-lisp-symbol))
+#+END_SRC
+
+M-/ 执行补全。
+
+** Yasnippet
+
+[[https://github.com/joaotavora/yasnippet][Yasnippet]] 是一个非常强大的模板补全扩展，键入几个字母就能完成补全，
+还能轻松定制自己的模板。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package yasnippet
+      :init
+      (yas-global-mode 1)
+      :diminish t)
+#+END_SRC
+
+使用 <TAB> 完成补全。
+** Company
+
+[[https://company-mode.github.io][Company]] 意为 "company anything"，它能满足我绝大部分的补全需要，
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package company
+      :ensure t
+      :init
+      (add-hook 'after-init-hook 'global-company-mode)
+      :diminish company-mode)
+#+END_SRC
+
+利用 [[https://github.com/expez/company-quickhelp][company-quickhelp]] ，可以增加适当的延迟。它依赖 [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][top-tip]] 。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package company-quickhelp
+    :ensure t
+    :config
+    (company-quickhelp-mode 1))
+#+END_SRC
+
+在键入几个字母后会开启 Company，M-n 和 M-p 选择，<RET> 或 <TAB> 完成补全。

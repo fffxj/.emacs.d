@@ -1,15 +1,12 @@
 TODO.org
 
+*.el
 *.html
-*.o
-*.dat
-*~
 
-elpa/
 auto-save-list/
-snippets/
+elpa/
+url/
 
-ac-comphist.dat
-ido.last
+projectile-bookmarks.eld
 recentf
-smex-items
+savehist
