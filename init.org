@@ -159,6 +159,16 @@ M-/ 执行补全。
 #+END_SRC
 
 在键入几个字母后会开启 Company，M-n 和 M-p 选择，<RET> 或 <TAB> 完成补全。
+* Programming language
+** SML
+
+因华盛顿大学的 Programming Language 使用SML语言教学，而配置。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package sml-mode)
+  (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
+  (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
+#+END_SRC
 * Appearance
 ** Color Theme
 
