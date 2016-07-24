@@ -55,6 +55,18 @@ ELPA 具有了自己的 repository，但是它有些保守。因此，我们还�
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package dash)
 #+END_SRC
+** Exec-path-from-shell
+
+[[https://github.com/purcell/exec-path-from-shell][Exec-path-from-shell]] 可以使得环境变量同用户 shell 中的一致。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package exec-path-from-shell
+    :defer t
+    :init
+    (progn
+      (when (memq window-system '(mac ns))
+        (exec-path-from-shell-initialize))))
+#+END_SRC
 ** Backups
 
 自动备份，这可能是大多数人最想首先更改的一项了吧。
