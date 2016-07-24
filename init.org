@@ -102,6 +102,17 @@ Undo-tree 可以将所有的编辑状态用树状结构在一个 buffer 中显�
 C-x u 开启 undo-tree-visualizer-mode 后，n p 上下移动，b f 左右切换子树，t 显示时间戳，
 d 显示 diff， q 退出。
 
+* Editing
+** Expand-region
+
+[[https://github.com/magnars/expand-region.el][Expand-region]] 根据语法单元快速扩展选中的区域。[[[http://emacsrocks.com/e09.html][Video]]]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package expand-region
+    :defer t
+    :bind (("C-=" . er/expand-region)
+           ("C--" . er/contract-region)))
+#+END_SRC
 * Auto Completion
 ** Hippie-expand
 
@@ -201,4 +212,5 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
 #+END_SRC
 
 F12 在 my-themes 列表中快速切换主题。
+
 
