@@ -102,6 +102,14 @@ Undo-tree 可以将所有的编辑状态用树状结构在一个 buffer 中显�
 C-x u 开启 undo-tree-visualizer-mode 后，n p 上下移动，b f 左右切换子树，t 显示时间戳，
 d 显示 diff， q 退出。
 
+** Switch-window
+
+Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中切换。
+
+#+begin_src emacs-lisp :tangle yes
+(use-package switch-window
+  :bind (("C-x o" . switch-window)))
+#+end_src
 * Editing
 ** Expand-region
 
