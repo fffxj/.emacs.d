@@ -198,6 +198,21 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
     :bind (("C-=" . er/expand-region)
            ("C--" . er/contract-region)))
 #+END_SRC
+** Multiple-cursors
+
+[[https://github.com/magnars/multiple-cursors.el][Multiple-cursors]] 一个相当惊艳的多点编辑插件。可以看一下作者的[[http://emacsrocks.com/e13.html][视频介绍]]。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package multiple-cursors
+    :bind (("C->" . mc/mark-next-like-this)
+           ("C-<" . mc/mark-previous-like-this)
+           ("C-c C-<" . mc/mark-all-like-this)
+
+           ("C-c c r" . set-rectangular-region-anchor)
+           ("C-c c c" . mc/edit-lines)
+           ("C-c c e" . mc/edit-ends-of-lines)
+           ("C-c c a" . mc/edit-beginnings-of-lines)))
+#+END_SRC
 * Auto Completion
 ** Hippie-expand
 
