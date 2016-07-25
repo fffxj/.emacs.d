@@ -303,4 +303,27 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
 
 F12 在 my-themes 列表中快速切换主题。
 
+** Fonts
 
+选择一个舒适的字体对于编程着实重要。如果有兴趣的话，你可以参看一下：
+[[http://hivelogic.com/articles/top-10-programming-fonts/][Top 10 Programming Fonts]] 或 [[https://www.sitepoint.com/top-10-programming-fonts/][10 of the Best Programming Fonts]]
+以感受一下不同的字体。
+
+我比较钟爱 Monaco ，Mac 自带的字体之一。
+中文字体选用文泉驿等宽微米黑，Google 安装之即可。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (eq system-type 'darwin)
+
+    ;; default Latin font (e.g. Consolas)
+    (set-face-attribute 'default nil :family "Monaco")
+
+    ;; default font size (point * 10)
+    (set-face-attribute 'default nil :height 150)
+
+    ;; use specific font for Chinese charset.
+    ;; if you want to use different font size for specific charset,
+    ;; add :size POINT-SIZE in the font-spec.
+    (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
+    )
+#+END_SRC
