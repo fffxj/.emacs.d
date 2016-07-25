@@ -201,10 +201,18 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
 * Auto Completion
 ** Hippie-expand
 
-[[https://www.emacswiki.org/emacs/HippieExpand][Hippie-expand]] 自动补全，通过搜寻已输入的单词完成操作，包括查看当前和其他的 buffers，filenames，kill ring...
+[[https://www.emacswiki.org/emacs/HippieExpand][Hippie-expand]] 是一个小而强大的内置补全功能，它根据一个优先列表来进行补全，
+这是说，首先使用当前的 buffer 补全，如果找不到，就到别的可见的窗口里寻找， 
+如果还找不到，再到所有打开的 buffer ，kill-ring，文件名，简称列表 ...
+中寻找。
+
+特别有意思的是 try-expand-line，可以补全整整一行文字。
+有时两行文字大致相同，只有几个字不一样，如果懒得去拷贝粘贴，
+那么就可以输入这行文字的前面几个字，然后按两下 =M-/= 就能得到那一行。
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (global-set-key (kbd "M-/") 'hippie-expand)
+
   (setq hippie-expand-try-functions-list
    '(try-expand-dabbrev
      try-expand-dabbrev-all-buffers
@@ -217,9 +225,6 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
      try-complete-lisp-symbol-partially
      try-complete-lisp-symbol))
 #+END_SRC
-
-M-/ 执行补全。
-
 ** Yasnippet
 
 [[https://github.com/joaotavora/yasnippet][Yasnippet]] 是一个非常强大的模板补全扩展，键入几个字母就能完成补全，
