@@ -75,6 +75,71 @@ Emacs 会在当前文件夹下自动备份文件，弄得混乱不堪，我选�
 #+begin_src emacs-lisp :tangle yes
   (setq make-backup-files nil)
 #+end_src   
+** Auto-fill
+
+[[https://www.emacswiki.org/emacs/AutoFillMode][Auto-fill-mode]] 是一个将过长的行截断并换行的 minor mode，当你输入 =<SPC>= 或
+=<RET>= 会自动换行。
+
+你可能疑惑为什么要保证行数小于 80。虽然在这里我不做解释，但是你可以参考
+stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-valid-reason-for-enforcing-a-maximum-width-of-80-characters-in-a-code][提问]] ，来感受一下。
+
+我尽量使得代码行宽小于 80，事实上有些项目强制如此。
+
+我为 text-mode 和 prog-mode 和它们所有的 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Derived-Modes.html][derived modes]] 开启 auto-fill-mode。
+你可以参看 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fill-Commands.html][Explicit Fill Commands]] 来快速截断 paragraph 和 region。
+				       
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default fill-column 79)
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  (add-hook 'prog-mode-hook 'turn-on-auto-fill)
+  (global-set-key (kbd "C-c q") 'auto-fill-mode)
+#+END_SRC
+** Saveplace
+
+[[https://www.emacswiki.org/emacs/SavePlace][Saveplace]] 让光标记住在文件中的位置。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'saveplace)
+  (setq-default save-place t)
+  (setq save-place-file (concat user-emacs-directory ".saveplace"))
+#+END_SRC
+** Recentf
+
+现代编辑器或 IDE 能够打开最近文件或项目，emacs 能如此，内置包 [[https://www.emacswiki.org/emacs/RecentFiles][Recentf]]，
+保存最近操作过的文件，得以快速打开。
+
+下面的代码来自 [[https://www.masteringemacs.org/article/find-files-faster-recent-files-package][masteremacs]] ，绑定了 =ido= 和 =recentf= 。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(require 'recentf)
+
+;; get rid of `find-file-read-only' and replace it with something
+;; more useful.
+(global-set-key (kbd "C-x C-r") 'ido-recentf-open)
+
+;; enable recent files mode.
+(recentf-mode t)
+
+; 50 files ought to be enough.
+(setq recentf-max-saved-items 50)
+
+(defun ido-recentf-open ()
+  "Use `ido-completing-read' to \\[find-file] a recent file"
+  (interactive)
+  (if (find-file (ido-completing-read "Find recent file: " recentf-list))
+      (message "Opening file...")
+    (message "Aborting")))
+#+END_SRC
+** Uniquify
+
+当打开两个同名文件时，emacs 在文件名后附加"<1>"，"<2>"以示区分。
+默认的这种方式并不好，因此 emacs 提供 [[https://www.emacswiki.org/emacs/uniquify][Uniquify]] ，
+可以通过文件路径来区别不同的 buffers。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+#+END_SRC
 * Interface Enhancement
 ** Helm
 
