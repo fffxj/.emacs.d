@@ -213,6 +213,17 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
            ("C-c c e" . mc/edit-ends-of-lines)
            ("C-c c a" . mc/edit-beginnings-of-lines)))
 #+END_SRC
+** Ace-jump
+
+[[https://github.com/winterTTr/ace-jump-mode][Ace-jump-mode]] 光标快速跳转。 =C-c <SPC>= 执行单词跳转，
+=C-c M-<SPC>= 进行行跳转。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package ace-jump-mode
+    :defer t
+    :bind (("C-c SPC" . ace-jump-word-mode)
+           ("C-c M-SPC" . ace-jump-line-mode)))
+#+END_SRC
 * Auto Completion
 ** Hippie-expand
 
