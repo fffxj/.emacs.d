@@ -234,6 +234,24 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
     (blink-cursor-mode -1))
 #+END_SRC
 * Editing
+** Basic settings
+*** Return and newline
+
+=RET= 之后立即缩进代码。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "RET") 'newline-and-indent)
+#+END_SRC
+
+*** Tabs vs Spaces
+
+总是使用 =SPC= 缩进而不是 =TAB= 来执行缩紧。
+并且设置缩进为 2 个字符，使代码更紧凑可读。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default indent-tabs-mode nil)
+  (setq tab-width 2)
+#+END_SRC
 ** Expand-region
 
 [[https://github.com/magnars/expand-region.el][Expand-region]] 根据语法单元快速扩展选中的区域。[[[http://emacsrocks.com/e09.html][Video]]]
