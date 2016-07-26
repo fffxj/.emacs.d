@@ -224,6 +224,45 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
     :bind (("C-c SPC" . ace-jump-word-mode)
            ("C-c M-SPC" . ace-jump-line-mode)))
 #+END_SRC
+** Flyspell
+
+我喜欢用 [[https://www.emacswiki.org/emacs/FlySpell][Flyspell]] 进行拼写检查。并使用 ASpell 作为拼写检查工具。
+
+#+BEGIN_SRC shell
+  brew install aspell
+#+END_SRC
+
+为 text-mode 和 prog-mode 启用拼写检查，并忽略少于 3 个字符的单词。
+基于 [[https://github.com/pronobis/helm-flyspell][Helm-flyspell]] 的 =M-s= 命令，列出正确的备选单词列表，然后替换错误单词，
+也可以将原单词收入个人字典，之后将视为拼写正确。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package flyspell
+    :defer t
+    :diminish ""
+    :init
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
+    (dolist (hook '(text-mode-hook org-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode 1))))
+
+    (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
+      (add-hook hook (lambda () (flyspell-mode -1))))
+    
+    :config
+    (setq ispell-program-name "/usr/local/bin/aspell"
+          ispell-dictionary "american"
+          ispell-extra-args '("--sug-mode=ultra"
+                              "--lang=en_US"
+                              "--ignore=3")
+          ispell-list-command "--list")
+    
+    (use-package helm-flyspell
+      :init
+      (define-key flyspell-mode-map (kbd "M-s") 'helm-flyspell-correct)))
+#+END_SRC
+
+=~/.aspell.en.pws= 是个人字典的配置文件，Aspell 会自动生成。
 * Auto Completion
 ** Hippie-expand
 
@@ -353,3 +392,4 @@ F12 在 my-themes 列表中快速切换主题。
     (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
     )
 #+END_SRC
+
