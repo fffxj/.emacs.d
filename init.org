@@ -325,6 +325,27 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
 #+END_SRC
 
 在键入几个字母后会开启 Company，M-n 和 M-p 选择，<RET> 或 <TAB> 完成补全。
+* Programming
+** Flycheck
+
+[[https://github.com/flycheck/flycheck][Flycheck]] 非常重要的插件，支持大多数动态语言的语法检查。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package flycheck
+    :defer t
+    :bind (("C-c n" . flycheck-next-error)
+           ("C-c p" . flycheck-previous-error)
+           ("C-c =" . flycheck-list-errors))
+    :init (global-flycheck-mode)
+    :diminish ""
+    :config
+    (progn
+      (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+      (use-package helm-flycheck
+        :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
+      (use-package flycheck-haskell
+        :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
+#+END_SRC
 * Programming language
 ** SML
 
