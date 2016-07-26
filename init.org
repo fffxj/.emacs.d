@@ -140,6 +140,17 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
   (require 'uniquify)
   (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 #+END_SRC
+** UTF-8
+
+总是使用 UTF-8 编码。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8)
+#+END_SRC
 * Interface Enhancement
 ** Helm
 
@@ -187,6 +198,41 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
 (use-package switch-window
   :bind (("C-x o" . switch-window)))
 #+end_src
+** Misc
+*** Change "yes or no" to "y or n"
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+*** Don't show setup message
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(setq inhibit-startup-message t
+      initial-major-mode 'fundamental-mode)
+#+END_SRC
+*** Don't beep
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq ring-bell-function (lambda ()))
+#+END_SRC
+*** Turn off some mode
+
+关闭一些无用的模式，以免浪费宝贵的屏幕空间。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (functionp 'menu-bar-mode)
+    (menu-bar-mode -1))
+  (when (functionp 'set-scroll-bar-mode)
+    (set-scroll-bar-mode 'nil))
+  (when (functionp 'mouse-wheel-mode)
+    (mouse-wheel-mode -1))
+  (when (functionp 'tooltip-mode)
+    (tooltip-mode -1))
+  (when (functionp 'tool-bar-mode)
+    (tool-bar-mode -1))
+  (when (functionp 'blink-cursor-mode)
+    (blink-cursor-mode -1))
+#+END_SRC
 * Editing
 ** Expand-region
 
@@ -413,4 +459,17 @@ F12 在 my-themes 列表中快速切换主题。
     (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
     )
 #+END_SRC
+** Symbols
 
+美化符号显示。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (boundp 'global-prettify-symbols-mode)
+    (add-hook 'emacs-lisp-mode-hook
+              (lambda ()
+                (push '("lambda" . ?λ) prettify-symbols-alist)))
+    (add-hook 'clojure-mode-hook
+              (lambda ()
+                (push '("fn" . ?ƒ) prettify-symbols-alist)))
+    (global-prettify-symbols-mode +1))
+#+END_SRC
