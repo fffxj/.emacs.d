@@ -202,7 +202,7 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
 *** Change "yes or no" to "y or n"
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(fset 'yes-or-no-p 'y-or-n-p)
+  (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 *** Don't show setup message
 
@@ -453,6 +453,30 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
 
 F12 在 my-themes 列表中快速切换主题。
 
+** Windows
+
+内置的 Winner-mode 通过 =C-c <left>= 和 =C-c <right>= 对 windows
+执行 undo 和 redo。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (winner-mode 1)
+#+END_SRC
+** Modeline
+
+[[https://github.com/TeMPOraL/nyan-mode/][Nyan-mode]] 开启后，会有一只拖有彩虹的 Nyan Cat 出现在 mode line 上，
+它会随着光标移动而左右移动，以指示光标在 buffer 中的位置。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package nyan-mode
+      :init
+      (nyan-mode))
+#+END_SRC
+
+为什么显示行号和列号呢？
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (column-number-mode 1)
+#+END_SRC
 ** Fonts
 
 选择一个舒适的字体对于编程着实重要。如果有兴趣的话，你可以参看一下：
@@ -491,3 +515,4 @@ F12 在 my-themes 列表中快速切换主题。
                 (push '("fn" . ?ƒ) prettify-symbols-alist)))
     (global-prettify-symbols-mode +1))
 #+END_SRC
+
