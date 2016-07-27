@@ -410,6 +410,50 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
       (use-package flycheck-haskell
         :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
 #+END_SRC
+** Gdb
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq gdb-many-windows t        ; use gdb-many-windows by default
+        gdb-show-main t)          ; Non-nil means display source file containing the main routine at startup
+#+END_SRC
+** Magit
+
+[[https://github.com/magit/magit][Magit]] 是版本控制系统 [[https://git-scm.com][Git]] 常用命令的接口封装，好用，美观，sweet。
+如果你没听说过 Git，那我推荐你阅读 [[http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000][Git 教程]]，
+来学习一下这个优秀的版本控制系统。当然别忘记安装 Git：
+
+#+BEGIN_SRC shell
+  brew install git
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package magit
+    :ensure t
+    :commands magit-status magit-blame
+    :init
+    ;; full screen magit-status
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
+    
+    :config
+    (setq magit-branch-arguments nil
+          ;; use ido to look for branches
+          magit-completing-read-function 'magit-ido-completing-read
+          ;; don't put "origin-" in front of new branch names by default
+          magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
+          magit-push-always-verify nil
+          ;; Get rid of the previous advice to go into fullscreen
+          magit-restore-window-configuration t)
+
+    :bind ("C-x g" . magit-status))
+#+END_SRC
+
+我将最重要的命令 =magit-status= 绑定至 =C-x g= 。
+
+[[https://www.youtube.com/watch?v%3Dzobx3T7hGNA][Magit Basics]] 将带你初识 Magit，这个视频也很甜。
+
 * Programming language
 ** SML
 
