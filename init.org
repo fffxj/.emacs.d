@@ -75,25 +75,6 @@ Emacs 会在当前文件夹下自动备份文件，弄得混乱不堪，我选�
 #+begin_src emacs-lisp :tangle yes
   (setq make-backup-files nil)
 #+end_src   
-** Auto-fill
-
-[[https://www.emacswiki.org/emacs/AutoFillMode][Auto-fill-mode]] 是一个将过长的行截断并换行的 minor mode，当你输入 =<SPC>= 或
-=<RET>= 会自动换行。
-
-你可能疑惑为什么要保证行数小于 80。虽然在这里我不做解释，但是你可以参考
-stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-valid-reason-for-enforcing-a-maximum-width-of-80-characters-in-a-code][提问]] ，来感受一下。
-
-我尽量使得代码行宽小于 80，事实上有些项目强制如此。
-
-我为 text-mode 和 prog-mode 和它们所有的 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Derived-Modes.html][derived modes]] 开启 auto-fill-mode。
-你可以参看 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fill-Commands.html][Explicit Fill Commands]] 来快速截断 paragraph 和 region。
-				       
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq-default fill-column 79)
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  (add-hook 'prog-mode-hook 'turn-on-auto-fill)
-  (global-set-key (kbd "C-c q") 'auto-fill-mode)
-#+END_SRC
 ** Saveplace
 
 [[https://www.emacswiki.org/emacs/SavePlace][Saveplace]] 让光标记住在文件中的位置。
@@ -156,39 +137,101 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
 
 [[https://github.com/emacs-helm/helm][Helm]] 使得许多事情易于完成，我倾向于用它来取代 ido，为了在尽可能多的地方使用它。
 
+Helm 是我的核心插件之一。一旦你尝试了 Helm，或许你将再也无法离开它。
+了解下面这段配置的使用，将会大大提高你的效率。
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package helm
     :ensure t
+    :diminish ""
     :init
+    (require 'helm)
     (require 'helm-config)
+
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+
+    ;; rebind tab to run persistent action
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+    ;; make TAB works in terminal
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    ;; list actions using C-z
+    (define-key helm-map (kbd "C-z")  'helm-select-action)
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
+
+    (setq helm-split-window-in-side-p           t
+          helm-move-to-line-cycle-in-source     t
+          helm-ff-search-library-in-sexp        t
+          helm-scroll-amount                    8
+          helm-ff-file-name-history-use-recentf t)
+
+    (helm-mode 1)
+
+    :config
+    ;; fuzzy matching
+    (setq helm-recentf-fuzzy-match t
+          helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
+          helm-M-x-fuzzy-match t
+          helm-buffers-fuzzy-matching t
+          helm-semantic-fuzzy-match t
+          helm-apropos-fuzzy-match t
+          helm-imenu-fuzzy-match t
+          helm-lisp-fuzzy-completion t
+          helm-completion-in-region-fuzzy-match t)
+
     :bind (
-           ("C-c h" . helm-command-prefix)
            ("M-x" . helm-M-x)
+           ("M-y" . helm-show-kill-ring)
+
+           ("C-x b" . helm-mini)
+           ("C-x C-b" . helm-buffers-list)
            ("C-x C-f" . helm-find-files)
-           ("C-x b" . helm-buffers-list)
-           ("C-c h o" . helm-occur)
-           :map helm-map
-           ("<tab>" . helm-execute-persistent-action)
-           ("C-i" . helm-execute-persistent-action)
+           ("C-x C-r" . helm-recentf)
+
+           ("C-c s" . helm-swoop)
+           ("C-c o" . helm-occur)
+           
+           ("C-h a" . helm-apropos)
+           ("C-h y" . helm-yas-complete)
+           ("C-h SPC" . helm-all-mark-rings)
+           ("C-h i" . helm-semantic-or-imenu)
+           ("C-h m" . helm-man-woman)
            ))
 #+END_SRC
 
-进阶学习参考: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]]
-
-** Undo-tree
-
-Undo-tree 可以将所有的编辑状态用树状结构在一个 buffer 中显示出来。
-然后我们轻松地可以找到我们需要的状态，甚至可以 diff 不同的状态。
-
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package undo-tree
-    :ensure t
-    :init (global-undo-tree-mode)
-    :diminish undo-tree-mode)
+  (use-package helm-swoop
+    :bind (("M-i" . helm-swoop)
+           ("M-I" . helm-swoop-back-to-last-point)
+           ("C-c M-i" . helm-multi-swoop))
+    :config
+    ;; When doing isearch, hand the word over to helm-swoop
+    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+    ;; From helm-swoop to helm-multi-swoop-all
+    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+    ;; Save buffer when helm-multi-swoop-edit complete
+    (setq helm-multi-swoop-edit-save t
+          ;; If this value is t, split window inside the current window
+          helm-swoop-split-with-multiple-windows t
+          ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
+          helm-swoop-split-direction 'split-window-vertically
+          ;; If nil, you can slightly boost invoke speed in exchange for text color
+          helm-swoop-speed-or-color nil))
 #+END_SRC
 
-C-x u 开启 undo-tree-visualizer-mode 后，n p 上下移动，b f 左右切换子树，t 显示时间戳，
-d 显示 diff， q 退出。
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm-descbinds
+    :bind ("C-h b" . helm-descbinds)
+    :init (fset 'describe-bindings 'helm-descbinds)
+    :config (require 'helm-config))
+#+END_SRC
+
+必看的进阶学习手册：[[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
 
 ** Switch-window
 
@@ -245,12 +288,46 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
 
 *** Tabs vs Spaces
 
-总是使用 =SPC= 缩进而不是 =TAB= 来执行缩紧。
+总是使用 =SPC= 缩进而不是 =TAB= 来执行缩进。
 并且设置缩进为 2 个字符，使代码更紧凑可读。
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq-default indent-tabs-mode nil)
   (setq tab-width 2)
+#+END_SRC
+** Undo-tree
+
+Undo-tree 可以将所有的编辑状态用树状结构在一个 buffer 中显示出来。
+然后我们轻松地可以找到我们需要的状态，甚至可以 diff 不同的状态。
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package undo-tree
+    :ensure t
+    :init (global-undo-tree-mode)
+    :diminish undo-tree-mode)
+#+END_SRC
+
+C-x u 开启 undo-tree-visualizer-mode 后，n p 上下移动，b f 左右切换子树，t 显示时间戳，
+d 显示 diff， q 退出。
+
+** Auto-fill
+
+[[https://www.emacswiki.org/emacs/AutoFillMode][Auto-fill-mode]] 是一个将过长的行截断并换行的 minor mode，当你输入 =<SPC>= 或
+=<RET>= 会自动换行。
+
+你可能疑惑为什么要保证行数小于 80。虽然在这里我不做解释，但是你可以参考
+stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-valid-reason-for-enforcing-a-maximum-width-of-80-characters-in-a-code][提问]] ，来感受一下。
+
+我尽量使得代码行宽小于 80，事实上有些项目强制如此。
+
+我为 text-mode 和 prog-mode 和它们所有的 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Derived-Modes.html][derived modes]] 开启 auto-fill-mode。
+你可以参看 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fill-Commands.html][Explicit Fill Commands]] 来快速截断 paragraph 和 region。
+				       
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default fill-column 79)
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  (add-hook 'prog-mode-hook 'turn-on-auto-fill)
+  (global-set-key (kbd "C-c q") 'auto-fill-mode)
 #+END_SRC
 ** Expand-region
 
@@ -389,7 +466,7 @@ Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中
 #+END_SRC
 
 在键入几个字母后会开启 Company，M-n 和 M-p 选择，<RET> 或 <TAB> 完成补全。
-* Programming
+* Programming Tools
 ** Flycheck
 
 [[https://github.com/flycheck/flycheck][Flycheck]] 非常重要的插件，支持大多数动态语言的语法检查。
@@ -518,7 +595,7 @@ F12 在 my-themes 列表中快速切换主题。
       (nyan-mode))
 #+END_SRC
 
-为什么显示行号和列号呢？
+为什么不显示行号和列号呢？
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (column-number-mode 1)
