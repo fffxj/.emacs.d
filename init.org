@@ -2,6 +2,111 @@
 #+AUTHOR: Xiaojie Feng
 #+EMAIL: fengxiaojie1997@gmail.com
 
+* Basics
+** General userinterface and appearance
+*** Messages
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq inhibit-startup-message t)        ; No message at startup
+  (setq visible-bell t)                   ; No beep when reporting errors
+#+END_SRC
+*** Bars
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (tool-bar-mode -1)                      ; No toolbar
+  (menu-bar-mode -1)                      ; No menubar
+  (scroll-bar-mode -1)                    ; No scrollbar
+#+END_SRC
+*** Modeline
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (line-number-mode 1)                    ; Display the current line number
+  (column-number-mode 1)                  ; Display the current column number
+#+END_SRC
+*** Highlight
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-font-lock-mode 1)               ; Syntax highlight
+  (global-hl-line-mode 1)                 ; Highlight cursor line
+#+END_SRC
+** Files and sessions
+*** Files
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq auto-save-timeout 60)             ; Autosave every minute
+  (setq make-backup-files nil)            ; No backup files ~
+#+END_SRC
+*** Sessions
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq confirm-kill-emacs 'yes-or-no-p)  ; Confirm quit
+#+END_SRC
+** Cursor and mouse
+*** Cursor
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (blink-cursor-mode 0)                   ; No blinking cursor
+#+END_SRC
+*** Mouse
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq make-pointer-invisible t)         ; Hide the mouse while typing
+#+END_SRC
+** Buffers and windows
+*** Frames
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq frame-title-format "%b - emacs")  ; Use buffer name as frame title
+#+END_SRC
+*** Buffers
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+
+#+END_SRC
+*** Windows
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (windmove-default-keybindings)          ; Shift arrows switch windows
+#+END_SRC
+** Tabs, spaces, lines and parenthesis
+*** Tabs
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default indent-tabs-mode nil)     ; Use spaces instead of tabs
+  (setq tab-width 2)                      ; Length of tab is 2 SPC
+#+END_SRC
+*** Spaces
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq sentence-end-double-space nil)    ; Sentences end with one space
+#+END_SRC
+*** Lines
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq require-final-newline 't)                  ; Always newline at end of file
+  (global-set-key (kbd "RET") 'newline-and-indent) ; RET always auto index
+#+END_SRC
+*** Parenthesis
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (show-paren-mode 1)                      ; Highlight parenthesis pairs
+  (setq blink-matching-paren-distance nil) ; Blinking parenthesis
+  (setq show-paren-style 'expression)      ; Highlight text between parenthesis
+#+END_SRC
+** Key bindings
+
+Define mnemonic key bindings for moving to ‘M-x compile’ and ‘M-x grep’
+matches.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "C-c n") 'next-error)    
+  (global-set-key (kbd "C-c p") 'previous-error) 
+#+END_SRC
+** Miscellaneous
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
+#+END_SRC
 * Package Manager
 ** ELPA
 
@@ -400,7 +505,7 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
     
     (use-package helm-flyspell
       :init
-      (define-key flyspell-mode-map (kbd "M-s") 'helm-flyspell-correct)))
+      (define-key flyspell-mode-map (kbd "C-c s") 'helm-flyspell-correct)))
 #+END_SRC
 
 =~/.aspell.en.pws= 是个人字典的配置文件，Aspell 会自动生成。
@@ -638,4 +743,3 @@ F12 在 my-themes 列表中快速切换主题。
                 (push '("fn" . ?ƒ) prettify-symbols-alist)))
     (global-prettify-symbols-mode +1))
 #+END_SRC
-
