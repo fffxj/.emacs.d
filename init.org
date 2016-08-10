@@ -2,119 +2,85 @@
 #+AUTHOR: Xiaojie Feng
 #+EMAIL: fengxiaojie1997@gmail.com
 
-* Basics
-** General userinterface and appearance
-*** Messages
+* About
+** My Emacs Init File
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq inhibit-startup-message t)        ; No message at startup
-  (setq visible-bell t)                   ; No beep when reporting errors
+This is my emacs init file. I’ve written it in a literate style, to make it
+easy to explain. The notes also include hyperlinks to where I stole it. ;-)
+
+This document is available as an org file which you can load in Emacs and
+tangle with =C-c C-v C-t= which will create org-mode.el in the same directory as
+the org-mode.org file. This will extract all of the elisp examples in this
+document into a file you can include in your .emacs file. 
+
+#+BEGIN_SRC org
+Time-stamp: <2016-08-03 Wed>
+Author: Xiaojie Feng
+Keywords: emacs, dotfile, config
+
+   ___ _ __ ___   __ _  ___ ___
+  / _ \ '_ ` _ \ / _` |/ __/ __|
+ |  __/ | | | | | (_| | (__\__ \
+(_)___|_| |_| |_|\__,_|\___|___/
 #+END_SRC
-*** Bars
+** License
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (tool-bar-mode -1)                      ; No toolbar
-  (menu-bar-mode -1)                      ; No menubar
-  (scroll-bar-mode -1)                    ; No scrollbar
-#+END_SRC
-*** Modeline
+#+BEGIN_EXAMPLE
+Copyright (C)  2016  Xiaojie Feng.
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (line-number-mode 1)                    ; Display the current line number
-  (column-number-mode 1)                  ; Display the current column number
-#+END_SRC
-*** Highlight
+Code in this document is free software: you can redistribute it
+and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either
+version 3 of the License, or (at your option) any later version.
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (global-font-lock-mode 1)               ; Syntax highlight
-  (global-hl-line-mode 1)                 ; Highlight cursor line
-#+END_SRC
-** Files and sessions
-*** Files
+This code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+#+END_EXAMPLE
+** Commentary
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq auto-save-timeout 60)             ; Autosave every minute
-  (setq make-backup-files nil)            ; No backup files ~
-#+END_SRC
-*** Sessions
+#+BEGIN_EXAMPLE
+"Show me your ~/.emacs and I will tell you who you are."
+                                                         [Bogdan Maryniuk]
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq confirm-kill-emacs 'yes-or-no-p)  ; Confirm quit
-#+END_SRC
-** Cursor and mouse
-*** Cursor
+"Emacs is like a laser guided missile. It only has to be slightly 
+mis-configured to ruin your whole day."
+                                                            [Sean McGrath]
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (blink-cursor-mode 0)                   ; No blinking cursor
-#+END_SRC
-*** Mouse
+"While any text editor can save your files, only Emacs can save your
+soul."
+                                                          [Per Abrahamsen]
+#+END_EXAMPLE
+** How to use
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq make-pointer-invisible t)         ; Hide the mouse while typing
-#+END_SRC
-** Buffers and windows
-*** Frames
+If you're new to Emacs Lisp, you probably don't want to copy and paste large
+chunks of this code. Instead, copy small parts of it (always making sure to
+copy a complete set of parentheses) into your =*scratch*= buffer or some other
+buffer in =emacs-lisp-mode=. Use =M-x eval-buffer= to evaluate the code and see
+if you like the way that Emacs behaves. See [[https://www.gnu.org/software/emacs/manual/html_mono/eintr.html][An Introduction to Programming in
+Emacs Lisp]] for more details on Emacs Lisp. You can also find the manual by
+using =C-h i= (info) and choosing "Emacs Lisp Intro". 
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq frame-title-format "%b - emacs")  ; Use buffer name as frame title
-#+END_SRC
-*** Buffers
+This document is available as an org file which you can load in Emacs and
+tangle with =C-c C-v C-t= which will create org-mode.el in the same directory as
+the org-mode.org file. This will extract all of the elisp examples in this
+document into a file you can include in your .emacs file. 
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-
-#+END_SRC
-*** Windows
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (windmove-default-keybindings)          ; Shift arrows switch windows
-#+END_SRC
-** Tabs, spaces, lines and parenthesis
-*** Tabs
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq-default indent-tabs-mode nil)     ; Use spaces instead of tabs
-  (setq tab-width 2)                      ; Length of tab is 2 SPC
-#+END_SRC
-*** Spaces
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq sentence-end-double-space nil)    ; Sentences end with one space
-#+END_SRC
-*** Lines
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq require-final-newline 't)                  ; Always newline at end of file
-  (global-set-key (kbd "RET") 'newline-and-indent) ; RET always auto index
-#+END_SRC
-*** Parenthesis
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (show-paren-mode 1)                      ; Highlight parenthesis pairs
-  (setq blink-matching-paren-distance nil) ; Blinking parenthesis
-  (setq show-paren-style 'expression)      ; Highlight text between parenthesis
-#+END_SRC
-** Key bindings
-
-Define mnemonic key bindings for moving to ‘M-x compile’ and ‘M-x grep’
-matches.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (global-set-key (kbd "C-c n") 'next-error)    
-  (global-set-key (kbd "C-c p") 'previous-error) 
-#+END_SRC
-** Miscellaneous
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
-#+END_SRC
-* Package Manager
+* Package Initialization
 ** ELPA
 
-Emacs24 之后， Emacs就像其他操作系统一样有了自己的包管理工具，如内置的 [[https://www.emacswiki.org/emacs/ELPA][ELPA(package.el)]]
-，[[https://github.com/dimitri/el-get][El-Get]] ，可以使得下载插件非常方便，还能够带着一份配置文件走天下了。
+Starting with emacs 24, it comes with a package system called [[https://www.emacswiki.org/emacs/ELPA][ELPA]] (Emacs Lisp
+Package Archive). It make the task of installing, update and removing easier,
+as well as inform users new packages created by the community.  
 
-ELPA 具有了自己的 repository，但是它有些保守。因此，我们还要再添加几个的软件源。
-如果你没有使用过 package，现在就用它吧。你所要做的只是如下这样：
+Emacs gets a list of packages from sources, called package archive. Package
+archive is the same as repository in Linux. =package.el= supports multiple ELPA
+repositories. we need to add more repositories to get all the sweet goodness.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'package)
@@ -122,16 +88,16 @@ ELPA 具有了自己的 repository，但是它有些保守。因此，我们还�
   (setq package-archives
 	'(("gnu" . "https://elpa.gnu.org/packages/")
 	  ("org" . "http://orgmode.org/elpa/")
-	  ("melpa" . "https://melpa.org/packages/")
-	  ("popkit" . "http://elpa.popkit.org/packages/")))
+	  ("melpa" . "https://melpa.org/packages/")))
 
   (package-initialize)
   (setq package-enable-at-startup nil)
 #+END_SRC
 ** Use-package
 
-[[https://github.com/jwiegley/use-package][Use-package]] 也是一个好东西，提供分离配置和提高整洁度的宏，
-它还能确保软件包的安装，并提高启动速度。
+This [[https://github.com/jwiegley/use-package][use-package]] macro provides more concise ways to setup package autoloads,
+keybindings, and various mode configuration. The focus is on decreasing startup
+time by autoloading packages instead loading them on startup. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (unless (package-installed-p 'use-package)
@@ -146,23 +112,32 @@ ELPA 具有了自己的 repository，但是它有些保守。因此，我们还�
 
   (setq load-prefer-newer t)
 #+END_SRC
-* Basic Settings
+* General settings
 ** Personal Information
 
-一些关于我的个人信息。
+Some personal information about me.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq user-full-name "Xiaojie Feng"
         user-mail-address "fengxiaojie1997@gmail.com")
 #+END_SRC
-** Library
+** My Directory Location
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package dash)
+  (defconst xj-cache-dir (expand-file-name "~/.emacs.d/cache/")
+    "dir with volatile data")
+  (defconst xj-data-dir  (expand-file-name "~/.emacs.d/data/")
+    "dir for user data")
 #+END_SRC
-** Exec-path-from-shell
+** Paths
 
-[[https://github.com/purcell/exec-path-from-shell][Exec-path-from-shell]] 可以使得环境变量同用户 shell 中的一致。
+Ever find that a command works in your shell, but not in Emacs?
+
+This happens a lot on OS X, where an Emacs instance started from the GUI
+inherits a default set of environment variables. 
+
+[[https://github.com/purcell/exec-path-from-shell][Exec-path-from-shell]] is a GNU Emacs library to ensure environment variables
+inside Emacs look the same as in the user's shell. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package exec-path-from-shell
@@ -172,78 +147,165 @@ ELPA 具有了自己的 repository，但是它有些保守。因此，我们还�
       (when (memq window-system '(mac ns))
         (exec-path-from-shell-initialize))))
 #+END_SRC
-** Backups
+** Library
 
-自动备份，这可能是大多数人最想首先更改的一项了吧。
-Emacs 会在当前文件夹下自动备份文件，弄得混乱不堪，我选择把它关掉。
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package dash)
+#+END_SRC
+* Basics settings
+** General userinterface and appearance
 
-#+begin_src emacs-lisp :tangle yes
-  (setq make-backup-files nil)
-#+end_src   
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Messages
+  (setq inhibit-startup-message t)        ; No message at startup
+  (setq ring-bell-function (lambda ()))   ; No beep when reporting errors
+
+  ;; Frames
+  (setq frame-title-format "%b - emacs")  ; Use buffer name as frame title
+
+  ;; Bars
+  (tool-bar-mode -1)                      ; No toolbar
+  (menu-bar-mode -1)                      ; No menubar
+  (scroll-bar-mode -1)                    ; No scrollbar
+
+  ;; Modeline
+  (line-number-mode 1)                    ; Display the current line number
+  (column-number-mode 1)                  ; Display the current column number
+
+  ;; Highlight
+  (global-font-lock-mode 1)               ; Syntax highlight
+  (global-hl-line-mode 1)                 ; Highlight cursor line
+#+END_SRC
+** Files and sessions
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Files
+  (setq auto-save-timeout 60)             ; Autosave every minute
+  (setq make-backup-files nil)            ; No backup files ~
+
+  ;; Sessions
+  (setq confirm-kill-emacs 'yes-or-no-p)  ; Confirm quit
+#+END_SRC
+** Cursor and mouse
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Cursor
+  (blink-cursor-mode 0)                   ; No blinking cursor
+
+  ;; Mouse
+  (setq make-pointer-invisible t)         ; Hide the mouse while typing
+#+END_SRC
+** Buffers and windows
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Windows
+  (windmove-default-keybindings)          ; Shift arrows switch windows
+#+END_SRC
+** Tabs, spaces, lines and parenthesis
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Tabs
+  (setq-default indent-tabs-mode nil)     ; Use spaces instead of tabs
+  (setq tab-width 2)                      ; Length of tab is 2 SPC
+
+  ;; Spaces
+  (setq sentence-end-double-space nil)    ; Sentences end with one space
+
+  ;; Lines
+  (setq require-final-newline 't)                  ; Always newline at end of file
+  (global-set-key (kbd "RET") 'newline-and-indent) ; New lines are always indented
+
+  ;; Parenthesis
+  (show-paren-mode 1)                      ; Highlight parenthesis pairs
+  (setq blink-matching-paren-distance nil) ; Blinking parenthesis
+  (setq show-paren-style 'expression)      ; Highlight text between parenthesis
+#+END_SRC
+** Key bindings
+
+Define mnemonic key bindings for moving to ‘M-x compile’ and ‘M-x grep’
+matches.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "C-c n") 'next-error)    
+  (global-set-key (kbd "C-c p") 'previous-error) 
+
+  (global-set-key (kbd "C-x m") 'eshell)
+#+END_SRC
+** Miscellaneous
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Alias
+  (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
+#+END_SRC
+* Useful settings
+** Uniquify
+
+With [[https://www.emacswiki.org/emacs/uniquify][uniquify]], buffers visiting "/u/mernst/tmp/Makefile" and
+"/usr/projects/zaphod/Makefile" would be named "Makefile|tmp" and
+"Makefile|zaphod" or other style, respectively (instead of “Makefile” and
+“Makefile<2>”). 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+#+END_SRC
+* Persistence
+** Bookmarks
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; `C-x r m' – set a bookmark at the current location (e.g. in a file)
+  ;; ‘C-x r b' – jump to a bookmark
+  ;; `C-x r l' – list your bookmarks
+  ;; `M-x bookmark-delete' – delete a bookmark by name
+
+  (setq bookmark-default-file "~/.emacs.d/bookmarks")
+  (setq bookmark-save-flag 1)             ; autosave each change
+#+END_SRC
+** Recentf
+
+=Recentf= is a minor mode that builds a list of recently opened files. This
+list is automatically saved across sessions on exiting Emacs - you can then
+access this list through a command or the menu.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (require 'recentf)
+  (setq recentf-max-saved-items 200
+        recentf-max-menu-items 15)
+  (recentf-mode)
+#+END_SRC
 ** Saveplace
 
-[[https://www.emacswiki.org/emacs/SavePlace][Saveplace]] 让光标记住在文件中的位置。
+When you visit a file, point goes to the last place where it was when you
+previously visited the same file.  
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'saveplace)
   (setq-default save-place t)
   (setq save-place-file (concat user-emacs-directory ".saveplace"))
 #+END_SRC
-** Recentf
+** Savehist
 
-现代编辑器或 IDE 能够打开最近文件或项目，emacs 能如此，内置包 [[https://www.emacswiki.org/emacs/RecentFiles][Recentf]]，
-保存最近操作过的文件，得以快速打开。
-
-下面的代码来自 [[https://www.masteringemacs.org/article/find-files-faster-recent-files-package][masteremacs]] ，绑定了 =ido= 和 =recentf= 。
+By default, =Savehist= mode saves only your minibuffer histories, but you can
+optionally save other histories and other variables as well.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(require 'recentf)
-
-;; get rid of `find-file-read-only' and replace it with something
-;; more useful.
-(global-set-key (kbd "C-x C-r") 'ido-recentf-open)
-
-;; enable recent files mode.
-(recentf-mode t)
-
-; 50 files ought to be enough.
-(setq recentf-max-saved-items 50)
-
-(defun ido-recentf-open ()
-  "Use `ido-completing-read' to \\[find-file] a recent file"
-  (interactive)
-  (if (find-file (ido-completing-read "Find recent file: " recentf-list))
-      (message "Opening file...")
-    (message "Aborting")))
+  (setq savehist-file "~/.emacs.d/savehist")
+  (savehist-mode 1)
+  (setq history-length t)
+  (setq history-delete-duplicates t)
+  (setq savehist-save-minibuffer-history 1)
+  (setq savehist-additional-variables
+        '(kill-ring
+          search-ring
+          regexp-search-ring))
 #+END_SRC
-** Uniquify
+* Helm
 
-当打开两个同名文件时，emacs 在文件名后附加"<1>"，"<2>"以示区分。
-默认的这种方式并不好，因此 emacs 提供 [[https://www.emacswiki.org/emacs/uniquify][Uniquify]] ，
-可以通过文件路径来区别不同的 buffers。
+[[https://github.com/emacs-helm/helm][Helm]] makes it easy to complete various things. I find it to be easier to
+configure than ido in order to get completion in as many places as possible,
+although I prefer ido's way of switching buffers.
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'uniquify)
-  (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
-#+END_SRC
-** UTF-8
-
-总是使用 UTF-8 编码。
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (prefer-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (setq default-buffer-file-coding-system 'utf-8)
-#+END_SRC
-* Interface Enhancement
-** Helm
-
-[[https://github.com/emacs-helm/helm][Helm]] 使得许多事情易于完成，我倾向于用它来取代 ido，为了在尽可能多的地方使用它。
-
-Helm 是我的核心插件之一。一旦你尝试了 Helm，或许你将再也无法离开它。
-了解下面这段配置的使用，将会大大提高你的效率。
+l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package helm
@@ -308,6 +370,9 @@ Helm 是我的核心插件之一。一旦你尝试了 Helm，或许你将再也�
            ("C-h m" . helm-man-woman)
            ))
 #+END_SRC
+** Helm-swoop
+
+This promises to be a fast way to find things.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package helm-swoop
@@ -329,93 +394,55 @@ Helm 是我的核心插件之一。一旦你尝试了 Helm，或许你将再也�
           helm-swoop-speed-or-color nil))
 #+END_SRC
 
+** Helm-describe
+
+Helm Descbinds provides an interface to emacs’ describe-bindings making the
+currently active key bindings interactively searchable with helm. 
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package helm-descbinds
     :bind ("C-h b" . helm-descbinds)
     :init (fset 'describe-bindings 'helm-descbinds)
     :config (require 'helm-config))
 #+END_SRC
-
-必看的进阶学习手册：[[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
-
+* Navigation
 ** Switch-window
 
-Switch-window 替代原有的 =C-x o= ，可以更加效率地在多个窗口中切换。
+A visual replacement for =C-x o=.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package switch-window
   :bind (("C-x o" . switch-window)))
 #+end_src
-** Misc
-*** Change "yes or no" to "y or n"
+** Ace-jump
+
+[[https://github.com/winterTTr/ace-jump-mode][Ace-jump-mode]] is a minor mode for Emacs, enabling fast/direct cursor movement
+in current view. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (fset 'yes-or-no-p 'y-or-n-p)
-#+END_SRC
-*** Don't show setup message
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-(setq inhibit-startup-message t
-      initial-major-mode 'fundamental-mode)
-#+END_SRC
-*** Don't beep
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq ring-bell-function (lambda ()))
-#+END_SRC
-*** Turn off some mode
-
-关闭一些无用的模式，以免浪费宝贵的屏幕空间。
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (when (functionp 'menu-bar-mode)
-    (menu-bar-mode -1))
-  (when (functionp 'set-scroll-bar-mode)
-    (set-scroll-bar-mode 'nil))
-  (when (functionp 'mouse-wheel-mode)
-    (mouse-wheel-mode -1))
-  (when (functionp 'tooltip-mode)
-    (tooltip-mode -1))
-  (when (functionp 'tool-bar-mode)
-    (tool-bar-mode -1))
-  (when (functionp 'blink-cursor-mode)
-    (blink-cursor-mode -1))
+  (use-package ace-jump-mode
+    :defer t
+    :bind (("C-c SPC" . ace-jump-word-mode)
+           ("C-c M-SPC" . ace-jump-line-mode)))
 #+END_SRC
 * Editing
-** Basic settings
-*** Return and newline
+** Unicode
+*** UTF-8
 
-=RET= 之后立即缩进代码。
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (global-set-key (kbd "RET") 'newline-and-indent)
-#+END_SRC
-
-*** Tabs vs Spaces
-
-总是使用 =SPC= 缩进而不是 =TAB= 来执行缩进。
-并且设置缩进为 2 个字符，使代码更紧凑可读。
+Always, always UTF-8.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq-default indent-tabs-mode nil)
-  (setq tab-width 2)
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8)
 #+END_SRC
-** Undo-tree
-
-Undo-tree 可以将所有的编辑状态用树状结构在一个 buffer 中显示出来。
-然后我们轻松地可以找到我们需要的状态，甚至可以 diff 不同的状态。
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package undo-tree
-    :ensure t
-    :init (global-undo-tree-mode)
-    :diminish undo-tree-mode)
-#+END_SRC
-
-C-x u 开启 undo-tree-visualizer-mode 后，n p 上下移动，b f 左右切换子树，t 显示时间戳，
-d 显示 diff， q 退出。
-
-** Auto-fill
+** Alignment
+** Indentation
+** Comments
+** Filling
+*** Auto-fill
 
 [[https://www.emacswiki.org/emacs/AutoFillMode][Auto-fill-mode]] 是一个将过长的行截断并换行的 minor mode，当你输入 =<SPC>= 或
 =<RET>= 会自动换行。
@@ -432,19 +459,31 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
   (setq-default fill-column 79)
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
   (add-hook 'prog-mode-hook 'turn-on-auto-fill)
+
   (global-set-key (kbd "C-c q") 'auto-fill-mode)
 #+END_SRC
-** Expand-region
+*** Unfilling Paragraph
 
-[[https://github.com/magnars/expand-region.el][Expand-region]] 根据语法单元快速扩展选中的区域。[[[http://emacsrocks.com/e09.html][Video]]]
+Unfilling a paragraph joins all the lines in a paragraph into a single line. 
+Taken from [[https://www.emacswiki.org/emacs/UnfillParagraph][here]].
+
+It works where a line ends with a newline character (”\n”) and paragraphs are
+separated by blank lines. To make a paragraph end in a single newline then use
+the function below:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package expand-region
-    :defer t
-    :bind (("C-=" . er/expand-region)
-           ("C--" . er/contract-region)))
+  (defun unfill-paragraph (&optional region)
+    "Takes a multi-line paragraph and makes it into a single line of text."
+    (interactive (progn (barf-if-buffer-read-only) '(t)))
+    (let ((fill-column (point-max))
+          ;; This would override `fill-column' if it's an integer.
+          (emacs-lisp-docstring-fill-column t))
+      (fill-paragraph nil region)))
+
+  (define-key global-map "\M-Q" 'unfill-paragraph)
 #+END_SRC
-** Multiple-cursors
+** Cursors
+*** Multiple-cursors
 
 [[https://github.com/magnars/multiple-cursors.el][Multiple-cursors]] 一个相当惊艳的多点编辑插件。可以看一下作者的[[http://emacsrocks.com/e13.html][视频介绍]]。
 
@@ -459,28 +498,39 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
            ("C-c c e" . mc/edit-ends-of-lines)
            ("C-c c a" . mc/edit-beginnings-of-lines)))
 #+END_SRC
-** Ace-jump
-
-[[https://github.com/winterTTr/ace-jump-mode][Ace-jump-mode]] 光标快速跳转。 =C-c <SPC>= 执行单词跳转，
-=C-c M-<SPC>= 进行行跳转。
+** Parentheses
+*** Rainbow-delimiters
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package ace-jump-mode
-    :defer t
-    :bind (("C-c SPC" . ace-jump-word-mode)
-           ("C-c M-SPC" . ace-jump-line-mode)))
+  (use-package rainbow-delimiters
+    :init (rainbow-delimiters-mode +1))
 #+END_SRC
-** Flyspell
+** Region
+*** Expand-region
 
-我喜欢用 [[https://www.emacswiki.org/emacs/FlySpell][Flyspell]] 进行拼写检查。并使用 ASpell 作为拼写检查工具。
+[[https://github.com/magnars/expand-region.el][Expand-region]] is something I have to get the hang of too. It gradually expands the
+selection. Handy for Emacs Lisp. [[[http://emacsrocks.com/e09.html][Video]]]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package expand-region
+    :defer t
+    :bind (("C-=" . er/expand-region)
+           ("C--" . er/contract-region)))
+#+END_SRC
+** Spelling
+*** Flyspell
+
+I like spell checking with [[https://www.emacswiki.org/emacs/FlySpell][Flyspell]], which uses the built-in spell-check
+settings of ispell. 
+
+The ASpell project is better supported than ispell.
 
 #+BEGIN_SRC shell
   brew install aspell
 #+END_SRC
 
-为 text-mode 和 prog-mode 启用拼写检查，并忽略少于 3 个字符的单词。
-基于 [[https://github.com/pronobis/helm-flyspell][Helm-flyspell]] 的 =M-s= 命令，列出正确的备选单词列表，然后替换错误单词，
-也可以将原单词收入个人字典，之后将视为拼写正确。
+ASpell automatically configures a personal dictionary at =~/.aspell.en.pws=, so
+no need to configure that. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package flyspell
@@ -505,21 +555,106 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
     
     (use-package helm-flyspell
       :init
-      (define-key flyspell-mode-map (kbd "C-c s") 'helm-flyspell-correct)))
+      (define-key flyspell-mode-map (kbd "M-S") 'helm-flyspell-correct)))
 #+END_SRC
+** Templates
+*** Abbrev
 
-=~/.aspell.en.pws= 是个人字典的配置文件，Aspell 会自动生成。
-* Auto Completion
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; sample use of emacs abbreviation feature
+
+  (define-abbrev-table 'global-abbrev-table '(
+
+      ;; math/unicode symbols
+      ("8in" "∈")
+      ("8nin" "∉")
+      ("8inf" "∞")
+      ("8luv" "♥")
+      ("8smly" "☺")
+
+      ;; email
+      ("8me" "fengxiaojie1997@gmail.com")
+
+      ;; computing tech
+      ("8wp" "Wikipedia")
+      ("8ms" "Microsoft")
+      ("8g" "Google")
+      ("8win" "Windows")
+
+      ;; normal english words
+      ("8alt" "alternative")
+      ("8char" "character")
+      ("8def" "definition")
+      ("8bg" "background")
+      ("8kb" "keyboard")
+      ("8ex" "example")
+      ("8kbd" "keybinding")
+      ("8env" "environment")
+      ("8var" "variable")
+      ("8ev" "environment variable")
+      ("8cp" "computer")
+
+      ;; signature
+      ("8xj" "Xiaojie Feng")
+
+      ;; url
+
+      ;; emacs regex
+      ("8d" "\\([0-9]+?\\)")
+      ("8str" "\\([^\"]+?\\)\"")
+
+      ;; shell commands
+      ("8ditto" "ditto -ck --sequesterRsrc --keepParent src dest")
+      ("8im" "convert -quality 85% ")
+
+      ("8f0" "find . -type f -size 0 -exec rm {} ';'")
+      ("8rsync" "rsync -z -r -v -t --exclude=\"*~\" --exclude=\".DS_Store\" --exclude=\".bash_history\" --exclude=\"**/xx_xahlee_info/*\"  --exclude=\"*/_curves_robert_yates/*.png\" --exclude=\"logs/*\"  --exclude=\"xlogs/*\" --delete --rsh=\"ssh -l xah\" ~/web/ xah@example.com:~/")
+      ))
+
+  ;; stop asking whether to save newly added abbrev when quitting emacs
+  (setq save-abbrevs nil)
+
+  ;; turn on abbrev mode globally
+  (setq-default abbrev-mode t)
+#+END_SRC
+*** Yasnippet
+
+[[https://github.com/joaotavora/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an abbreviation
+and automatically expand it into function templates. 
+
+Bundled language templates includes: C, C++, C#, Perl, Python, Ruby, SQL,
+LaTeX, HTML, CSS and more. You can define your own template set. The template
+system is simple plain text based. You do not need to know emacs lisp. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package yasnippet
+    :diminish t  
+    :init (yas-global-mode 1))
+#+END_SRC
+** Undo
+*** Undo-tree
+
+[[http://www.dr-qubit.org/undo-tree/undo-tree.el][undo-tree-mode]] treats undo history as a branching tree of changes, similar to
+the way Vim handles it. This makes it substantially easier to undo and redo any
+change, while preserving the entire history of past states.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package undo-tree
+      :diminish undo-tree-mode
+      :init (global-undo-tree-mode)
+      :config
+      (progn
+        (setq undo-tree-visualizer-timestamps t)
+        (setq undo-tree-visualizer-diff t)))
+#+END_SRC
+* Completion
 ** Hippie-expand
 
-[[https://www.emacswiki.org/emacs/HippieExpand][Hippie-expand]] 是一个小而强大的内置补全功能，它根据一个优先列表来进行补全，
-这是说，首先使用当前的 buffer 补全，如果找不到，就到别的可见的窗口里寻找， 
-如果还找不到，再到所有打开的 buffer ，kill-ring，文件名，简称列表 ...
-中寻找。
-
-特别有意思的是 try-expand-line，可以补全整整一行文字。
-有时两行文字大致相同，只有几个字不一样，如果懒得去拷贝粘贴，
-那么就可以输入这行文字的前面几个字，然后按两下 =M-/= 就能得到那一行。
+=Hippie-expand= looks at the word before point and tries to expand it in
+various ways including expanding from a fixed list (like =`expand-abbrev’=),
+expanding from matching text found in a buffer (like =`dabbrev-expand’=) or
+expanding in ways defined by your own functions. Which of these it tries and in
+what order is controlled by a configurable list of functions.  
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (global-set-key (kbd "M-/") 'hippie-expand)
@@ -536,32 +671,23 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
      try-complete-lisp-symbol-partially
      try-complete-lisp-symbol))
 #+END_SRC
-** Yasnippet
-
-[[https://github.com/joaotavora/yasnippet][Yasnippet]] 是一个非常强大的模板补全扩展，键入几个字母就能完成补全，
-还能轻松定制自己的模板。
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package yasnippet
-      :init
-      (yas-global-mode 1)
-      :diminish t)
-#+END_SRC
-
-使用 <TAB> 完成补全。
 ** Company
 
-[[https://company-mode.github.io][Company]] 意为 "company anything"，它能满足我绝大部分的补全需要，
+[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete
+anything". It uses pluggable back-ends and front-ends to retrieve and display
+completion candidates. 
+
+It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
+Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags, files, 
+keywords and a few others. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package company
-      :ensure t
-      :init
-      (add-hook 'after-init-hook 'global-company-mode)
-      :diminish company-mode)
+  (use-package company
+    :ensure t
+    :diminish company-mode
+    :init
+    (add-hook 'after-init-hook 'global-company-mode))
 #+END_SRC
-
-利用 [[https://github.com/expez/company-quickhelp][company-quickhelp]] ，可以增加适当的延迟。它依赖 [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][top-tip]] 。
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package company-quickhelp
@@ -569,8 +695,6 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
     :config
     (company-quickhelp-mode 1))
 #+END_SRC
-
-在键入几个字母后会开启 Company，M-n 和 M-p 选择，<RET> 或 <TAB> 完成补全。
 * Programming Tools
 ** Flycheck
 
@@ -594,13 +718,24 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
       (use-package flycheck-haskell
         :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
 #+END_SRC
+** Compilation
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq
+    compilation-scroll-output 'first-error      ;; scroll until first error
+    compilation-read-command nil                ;; don't need enter
+    compilation-window-height 12                ;; keep it readable
+    compilation-auto-jump-to-first-error t      ;; jump to first error auto
+    compilation-auto-jump-to-next-error t)      ;; jump to next error
+#+END_SRC
 ** Gdb
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq gdb-many-windows t        ; use gdb-many-windows by default
         gdb-show-main t)          ; Non-nil means display source file containing the main routine at startup
 #+END_SRC
-** Magit
+** Git
+*** Magit
 
 [[https://github.com/magit/magit][Magit]] 是版本控制系统 [[https://git-scm.com][Git]] 常用命令的接口封装，好用，美观，sweet。
 如果你没听说过 Git，那我推荐你阅读 [[http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000][Git 教程]]，
@@ -638,18 +773,31 @@ stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-vali
 
 [[https://www.youtube.com/watch?v%3Dzobx3T7hGNA][Magit Basics]] 将带你初识 Magit，这个视频也很甜。
 
+*** Git-messenger
+
+#+begin_src emacs-lisp :tangle no
+(use-package git-messenger
+  :bind (("C-x v m" . git-messenger:popup-message)))
+#+end_src
 * Programming language
 ** SML
-
-因华盛顿大学的 Programming Language 使用SML语言教学，而配置。
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package sml-mode)
   (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
   (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
 #+END_SRC
-* Appearance
+* Display
+** Full Screen
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
+#+END_SRC
 ** Color Theme
+
+[[http://ethanschoonover.com/solarized][Solarized]] is my favourite color theme. it is available for multiple
+applications, not only for emacs. I'll set this as the default theme for
+my color theme.
 
 From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-24/23794179#23794179][stackoverflow]]
 
@@ -678,41 +826,25 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
   (setq curr-theme my-themes)
   (load-theme (car curr-theme) t)
 #+END_SRC
-
-F12 在 my-themes 列表中快速切换主题。
-
-** Windows
-
-内置的 Winner-mode 通过 =C-c <left>= 和 =C-c <right>= 对 windows
-执行 undo 和 redo。
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (winner-mode 1)
-#+END_SRC
 ** Modeline
+*** Nyan-mode
 
-[[https://github.com/TeMPOraL/nyan-mode/][Nyan-mode]] 开启后，会有一只拖有彩虹的 Nyan Cat 出现在 mode line 上，
-它会随着光标移动而左右移动，以指示光标在 buffer 中的位置。
+Let [[https://en.wikipedia.org/wiki/Nyan_Cat][Nyan Cat]] show you your buffer position in mode line.
+
+Now with the ability to scroll the buffer by clicking on the Nyan Cat’s rainbow
+and the space in front of it. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
     (use-package nyan-mode
       :init
       (nyan-mode))
 #+END_SRC
-
-为什么不显示行号和列号呢？
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (column-number-mode 1)
-#+END_SRC
 ** Fonts
 
-选择一个舒适的字体对于编程着实重要。如果有兴趣的话，你可以参看一下：
-[[http://hivelogic.com/articles/top-10-programming-fonts/][Top 10 Programming Fonts]] 或 [[https://www.sitepoint.com/top-10-programming-fonts/][10 of the Best Programming Fonts]]
-以感受一下不同的字体。
+Choosing a good and comfortable font is quite important in your whole coding
+life.
 
-我比较钟爱 Monaco ，Mac 自带的字体之一。
-中文字体选用文泉驿等宽微米黑，Google 安装之即可。
+I prefer Monaco. And, as a Chinese, l choose WenQuanYi for Chinese charset.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (when (eq system-type 'darwin)
@@ -731,9 +863,9 @@ F12 在 my-themes 列表中快速切换主题。
 #+END_SRC
 ** Symbols
 
-美化符号显示。
+Prettify all the symbols, if available (an Emacs 24.4 feature):
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
   (when (boundp 'global-prettify-symbols-mode)
     (add-hook 'emacs-lisp-mode-hook
               (lambda ()
@@ -742,4 +874,302 @@ F12 在 my-themes 列表中快速切换主题。
               (lambda ()
                 (push '("fn" . ?ƒ) prettify-symbols-alist)))
     (global-prettify-symbols-mode +1))
+#+END_SRC
+* Org
+
+Reference: [[http://orgmode.org/worg/org-configs/org-customization-guide.html#sec-1][Org-Mode Beginners Customization Guide]]
+
+Reference: [[http://orgmode.org/manual/index.html][The Org manual]]
+
+Reference: [[http://www.i3s.unice.fr/~malapert/org/tips/emacs_orgmode.html][Yet Another Org-Mode Configuration]]
+
+** The Basic
+*** DONE Activation
+
+The minimal customization needed to use Org-mode is – Nothing at all! \par
+Org-mode works out of the box, and besides the steps described in the manual to
+[[http://orgmode.org/manual/Activation.html#Activation][activate]] it, nothing is needed at all. Just open a .org file, press =C-c [= to
+tell org that this is a file you want to use in your agenda, and start putting
+your life into plain text. 
+
+OK, for completeness, let's just repeat what is needed to activate Org-mode in
+files with =.org= extension, and a few important key assignments. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-to-list 'auto-mode-alist '("\\.org\\" . org-mode))
+
+  ;; The four Org commands should be accessible through global keys 
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-cb" 'org-iswitchb)
+
+  (setq org-log-done t)
+  (setq org-fast-tag-selection-single-key t)
+  (setq org-use-fast-todo-selection t)
+  (setq org-startup-truncated nil)
+#+END_SRC
+*** Basic setup
+
+It's best to set aside a separate directory where your org files will be kept.
+The agenda directories are not visited recursivly. 
+
+org-directory
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-directory "~/org/")
+#+END_SRC
+org-agenda-files
+org-startup-folded
+org-archive-location
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-directory (expand-file-name "~/org"))
+  (setq org-default-notes-file (concat org-directory "/mygtd.org"))
+  (setq org-agenda-files '("~/org" "~/www/org" "~/www/_org"))
+#+END_SRC
+*** Variables
+**** Progress logging
+
+Do you want to capture time stamps and/or notes when TODO state changes, in
+particular when a task is DONE? A simple setting that many use is (=setq 
+org-log-done 'time=). 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-log-done t)
+#+END_SRC
+**** Lists
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-list-demote-modify-bullet (quote (("+" . "-")
+                                              ("*" . "-")
+                                              ("1." . "-")
+                                              ("1)" . "a)"))))
+#+END_SRC
+**** Disable priorities
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-enable-priority-commands nil)
+#+END_SRC
+**** Speed command
+
+Speed commands enable single-letter commands in Org-mode files when the point
+is at the beginning of a headline, or at the beginning of a code block. See the
+=org-speed-commands-default= variable for a list of the keys and commands enabled
+at the beginning of headlines. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-use-speed-commands t)
+#+END_SRC
+*** Editing behavior and appearance
+
+Besides being an organizer, Org-mode is also a text mode for writing and taking
+notes. The following variables that influence basic editing behavior and the
+appearance of the buffer are often customized: 
+
+*** DONE Todo item
+
+Define the [[http://orgmode.org/manual/Fast-access-to-TODO-states.html#Fast-access-to-TODO-states][TODO states]] you find useful and single letters for fast selection.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-todo-keywords
+        '((sequence "IDEA(i)" "TODO(t)" "STARTED(s)" "NEXT(n)" "WAITING(w)" "|" "DONE(d)")
+          (sequence "|" "CANCELED(c)" "DELEGATED(l)" "SOMEDAY(f)")))
+#+END_SRC
+
+Here you can define different faces for different TODO keywords.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-todo-keyword-faces
+        '(("IDEA" . (:foreground "GoldenRod" :weight bold))
+          ("NEXT" . (:foreground "IndianRed1" :weight bold))   
+          ("STARTED" . (:foreground "OrangeRed" :weight bold))
+          ("WAITING" . (:foreground "IndianRed1" :weight bold)) 
+          ("CANCELED" . (:foreground "LimeGreen" :weight bold))
+          ("DELEGATED" . (:foreground "LimeGreen" :weight bold))
+          ("SOMEDAY" . (:foreground "LimeGreen" :weight bold))))
+#+END_SRC
+
+Customize the variable =org-todo-keywords= or simply do this right in the file
+with: 
+
+#+BEGIN_SRC org
+  ,#+TODO: TODO(t) STARTED(s) WAITING(w) | DONE(d) CANCELED(c)
+#+END_SRC
+*** DONE Tags
+
+Define more tags with [[http://orgmode.org/manual/Setting-tags.html#Setting-tags][fast-access]] tags and smooth colors.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-tag-persistent-alist 
+        '((:startgroup . nil)
+          ("HOME" . ?h) 
+          ("RESEARCH" . ?r)
+          ("TEACHING" . ?t)
+          (:endgroup . nil)
+          (:startgroup . nil)
+          ("OS" . ?o) 
+          ("DEV" . ?d)
+          ("WWW" . ?w)
+          (:endgroup . nil)
+          ("URGENT" . ?u)
+          ("KEY" . ?k)
+          ("HARD" . ?a)
+          ("BONUS" . ?b)
+          ("noexport" . ?x)))
+
+  (setq org-tag-faces
+        '(("HOME" . (:foreground "GoldenRod" :weight bold))
+          ("RESEARCH" . (:foreground "GoldenRod" :weight bold))
+          ("TEACHING" . (:foreground "GoldenRod" :weight bold))
+          ("OS" . (:foreground "IndianRed1" :weight bold))   
+          ("DEV" . (:foreground "IndianRed1" :weight bold))   
+          ("WWW" . (:foreground "IndianRed1" :weight bold))
+          ("URGENT" . (:foreground "Red" :weight bold))  
+          ("KEY" . (:foreground "Red" :weight bold))  
+          ("HARD" . (:foreground "Red" :weight bold))  
+          ("BONUS" . (:foreground "GoldenRod" :weight bold))
+          ("noexport" . (:foreground "Red" :weight bold))))
+#+END_SRC
+
+You can always add tags freely and by hand, but if you configure the most
+important ones along with fast-access keys, life will be better. Configure the
+variable =org-tags-alist= or simply do this right in the file with: 
+
+#+BEGIN_SRC org
+  ,#+TAGS: home(h) work(w) @computer(c) @phone(p) errants(e)
+#+END_SRC
+*** TODO Agenda
+
+When Org compiles agenda views like the the agenda for the current week (=C-c a
+a=) or the global TODO list (=C-c a t=), it checks all files in the variable
+=org-agenda-files=. Instead of setting this variable explicitly, it is much
+easier to just add and remove the current buffer with =C-c [= and =C-c ]=,
+respectively. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-agenda-ndays 7)
+  (setq org-agenda-show-all-dates t)
+  (setq org-agenda-skip-deadline-if-done t)
+  (setq org-agenda-skip-scheduled-if-done t)
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-deadline-warning-days 14)
+  (setq org-agenda-custom-commands
+        '(("g" . "GTD contexts")
+          ("gh" "Home" tags-todo "HOME")
+          ("gu" "Urgent" tags-todo "URGENT")
+          ("G" "GTD Block Agenda"
+           ((todo "STARTED")
+            (tags-todo "URGENT")
+            (todo "NEXT"))
+           ((org-agenda-prefix-format "[ ] %T: ")
+            (org-agenda-with-colors nil)
+            (org-agenda-compact-blocks t)
+            (org-agenda-remove-tags t)
+            (ps-number-of-columns 2)
+            (ps-landscape-mode t))
+           ;;nil                      ;; i.e., no local settings
+           ("~/next-actions.txt"))
+          ))
+#+END_SRC
+*** TODO Capture
+
+Use =org-capture= to quickly capture ideas, tasks, and notes. Populate the
+variable =org-capture-templates= with templates and target locations. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-reverse-note-order t)
+
+  (setq org-capture-templates
+        '(("t" "Todo" entry (file+headline "~/org/mygtd.org" "Tasks")
+           "* TODO %?\nAdded: %U\n" :prepend t :kill-buffer t)
+          ("w" "Web" entry (file+headline "~/www/org/index.org" "Tasks")
+           "* TODO %?\nAdded: %U\n" :prepend t :kill-buffer t)
+          ("r" "Prog. R" entry (file+headline "~/www/org/teaching/introR.org" "Tasks")
+           "* TODO %?\nAdded: %U\n" :prepend t :kill-buffer t)
+          ("i" "Idea" entry (file+headline "~/org/mygtd.org" "Someday/Maybe")
+           "* IDEA %?\nAdded: %U\n" :prepend t :kill-buffer t)
+          ("h" "Home" entry (file+headline "~/org/mygtd.org" "Home")
+           "* TODO %?\nAdded: %U\n" :prepend t :kill-buffer t)
+          )
+        )
+#+END_SRC
+*** Code blocks
+
+This activates a number of widely used languages. You can to activate more
+languages using the customize interface for the =org-babel-load-languages=
+variable, or with an elisp form like the one below. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (emacs-lisp . t)
+     (org . t)
+     (sh . t)
+     (C . t)
+     (python . t)
+     (gnuplot . t)
+     (octave . t)
+     (R . t)
+     (dot . t)
+     (awk . t)
+     ))
+#+END_SRC
+
+The following displays the contents of code blocks in Org-mode files using the
+major-mode of the code. It also changes the behavior of TAB to as if it were
+used in the appropriate major mode. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+#+END_SRC
+
+It is possible to inhibit the evaluation of code blocks during export. Setting
+the =org-export-babel-evaluate= variable to nil will ensure that no code blocks
+are evaluated as part of the export process. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-export-babel-evaluate nil)
+#+END_SRC
+*** Spell checking
+
+Ispell can be configured to skip over regions that match regexes. For example,
+to skip over =:PROPERTIES:= and =:LOGBOOK:= drawers as well as =SRC= AND
+=EXAMPLE= blocks:  
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-to-list 'ispell-skip-region-alist '(":\\(PROPERTIES\\|LOGBOOK\\):" . ":END:"))
+  (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_SRC" . "#\\+END_SRC"))
+  (add-to-list 'ispell-skip-region-alist '("#\\+BEGIN_EXAMPLE" . "#\\+END_EXAMPLE"))
+#+END_SRC
+*** Text export
+
++ Fix missing links in ASCII export
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-ascii-links-to-notes nil)
+#+END_SRC
+
++ Adjust the number of blank lines inserted around headlines
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-ascii-headline-spacing (quote (1 . 1)))
+#+END_SRC
+
+*** Org File Template
+
+#+BEGIN_SRC org
+  ,#+STARTUP: overview
+  ,#+STARTUP: hidestars
+  ,#+STARTUP: logdone
+  ,#+COLUMNS: %38ITEM(Details) %7TODO(To Do) %TAGS(Context) 
+  ,#+OPTIONS: tags:t 
+  ,#+OPTIONS: timestamp:t
+  ,#+OPTIONS: todo:t
+  ,#+OPTIONS: TeX:t
+  ##Do the right thing automatically (MathJax)
+  ,#+OPTIONS: LaTeX:t          
+  ,#+OPTIONS: skip:t @:t ::t |:t ^:t f:t
 #+END_SRC
