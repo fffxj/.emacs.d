@@ -6,6 +6,7 @@ TODO.org
 auto-save-list/
 elpa/
 url/
+eshell/
 
 .saveplace
 projectile-bookmarks.eld
