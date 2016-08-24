@@ -70,8 +70,25 @@ tangle with =C-c C-v C-t= which will create org-mode.el in the same directory as
 the org-mode.org file. This will extract all of the elisp examples in this
 document into a file you can include in your .emacs file. 
 
-* Package Initialization
-** ELPA
+* Prerequisites
+** Learning emacs
+
+Here are some beginner-oriented tutorials written by users:
+
++ [[http://tuhdo.github.io/emacs-tutor.html][Tuhod's Emacs Mini Manual (PART 1)]]
++ [[http://ergoemacs.org/emacs/emacs.html][Xah's Emacs Tutorial]]
+
+** Extending emacs primer
+
+To let Emacs automatically load your configuration, save it to either of these
+three files:
+
++ =~/.emacs= 
++ =~/.emacs.d/init.el= 
++ =~/.emacs.d/init=
+
+** Package initialization
+*** Install packages using =ELPA=
 
 Starting with emacs 24, it comes with a package system called [[https://www.emacswiki.org/emacs/ELPA][ELPA]] (Emacs Lisp
 Package Archive). It make the task of installing, update and removing easier,
@@ -80,6 +97,8 @@ as well as inform users new packages created by the community.
 Emacs gets a list of packages from sources, called package archive. Package
 archive is the same as repository in Linux. =package.el= supports multiple ELPA
 repositories. we need to add more repositories to get all the sweet goodness.
+
+Learn More About =ELPA=: [[http://ergoemacs.org/emacs/emacs_package_system.html][here]] 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'package)
@@ -92,7 +111,7 @@ repositories. we need to add more repositories to get all the sweet goodness.
   (package-initialize)
   (setq package-enable-at-startup nil)
 #+END_SRC
-** Use-package
+*** =Use-package= macro
 
 This [[https://github.com/jwiegley/use-package][use-package]] macro provides more concise ways to setup package autoloads,
 keybindings, and various mode configuration. The focus is on decreasing startup
@@ -111,8 +130,376 @@ time by autoloading packages instead loading them on startup.
 
   (setq load-prefer-newer t)
 #+END_SRC
-* General settings
-** Personal Information
+* Helm
+** Helm core
+
+[[https://github.com/emacs-helm/helm][Helm]] makes it easy to complete various things. I find it to be easier to
+configure than ido in order to get completion in as many places as possible,
+although I prefer ido's way of switching buffers.
+
+l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm
+    :ensure t
+    :diminish ""
+    :init
+    (require 'helm)
+    (require 'helm-config)
+
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+
+    ;; rebind tab to run persistent action
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+    ;; make TAB works in terminal
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    ;; list actions using C-z
+    (define-key helm-map (kbd "C-z")  'helm-select-action)
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
+
+    (setq helm-split-window-in-side-p           t
+          helm-move-to-line-cycle-in-source     t
+          helm-ff-search-library-in-sexp        t
+          helm-scroll-amount                    8
+          helm-ff-file-name-history-use-recentf t)
+
+    (helm-mode 1)
+
+    :config
+    ;; fuzzy matching
+    (setq helm-recentf-fuzzy-match t
+          helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
+          helm-M-x-fuzzy-match t
+          helm-buffers-fuzzy-matching t
+          helm-semantic-fuzzy-match t
+          helm-apropos-fuzzy-match t
+          helm-imenu-fuzzy-match t
+          helm-lisp-fuzzy-completion t
+          helm-completion-in-region-fuzzy-match t)
+
+    :bind (("M-x" . helm-M-x)
+           ("M-y" . helm-show-kill-ring)
+
+           ("C-x b" . helm-mini)
+           ("C-x C-b" . helm-buffers-list)
+           ("C-x C-f" . helm-find-files)
+           ("C-x C-r" . helm-recentf)
+
+           ("C-c s" . helm-swoop)
+           ("C-c o" . helm-occur)
+           
+           ("C-c h a" . helm-apropos)
+           ("C-c h y" . helm-yas-complete)
+           ("C-c h SPC" . helm-all-mark-rings)
+           ("C-c h i" . helm-semantic-or-imenu)
+           ("C-c h m" . helm-man-woman)
+           ))
+#+END_SRC
+** Helm-swoop
+
+This promises to be a fast way to find things.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm-swoop
+    :bind (("M-i" . helm-swoop)
+           ("M-I" . helm-swoop-back-to-last-point)
+           ("C-c M-i" . helm-multi-swoop))
+    :config
+    ;; When doing isearch, hand the word over to helm-swoop
+    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+    ;; From helm-swoop to helm-multi-swoop-all
+    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+    ;; Save buffer when helm-multi-swoop-edit complete
+    (setq helm-multi-swoop-edit-save t
+          ;; If this value is t, split window inside the current window
+          helm-swoop-split-with-multiple-windows t
+          ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
+          helm-swoop-split-direction 'split-window-vertically
+          ;; If nil, you can slightly boost invoke speed in exchange for text color
+          helm-swoop-speed-or-color nil))
+#+END_SRC
+
+** Helm-describe
+
+Helm Descbinds provides an interface to emacs’ describe-bindings making the
+currently active key bindings interactively searchable with helm. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm-descbinds
+    :bind ("C-h b" . helm-descbinds)
+    :init (fset 'describe-bindings 'helm-descbinds)
+    :config (require 'helm-config))
+#+END_SRC
+* Concepts
+** (Basic) Command
+
+In Emacs, every user interaction is a function execution. You press a key to
+insert a character, Emacs runs =self-insert-command=. There are two types of
+functions in Emacs: 
+
++ /Normal functions/: These are like functions in other programming languages,
+  and are used for implementing features in Emacs. Users do not need to care
+  about these functions, unless they want to implement something or modify an
+  existing implementation. 
+
++ /Commands/: Commands are like functions, but interactive. It means, commands
+  are features provided to users and users directly use them. 
+
+By default, =execute-extended-command= is bound to =M-x=. I replace it with
+=helm-M-x=, which is much better.
+
+** (Basic) Emacs key notation
+
+| Prefix | Meaning                                       |
+|--------+-----------------------------------------------|
+| =C-=   | (press and hold) the Control key              |
+| =M-=   | the Meta key (the Alt key, on most keyboards) |
+| =S-=   | the Shift key (e.g. ‘S-TAB’ means Shift Tab)  |
+| =DEL=  | the Backspace key (not the Delete key)        |
+| =RET=  | the Return or Enter key                       |
+| =SPC=  | the Space bar                                 |
+| =ESC=  | the Escape key                                |
+| =TAB=  | the Tab key                                   |
+
+A notation such as =C-M-x= (or, equivalently, =M-C-x=) means press and hold
+both Control and Meta (Alt) keys while hitting the ‘x’ key. 
+
+If you see =M-x command=, it means you need to =M-x= and type command.
+
+*IMPORTANT*: =C-g= executes the command =keyboard-quit=, which cancels anything
+Emacs is executing. If you press any key sequence wrongly, C-g to cancel that
+incorrectly pressed key sequence and start again. 
+
+** (Basic) Emacs keys are easy to remember
+
+The key bindings have a few simple and easy to remember rules:
+
++ =C-x= prefix is for default and global binding that come with Emacs.
++ =C-c= prefix is for users to define.
++ =C-u= is for altering behaviors of commands. That is, one command can behave
+  differently depending on how many C-u you pressed first before executing a
+  command. Mostly you just have to hit C-u once. 
++ =C-<number>= like =C-1=, =C-2= … is similar to =C-u=, but passing a number to
+  a command. Usually, the number specifies how many times you want to repeat a
+  command. 
+
+Most commands can be organized in an easy to remember way. For example, command
+like =helm-do-grep= (the command belongs to =Helm=) can have a key binding like
+=C-c h g=. The /h/ stands for /Helm/ and /g/ stands for /grep/. So, key
+bindings are not difficult to remember.  
+
+** (Basic) Ask for help from Emacs
+*** Build-in help system
+
+I will describe some most useful commands based on my experience. I will not
+list all, so you have to rely on Emacs to get your information: 
+
+| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                              |
+|------------+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                            |
+| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                             |
+| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you find-files.                                                                                                                                                                                                                                 |
+| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                 |
+| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                   |
+| C-h v      | describe-variable       | asks you for a variable; you can TAB to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                               |
+| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press C-h, Emacs will list available commands for that prefix. Prefix C-h is no exception. C-h C-h simply returns all key bindings and commands of prefix C-h. |
+
+*IMPORTANT*: With Emacs amazing help system, if you want to know all key
+bindings to prefix =C-x 4=, just =C-x 4= and then =C-h=. If you enter a prefix
+key and enter =C-h= after it, it will list all of the key bindings and commands
+start with that prefix. This is really nice, compare to other editors that hide
+all this information deep within layers of menus.  
+
+*** Info
+
++ =M-x info= or =C-h i= to see all the Info manual in Emacs. If you want to
+  learn more about Emacs, the official Emacs manual in Info. 
+
++ =M-x info-emacs-manual= or, =C-h r=, to see manual section for Emacs.
+
+Use Info often whenever you need to learn something in Emacs. Use it early to
+create a good habit of reading documentation, and this is beneficial not only
+for Emacs. 
+
+*** Man
+
+You can view man pages with two commands:
+
++ =M-x man=: Get a UNIX manual page and put it in a buffer.
+
++ =M-x woman=: Browse UN*X man page for TOPIC (Without using external Man
+  program). It means, you can view man page without having the man program
+  installed, while the man command above invokes external man program. 
+
+** (Basic) Point
+
+Point is your current cursor position.
+
+** (Basic) Buffer
+
+Buffer is where you edit your file content. Buffer holds content of a file
+temporarily. Anything you write into the buffer won't make it into file until
+you explicitly save it with =save-buffer= command. =C-x C-s= executes the command
+save-buffer, so you can =C-x C-s= your files. You can also execute this from
+=M-x*=. 
+
+Basic Keybinding:
+
+| Keybinding | Command          | Description                                         |
+|------------+------------------+-----------------------------------------------------|
+| C-x C-s    | save-buffer      | Save the buffer at point                            |
+| C-x C-w    | write-file       | Save the buffer to a different file                 |
+| C-x b      | switch-to-buffer | Switch to a different buffer                        |
+| C-x k      | kill-buffer      | Kill a buffer. RET to kill the currently active one |
+** TODO (Basic) Modeline
+
+The mode line is the empty area below the buffer. It has useful summary
+information about the buffer shown in the window. 
+
+The text displayed in the mode line has the following format:
+
+#+BEGIN_SRC org
+  |cs:ch-fr | buf | pos line | (major minor)|
+#+END_SRC
+** (Basic) Minibuffer
+
+/Minibuffer/ is the small area at the bottom of your Emacs screen.
+
+The /Minibuffer/ is where Emacs commands read complicated arguments, such as
+file names, buffer names, Emacs command names, or Lisp expressions. When you
+execute =find-file=, it asks for your file from the Minibuffer, which is one of
+=find-file= required argument. Remember that in Emacs,everything is a function.
+=find-file= is a command, in other words, it's an interactive function. As a
+function, it also takes arguments. Minibuffer is where users can feed arguments
+to the interactive functions.
+
+Minibuffer has an input history. If you enter anything into the minibuffer and
+*RET*, minibuffer remembers the input and you can access the input again with:
+
++ =M-p= moves to the previous input in minibuffer history.
++ =M-n= moves to the next input in minibuffer history.
++ =M-r= searches for an input that matches the supplied regexp.
+
+** (Basic) Echo area
+
+/Minibuffer/ can be used for output as well. The /echo area/ is used for displaying
+messages made with the message primitive, and for echoing keystrokes. 
+
+Both Minibuffer and Echo Area, although serve different purposes, share the
+same physical space. You should not be confused between the two. 
+
+** (Basic) Frame
+
+An application window in an operating system is called a /Frame/ in Emacs. So,
+you execute Emacs from the command line and open Emacs, that's a frame that
+contains your Emacs session. Emacs can have multiple frames to hold different
+parts of Emacs, such as a separate frame to hold the minibuffer. 
+
+Personally, I only use a single frame. However, frames can be useful if you
+want to organize buffers into different groups. For example, each frame can be
+a project: frame F1 holds buffers related to my C programming projects, frame
+F2 holds buffers related to customizing Emacs, frame F3 holds buffers related
+to emails and reading, newsgroups… 
+
+As stated earlier, multiple frames under the terminal have names F1, F2 …. Fn
+for each frame.
+
+These are the key bindings for manipulating frames:
+
+| Keybinding | Command                         | Description                                           |
+|------------+---------------------------------+-------------------------------------------------------|
+| C-x 5 C-f  | find-file-other-frame           | Open file in a different frame                        |
+| C-x 5 f    | find-file-other-frame           | Same as C-x 5 C-f                                     |
+| C-x 5 C-o  | display-buffer-other-frame      | Open buffer in a different frame and move point there |
+| C-x 5 .    | find-tag-other-frame            | Find tag at point in a different frame                |
+| C-x 5 0    | delete-frame                    | Delete the current frame point is in                  |
+| C-x 5 1    | delete-other-frames             | Delete other frames except the one at point           |
+| C-x 5 2    | make-frame-command              | Create a frame                                        |
+| C-x 5 b    | switch-to-buffer-other-frame    | Same as C-x 5 C-o                                     |
+| C-x 5 d    | dired-other-frame               | Open a Dired buffer in another frame                  |
+| C-x 5 m    | compose-mail-other-frame        | Open another frame for composing email                |
+| C-x 5 o    | other-frame                     | Cycle through available frames                        |
+| C-x 5 r    | find-file-read-only-other-frame | Open file for read only in another frame              |
+** (Basic) Window
+
+Unlike other editors, Emacs can split your frame area into multiple smaller
+areas. Each such area is called a /window/. You can divide a frame into as many
+windows as you want and each window can have anything in it, i.e. your current
+editing buffer, file management buffer, help buffer, a shell… Basically
+anything that Emacs can display. Let's try them out: 
+
+| Keybinding | Command              | Description                                             |
+|------------+----------------------+---------------------------------------------------------|
+| C-x 2      | split-window-below   | Split the current window into two horizontal windows.   |
+| C-x 3      | split-window-right   | Split your current window into two vertical windows.    |
+| C-x 0      | delete-window        | Close the window at point.                              |
+| C-x 1      | delete-other-windows | Close all other windows except the current selected one |
+| C-x o      | switch-window        | Switch to other window                                  |
+
+After you execute two command =C-x 2= and =C-x 3=, you will have three windows: two
+above and one below. Each window can hold a buffer. With the above two commands
+,you can create arbitrary window layout. In Emacs, a window layout is called a
+window configuration. 
+
+To navigate through the windows, use =C-x o= which runs the command =other-window=.
+Try cycle around the windows a few times to get used to it. 
+
+=C-x 4= is a common prefix for opening things in other buffer. Things here can be
+files, shell, or a tree explorer. Here are standard =C-x 4= bindings: 
+
+| Keybinding | Command                            | Description                                                                                                                                                                                                                                        |
+|------------+------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-x 4 C-f  | find-file-other-window             | Just like find-file discussed earlier, except open file in new window. If the current frame only has one window, a new window is created.                                                                                                          |
+| C-x 4 C-o  | display-buffer                     | Select a buffer from buffer list and display it in another window but not move point to that window.                                                                                                                                               |
+| C-x 4 .    | find-tag-other-window              | Open the tag at point in another window (more on this later)                                                                                                                                                                                       |
+| C-x 4 0    | kill-buffer-and-window             | Just like C-x 0 but kill the buffer in that window as well.                                                                                                                                                                                        |
+| C-x 4 a    | add-change-log-entry-other-window  | Open another buffer and allow you to record the change of the current editing file. These days, you use version control system to manage file changes,and Emacs does this better. Probably this feature exists when thing like Git does not exist. |
+| C-x 4 b    | switch-to-buffer-other-window      | Open a selected buffer in another window and move point to that window.                                                                                                                                                                            |
+| C-x 4 c    | clone-indirect-buffer-other-window | Clone the current buffer in another window and give it a different buffer name.                                                                                                                                                                    |
+| C-x 4 d    | dired-other-window                 | Open a dired buffer in another window. Dired is a built-int file manager in Emacs. We will discuss later.                                                                                                                                          |
+| C-x 4 f    | find-file-other-window             | Same as C-x 4 C-f                                                                                                                                                                                                                                  |
+| C-x 4 m    | compose-mail-other-window          | Write mail in other window. You can write email and send it directly from Emacs.                                                                                                                                                                   |
+| C-x 4 r    | find-file-read-only-other-window   | Similar to find-file-other-window, but open for read-only.                                                                                                                                                                                         |
+| M-<next>   | scroll-other-window                | Scroll other window forward.                                                                                                                                                                                                                       |
+| M-<prior>  | scroll-other-window-down           | Scroll the other window backward.                                                                                                                                                                                                                  |
+
+In Emacs, =<next>= is the *PageDown* key, =<prior>= is the *PageUp* key.
+=M-<next>= runs =scroll-other-window= and scroll the other window forward;
+=M-<prior>= runs =scroll-other-window-down= and scroll the other window backward.
+
+** TODO (Basic) File management with =dired=
+
+Emacs has a built-in one called Dired, short for =(Dir)ectory (Ed)itor=.
+
+This section is a shortened version of Dired in GNU Emacs Manual. After you
+read and practice these commands, read the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired Manual]] if possible. 
+
+** TODO (Basic) Regisiter
+
+When I first heard about registers in Emacs, it scared me. I thought "Wow, what
+is this "register" thing? Am I going to work directly with CPU registers?" As
+it turned out, despite the name "Register", it's not something that complicated
+to understand. Although, an Emacs register is similar to a CPU register in the
+sense that it allows quick access to temporal data. 
+
+Each register has a name that consists of a single character, which we will
+denote by r; r can be a letter (such as ‘a’) or a number (such as ‘1’); case
+matters, so register ‘a’ is not the same as register ‘A’. 
+
+In Emacs, registers are for quick access to things. Things can be a position, a piece of text, a rectangle, a number, a file name, or a window configuration (yes, you can save how Emacs organizes its screens and restore it later!).
+
+Saving different types of objects has different key bindings, but to jump to a register, you use a single command C-x r j REG; REG is a register of your choice.
+
+The prefix key for register commands is C-x r. If you forget the key bindings, C-x r C-h to get the list of key bindings.
+* Basics
+** General settings
+*** Personal Information
 
 Some personal information about me.
 
@@ -120,7 +507,7 @@ Some personal information about me.
   (setq user-full-name "Xiaojie Feng"
         user-mail-address "fengxiaojie1997@gmail.com")
 #+END_SRC
-** My Directory Location
+*** My Directory Location
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defconst xj-cache-dir (expand-file-name "~/.emacs.d/cache/")
@@ -131,13 +518,13 @@ Some personal information about me.
   (unless (file-exists-p xj-cache-dir)
     (make-directory xj-cache-dir))
 #+END_SRC
-** Library
+*** Library
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package dash)
 #+END_SRC
-* Basics settings
-** General user interface and appearance
+** Basics settings
+*** General user interface and appearance
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Messages
@@ -165,7 +552,7 @@ Some personal information about me.
         scroll-conservatively 100000
         scroll-preserve-screen-position 1)
 #+END_SRC
-** Files and sessions
+*** Files and sessions
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Files
@@ -175,7 +562,7 @@ Some personal information about me.
   ;; Sessions
   (setq confirm-kill-emacs 'yes-or-no-p)  ; Confirm quit
 #+END_SRC
-** Cursor and mouse
+*** Cursor and mouse
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Cursor
@@ -184,13 +571,13 @@ Some personal information about me.
   ;; Mouse
   (setq make-pointer-invisible t)         ; Hide the mouse while typing
 #+END_SRC
-** Buffers and windows
+*** Buffers and windows
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Windows
   (windmove-default-keybindings)          ; Shift arrows switch windows
 #+END_SRC
-** Tabs, spaces, lines and parenthesis
+*** Tabs, spaces, lines and parenthesis
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Tabs
@@ -209,7 +596,7 @@ Some personal information about me.
   (setq blink-matching-paren-distance nil) ; Blinking parenthesis
   (setq show-paren-style 'expression)      ; Highlight text between parenthesis
 #+END_SRC
-** Global key bindings
+*** Global key bindings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Align your code in a pretty way.
@@ -234,14 +621,14 @@ Some personal information about me.
   ;; replace buffer-menu with ibuffer
   (global-set-key (kbd "C-x C-b") 'ibuffer)
 #+END_SRC
-** Miscellaneous
+*** Miscellaneous
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Alias
   (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
 #+END_SRC
-* OS special setting
-** Paths
+** OS special setting
+*** Paths
 
 Ever find that a command works in your shell, but not in Emacs?
 
@@ -259,8 +646,8 @@ inside Emacs look the same as in the user's shell.
       (when (memq window-system '(mac ns))
         (exec-path-from-shell-initialize))))
 #+END_SRC
-* Useful settings
-** Uniquify
+** Useful settings
+*** Uniquify
 
 With [[https://www.emacswiki.org/emacs/uniquify][uniquify]], buffers visiting "/u/mernst/tmp/Makefile" and
 "/usr/projects/zaphod/Makefile" would be named "Makefile|tmp" and
@@ -273,6 +660,209 @@ With [[https://www.emacswiki.org/emacs/uniquify][uniquify]], buffers visiting "/
   (setq uniquify-separator "/")
   (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
   (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+#+END_SRC
+* Display
+** Full Screen
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+;;  (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
+#+END_SRC
+** Color Theme
+
+[[http://ethanschoonover.com/solarized][Solarized]] is my favourite color theme. it is available for multiple
+applications, not only for emacs. I'll set this as the default theme for
+my color theme.
+
+From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-24/23794179#23794179][stackoverflow]]
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package color-theme)
+  (use-package solarized-theme)
+  (use-package color-theme-sanityinc-solarized)
+
+  (setq my-themes (list
+                   'solarized-light
+                   'solarized-dark
+                   'sanityinc-solarized-light
+                   'sanityinc-solarized-dark))
+                   
+  (setq curr-theme my-themes)
+
+  (defun my-theme-cycle ()
+    (interactive)
+    (disable-theme (car curr-theme)) ;;Nee flickeringded to stop even worse
+    (setq curr-theme (cdr curr-theme))
+    (if (null curr-theme) (setq curr-theme my-themes))
+    (load-theme (car curr-theme) t)
+    (message "%s" (car curr-theme)))
+
+  (global-set-key [f12] 'my-theme-cycle)
+  (setq curr-theme my-themes)
+  (load-theme (car curr-theme) t)
+#+END_SRC
+** Modeline
+*** Amit's mode line
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; Mode line setup
+  (setq-default
+   mode-line-format
+   '(; Position, including warning for 80 columns
+     (:propertize "%4l:" face mode-line-position-face)
+     (:eval (propertize "%3c" 'face
+                        (if (>= (current-column) 80)
+                            'mode-line-80col-face
+                          'mode-line-position-face)))
+     ;; emacsclient [default -- keep?]
+     mode-line-client
+     " "
+     ;; read-only or modified status
+     (:eval
+      (cond (buffer-read-only
+             (propertize " RO " 'face 'mode-line-read-only-face))
+            ((buffer-modified-p)
+             (propertize " ** " 'face 'mode-line-modified-face))
+            (t " ")))
+     " "
+     ;; directory and buffer/file name
+     (:propertize (:eval (shorten-directory default-directory 30))
+                  face mode-line-folder-face)
+     (:propertize "%b"
+                  face mode-line-filename-face)
+     ;; narrow [default -- keep?]
+     ;;" %n "
+     ;; mode indicators: vc, recursive edit, major mode, minor modes, process, global
+     (vc-mode vc-mode)
+     "  %["
+     (:propertize mode-name face mode-line-mode-face)
+     "%] "
+     (:eval (propertize (format-mode-line minor-mode-alist)
+                        'face 'mode-line-minor-mode-face))
+     (:propertize mode-line-process
+                  face mode-line-process-face)
+     " "
+     ;; mode-line-misc-info is better than Amit's version
+     mode-line-misc-info
+     "  "
+     ;; nyan-mode uses nyan cat as an alternative to %p
+     (:eval (when nyan-mode (list (nyan-create))))
+     ))
+
+  ;; Helper function
+  (defun shorten-directory (dir max-length)
+    "Show up to `max-length' characters of a directory name `dir'."
+    (let ((path (reverse (split-string (abbreviate-file-name dir) "/")))
+          (output ""))
+      (when (and path (equal "" (car path)))
+        (setq path (cdr path)))
+      (while (and path (< (length output) (- max-length 4)))
+        (setq output (concat (car path) "/" output))
+        (setq path (cdr path)))
+      (when path
+        (setq output (concat ".../" output)))
+      output))
+
+  ;; Extra mode line faces
+  (make-face 'mode-line-read-only-face)
+  (make-face 'mode-line-modified-face)
+  (make-face 'mode-line-folder-face)
+  (make-face 'mode-line-filename-face)
+  (make-face 'mode-line-position-face)
+  (make-face 'mode-line-mode-face)
+  (make-face 'mode-line-minor-mode-face)
+  (make-face 'mode-line-process-face)
+  (make-face 'mode-line-80col-face)
+
+  (set-face-attribute 'mode-line nil
+                      :foreground "gray60" :background "gray20"
+                      :inverse-video nil
+                      :box '(:line-width 2 :color "gray20" :style nil))
+  (set-face-attribute 'mode-line-inactive nil
+                      :foreground "gray80" :background "gray40"
+                      :inverse-video nil
+                      :box '(:line-width 2 :color "gray40" :style nil))
+
+  (set-face-attribute 'mode-line-read-only-face nil
+                      :inherit 'mode-line-face
+                      :foreground "#4271ae"
+                      :box '(:line-width 2 :color "#4271ae"))
+  (set-face-attribute 'mode-line-modified-face nil
+                      :inherit 'mode-line-face
+                      :foreground "#c82829"
+                      :background "#ffffff"
+                      :box '(:line-width 2 :color "#c82829"))
+  (set-face-attribute 'mode-line-folder-face nil
+                      :inherit 'mode-line-face
+                      :foreground "gray60")
+  (set-face-attribute 'mode-line-filename-face nil
+                      :inherit 'mode-line-face
+                      :foreground "#eab700"
+                      :weight 'bold)
+  (set-face-attribute 'mode-line-position-face nil
+                      :inherit 'mode-line-face
+                      :height 100)
+  (set-face-attribute 'mode-line-mode-face nil
+                      :inherit 'mode-line-face
+                      :foreground "gray80")
+  (set-face-attribute 'mode-line-minor-mode-face nil
+                      :inherit 'mode-line-mode-face
+                      :foreground "gray40"
+                      :height 110)
+  (set-face-attribute 'mode-line-process-face nil
+                      :inherit 'mode-line-face
+                      :foreground "#718c00")
+  (set-face-attribute 'mode-line-80col-face nil
+                      :inherit 'mode-line-position-face
+                      :foreground "black" :background "#eab700")
+
+#+END_SRC
+*** Nyan-mode
+
+Let [[https://en.wikipedia.org/wiki/Nyan_Cat][Nyan Cat]] show you your buffer position in mode line.
+
+Now with the ability to scroll the buffer by clicking on the Nyan Cat’s rainbow
+and the space in front of it. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package nyan-mode
+      :init
+      (nyan-mode))
+#+END_SRC
+** Fonts
+
+Choosing a good and comfortable font is quite important in your whole coding
+life.
+
+I prefer Monaco. And, as a Chinese, l choose WenQuanYi for Chinese charset.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (eq system-type 'darwin)
+
+    ;; default Latin font (e.g. Consolas)
+    (set-face-attribute 'default nil :family "Monaco")
+
+    ;; default font size (point * 10)
+    (set-face-attribute 'default nil :height 150)
+
+    ;; use specific font for Chinese charset.
+    ;; if you want to use different font size for specific charset,
+    ;; add :size POINT-SIZE in the font-spec.
+    (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
+    )
+#+END_SRC
+** Symbols
+
+Prettify all the symbols.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (when (boundp 'global-prettify-symbols-mode)
+    (add-hook 'emacs-lisp-mode-hook
+              (lambda ()
+                (push '("lambda" . ?λ) prettify-symbols-alist)))
+    (add-hook 'clojure-mode-hook
+              (lambda ()
+                (push '("fn" . ?ƒ) prettify-symbols-alist)))
+    (global-prettify-symbols-mode +1))
 #+END_SRC
 * Persistence
 ** Bookmarks
@@ -324,112 +914,6 @@ optionally save other histories and other variables as well.
         '(kill-ring
           search-ring
           regexp-search-ring))
-#+END_SRC
-* Helm
-** Helm core
-[[https://github.com/emacs-helm/helm][Helm]] makes it easy to complete various things. I find it to be easier to
-configure than ido in order to get completion in as many places as possible,
-although I prefer ido's way of switching buffers.
-
-l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm
-    :ensure t
-    :diminish ""
-    :init
-    (require 'helm)
-    (require 'helm-config)
-
-    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
-    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
-    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-unset-key (kbd "C-x c"))
-
-    ;; rebind tab to run persistent action
-    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-    ;; make TAB works in terminal
-    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-    ;; list actions using C-z
-    (define-key helm-map (kbd "C-z")  'helm-select-action)
-
-    (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))
-
-    (setq helm-split-window-in-side-p           t
-          helm-move-to-line-cycle-in-source     t
-          helm-ff-search-library-in-sexp        t
-          helm-scroll-amount                    8
-          helm-ff-file-name-history-use-recentf t)
-
-    (helm-mode 1)
-
-    :config
-    ;; fuzzy matching
-    (setq helm-recentf-fuzzy-match t
-          helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
-          helm-M-x-fuzzy-match t
-          helm-buffers-fuzzy-matching t
-          helm-semantic-fuzzy-match t
-          helm-apropos-fuzzy-match t
-          helm-imenu-fuzzy-match t
-          helm-lisp-fuzzy-completion t
-          helm-completion-in-region-fuzzy-match t)
-
-    :bind (("C-c h" . helm-command-prefix)
-           ("M-x" . helm-M-x)
-           ("M-y" . helm-show-kill-ring)
-
-           ("C-x b" . helm-mini)
-           ("C-x C-b" . helm-buffers-list)
-           ("C-x C-f" . helm-find-files)
-           ("C-x C-r" . helm-recentf)
-
-           ("C-c s" . helm-swoop)
-           ("C-c o" . helm-occur)
-           
-           ("C-h a" . helm-apropos)
-           ("C-h y" . helm-yas-complete)
-           ("C-h SPC" . helm-all-mark-rings)
-           ("C-h i" . helm-semantic-or-imenu)
-           ("C-h m" . helm-man-woman)
-           ))
-#+END_SRC
-** Helm-swoop
-
-This promises to be a fast way to find things.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm-swoop
-    :bind (("M-i" . helm-swoop)
-           ("M-I" . helm-swoop-back-to-last-point)
-           ("C-c M-i" . helm-multi-swoop))
-    :config
-    ;; When doing isearch, hand the word over to helm-swoop
-    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-    ;; From helm-swoop to helm-multi-swoop-all
-    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
-    ;; Save buffer when helm-multi-swoop-edit complete
-    (setq helm-multi-swoop-edit-save t
-          ;; If this value is t, split window inside the current window
-          helm-swoop-split-with-multiple-windows t
-          ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
-          helm-swoop-split-direction 'split-window-vertically
-          ;; If nil, you can slightly boost invoke speed in exchange for text color
-          helm-swoop-speed-or-color nil))
-#+END_SRC
-
-** Helm-describe
-
-Helm Descbinds provides an interface to emacs’ describe-bindings making the
-currently active key bindings interactively searchable with helm. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm-descbinds
-    :bind ("C-h b" . helm-descbinds)
-    :init (fset 'describe-bindings 'helm-descbinds)
-    :config (require 'helm-config))
 #+END_SRC
 * Navigation
 ** Switch-window
@@ -831,7 +1315,7 @@ what order is controlled by a configurable list of functions.
 #+END_SRC
 ** Company
 
-[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete
+[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete 
 anything". It uses pluggable back-ends and front-ends to retrieve and display
 completion candidates. 
 
@@ -856,6 +1340,42 @@ keywords and a few others.
 * Development environment
 
 Reference: [[http://tuhdo.github.io/c-ide.html][C/C++ Development Environment for Emacs]] 
+
+** General completion with =company= 
+
+[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete 
+anything". It uses pluggable back-ends and front-ends to retrieve and display
+completion candidates. 
+
+It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
+Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags, files, 
+keywords and a few others. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package company
+    :ensure t
+    :diminish company-mode
+    :init
+    (add-hook 'after-init-hook 'global-company-mode))
+#+END_SRC
+
+General Usage: Completion will start automatically after you type a few
+letters. Use *M-n* and *M-p* to select, *<RET>* to complete or *<TAB>* to
+complete the common part. Search through the completions with *C-s*, *C-r* and
+*C-o*. Press *M-(digit)* to quickly complete with one of the first 10
+candidates. When the completion candidates are shown, press *<f1>* to display the
+documentation for the selected candidate, or *C-w* to see its source. Not all
+back-ends support this. 
+
+** Source code documentation
+*** Command: =man=
+
+To read the documentation for symbol at point or a man entry of your choice,
+invoke =M-x man=. 
+
+*** Command: =helm-man-woman=
+
+As I use Helm, I use the command =helm-man-woman=.
 
 ** Sources code navigation
 *** Ggtags
@@ -907,7 +1427,7 @@ Reference: [[http://tuhdo.github.io/c-ide.html][C/C++ Development Environment fo
 *** Basic movement
 
 #+BEGIN_SRC org
-  | Key binding     | Command            | Descriptioin                                                           |
+  | Key binding     | Command            | Description                                                            |
   |-----------------+--------------------+------------------------------------------------------------------------|
   | C-M-f           | forward-sexp       | move forward over a balanced expression that can be a pair or a symbol |
   | C-M-b           | backward-sexp      | ..                                                                     |
@@ -1029,9 +1549,9 @@ To clean up trailing whitespace, you can also run =whitespace-cleanup= command.
   ;; “python”: What Python developers use for extension modules
   ;; “java”: The default style for java-mode (see below)
   ;; “user”: When you want to define your own style
-  (setq
-   c-default-style "linux" ;; set style to "linux"
-   )
+  ;; (setq
+  ;;  c-default-style "linux" ;; set style to "linux"
+  ;;  )
 #+END_SRC
 **** Setup identation
 
@@ -1118,6 +1638,78 @@ and /TAB/ insert a predefined snippet. For example, in a C buffer, if you type
 
 You can view a bunch of predefined snippet [[https://github.com/AndreaCrotti/yasnippet-snippets/tree/master][here]].
 
+** Compilation support
+
+Compilation mode turns each error message in the buffer into a hyperlink. You
+can click on each error, or execute a key binding like *RET* to jump to the
+location of that error. 
+
+Compilation-Mode Keybinding:
+
+| Keybinding | Description                                                         |
+|------------+---------------------------------------------------------------------|
+| C-o        | Display matched location, but do not switch point to matched buffer |
+| M-n        | Move to next error message, but do not visit error location         |
+| M-p        | Move to next previous message, but do not visit error location      |
+| M-g n      | Move to next error message, visit error location                    |
+| M-g p      | Move to previous error message, visit error location                |
+| RET        | Visit location of error at point                                    |
+| q          | Quit =*compilation*= buffer                                         |
+
+I usually execute the same compilation command many times. It's more convenient
+if Emacs doesn't ask us to confirm every time we re-execute a command. If you
+want to enter a new command, add prefix argument =C-u= before pressing =<f5>=.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "<f5>") (lambda ()
+                                 (interactive)
+                                 (setq-local compilation-read-command nil)
+                                 (call-interactively 'compile)))
+#+END_SRC
+
+TIP: It is useful to open a Dired buffer of the project root and store a window
+configuration that contains it into a register, so you can always jump back to
+project root any where, any time and run compilation command. If you do not use
+know how to use registers to store window configurations, read it [[http://tuhdo.github.io/emacs-tutor.html#orgheadline63][here]] 
+
+** Debugging
+*** GDB with many windows
+
+Emacs has built-in frontend support for GDB that provides IDE-like interface.
+Stock Emacs doesn't enable this layout by default. You have to tell Emacs to
+always use =gdb-many-windows=.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq
+   ;; use gdb-many-windows by default
+   gdb-many-windows t
+
+   ;; Non-nil means display source file containing the main routine at startup
+   gdb-show-main t
+   )
+#+END_SRC
+
+Now, find a binary built for debugging, and start GDB by =M-x gdb=. Emacs
+prompts asking you how to run gdb. By default, the prompt looks like this:
+
+#+BEGIN_EXAMPLE
+  gdb -i=mi a.out
+#+END_EXAMPLE
+
+To use =gdb-many-windows=, you must always supply the *-i=mi* argument to gdb,
+otherwise =gdb-many-windows= won't work. Then, you have the following buffers
+visible on your screen:
+
+#+BEGIN_SRC org
+  |----------------------------+--------------------------------------|
+  | (1) GUD interaction buffer | (2) Locals/Registers buffer          |
+  |----------------------------+--------------------------------------|
+  | (3) Primary Source buffer  | (4) I/O buffer for debugging program |
+  |----------------------------+--------------------------------------|
+  | (5) Stack buffer           | (6) Breakpoints/Threads buffer       |
+  |----------------------------+--------------------------------------|
+#+END_SRC
+
 * Programming Tools
 ** Utilities
 
@@ -1164,21 +1756,6 @@ You can view a bunch of predefined snippet [[https://github.com/AndreaCrotti/yas
         :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
       (use-package flycheck-haskell
         :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
-#+END_SRC
-** Compilation
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq  compilation-scroll-output 'first-error  ; scroll until first error
-         compilation-read-command nil            ; don't need enter
-         compilation-window-height 12            ; keep it readable
-         compilation-auto-jump-to-first-error t  ; jump to first error auto
-         compilation-auto-jump-to-next-error t)  ; jump to next error
-#+END_SRC
-** Gdb
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq gdb-many-windows t        ; use gdb-many-windows by default
-        gdb-show-main t)          ; Non-nil means display source file containing the main routine at startup
 #+END_SRC
 ** Version control
 *** Ediff
@@ -1239,94 +1816,6 @@ You can view a bunch of predefined snippet [[https://github.com/AndreaCrotti/yas
   (use-package sml-mode)
   (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
   (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
-#+END_SRC
-* Display
-** Full Screen
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;;  (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
-#+END_SRC
-** Color Theme
-
-[[http://ethanschoonover.com/solarized][Solarized]] is my favourite color theme. it is available for multiple
-applications, not only for emacs. I'll set this as the default theme for
-my color theme.
-
-From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-24/23794179#23794179][stackoverflow]]
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package color-theme)
-  (use-package solarized-theme)
-  (use-package color-theme-sanityinc-solarized)
-
-  (setq my-themes (list
-                   'solarized-light
-                   'solarized-dark
-                   'sanityinc-solarized-light
-                   'sanityinc-solarized-dark))
-                   
-  (setq curr-theme my-themes)
-
-  (defun my-theme-cycle ()
-    (interactive)
-    (disable-theme (car curr-theme)) ;;Nee flickeringded to stop even worse
-    (setq curr-theme (cdr curr-theme))
-    (if (null curr-theme) (setq curr-theme my-themes))
-    (load-theme (car curr-theme) t)
-    (message "%s" (car curr-theme)))
-
-  (global-set-key [f12] 'my-theme-cycle)
-  (setq curr-theme my-themes)
-  (load-theme (car curr-theme) t)
-#+END_SRC
-** Modeline
-*** Nyan-mode
-
-Let [[https://en.wikipedia.org/wiki/Nyan_Cat][Nyan Cat]] show you your buffer position in mode line.
-
-Now with the ability to scroll the buffer by clicking on the Nyan Cat’s rainbow
-and the space in front of it. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package nyan-mode
-      :init
-      (nyan-mode))
-#+END_SRC
-** Fonts
-
-Choosing a good and comfortable font is quite important in your whole coding
-life.
-
-I prefer Monaco. And, as a Chinese, l choose WenQuanYi for Chinese charset.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (when (eq system-type 'darwin)
-
-    ;; default Latin font (e.g. Consolas)
-    (set-face-attribute 'default nil :family "Monaco")
-
-    ;; default font size (point * 10)
-    (set-face-attribute 'default nil :height 150)
-
-    ;; use specific font for Chinese charset.
-    ;; if you want to use different font size for specific charset,
-    ;; add :size POINT-SIZE in the font-spec.
-    (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
-    )
-#+END_SRC
-** Symbols
-
-Prettify all the symbols, if available (an Emacs 24.4 feature):
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (when (boundp 'global-prettify-symbols-mode)
-    (add-hook 'emacs-lisp-mode-hook
-              (lambda ()
-                (push '("lambda" . ?λ) prettify-symbols-alist)))
-    (add-hook 'clojure-mode-hook
-              (lambda ()
-                (push '("fn" . ?ƒ) prettify-symbols-alist)))
-    (global-prettify-symbols-mode +1))
 #+END_SRC
 * Org
 ** Introduction
@@ -1604,4 +2093,3 @@ are evaluated as part of the export process.
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq org-export-babel-evaluate nil)
 #+END_SRC  
-
