@@ -71,12 +71,18 @@ the org-mode.org file. This will extract all of the elisp examples in this
 document into a file you can include in your .emacs file. 
 
 * Prerequisites
-** Learning emacs
+** Emacs newbie?
 
-Here are some beginner-oriented tutorials written by users:
+Here are some beginner-oriented tutorials written by users worth reading:
 
++ [[https://www.gnu.org/software/emacs/tour/][GNU Guide Tour of Emacs]]
 + [[http://tuhdo.github.io/emacs-tutor.html][Tuhod's Emacs Mini Manual (PART 1)]]
 + [[http://ergoemacs.org/emacs/emacs.html][Xah's Emacs Tutorial]]
+
+You can learn more from other people who use Emacs:
+
++ [[https://www.emacswiki.org/emacs/CategoryCommunity][EmacsWiki]]
++ [[http://orgmode.org][OrgWorg]]
 
 ** Extending emacs primer
 
@@ -130,114 +136,11 @@ time by autoloading packages instead loading them on startup.
 
   (setq load-prefer-newer t)
 #+END_SRC
-* Helm
-** Helm core
+* TODO Concepts
 
-[[https://github.com/emacs-helm/helm][Helm]] makes it easy to complete various things. I find it to be easier to
-configure than ido in order to get completion in as many places as possible,
-although I prefer ido's way of switching buffers.
+Reference: [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (PART 1)]]
 
-l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm
-    :ensure t
-    :diminish ""
-    :init
-    (require 'helm)
-    (require 'helm-config)
-
-    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
-    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
-    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-unset-key (kbd "C-x c"))
-
-    ;; rebind tab to run persistent action
-    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-    ;; make TAB works in terminal
-    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-    ;; list actions using C-z
-    (define-key helm-map (kbd "C-z")  'helm-select-action)
-
-    (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))
-
-    (setq helm-split-window-in-side-p           t
-          helm-move-to-line-cycle-in-source     t
-          helm-ff-search-library-in-sexp        t
-          helm-scroll-amount                    8
-          helm-ff-file-name-history-use-recentf t)
-
-    (helm-mode 1)
-
-    :config
-    ;; fuzzy matching
-    (setq helm-recentf-fuzzy-match t
-          helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
-          helm-M-x-fuzzy-match t
-          helm-buffers-fuzzy-matching t
-          helm-semantic-fuzzy-match t
-          helm-apropos-fuzzy-match t
-          helm-imenu-fuzzy-match t
-          helm-lisp-fuzzy-completion t
-          helm-completion-in-region-fuzzy-match t)
-
-    :bind (("M-x" . helm-M-x)
-           ("M-y" . helm-show-kill-ring)
-
-           ("C-x b" . helm-mini)
-           ("C-x C-b" . helm-buffers-list)
-           ("C-x C-f" . helm-find-files)
-           ("C-x C-r" . helm-recentf)
-
-           ("C-c s" . helm-swoop)
-           ("C-c o" . helm-occur)
-           
-           ("C-c h a" . helm-apropos)
-           ("C-c h y" . helm-yas-complete)
-           ("C-c h SPC" . helm-all-mark-rings)
-           ("C-c h i" . helm-semantic-or-imenu)
-           ("C-c h m" . helm-man-woman)
-           ))
-#+END_SRC
-** Helm-swoop
-
-This promises to be a fast way to find things.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm-swoop
-    :bind (("M-i" . helm-swoop)
-           ("M-I" . helm-swoop-back-to-last-point)
-           ("C-c M-i" . helm-multi-swoop))
-    :config
-    ;; When doing isearch, hand the word over to helm-swoop
-    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-    ;; From helm-swoop to helm-multi-swoop-all
-    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
-    ;; Save buffer when helm-multi-swoop-edit complete
-    (setq helm-multi-swoop-edit-save t
-          ;; If this value is t, split window inside the current window
-          helm-swoop-split-with-multiple-windows t
-          ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
-          helm-swoop-split-direction 'split-window-vertically
-          ;; If nil, you can slightly boost invoke speed in exchange for text color
-          helm-swoop-speed-or-color nil))
-#+END_SRC
-
-** Helm-describe
-
-Helm Descbinds provides an interface to emacs’ describe-bindings making the
-currently active key bindings interactively searchable with helm. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm-descbinds
-    :bind ("C-h b" . helm-descbinds)
-    :init (fset 'describe-bindings 'helm-descbinds)
-    :config (require 'helm-config))
-#+END_SRC
-* Concepts
-** (Basic) Command
+** DONE (Basic) Command
 
 In Emacs, every user interaction is a function execution. You press a key to
 insert a character, Emacs runs =self-insert-command=. There are two types of
@@ -254,7 +157,7 @@ functions in Emacs:
 By default, =execute-extended-command= is bound to =M-x=. I replace it with
 =helm-M-x=, which is much better.
 
-** (Basic) Emacs key notation
+** DONE (Basic) Emacs key notation
 
 | Prefix | Meaning                                       |
 |--------+-----------------------------------------------|
@@ -272,11 +175,25 @@ both Control and Meta (Alt) keys while hitting the ‘x’ key.
 
 If you see =M-x command=, it means you need to =M-x= and type command.
 
+A prefix key is a part of a full key binding. For example, a full key binding
+is =C-x r l= to run the command =bookmark-bmenu-list=, then =C-x= and =C-x r=
+are its prefixes. Note that key sequence such as =C-x= and =M-x= are considered
+a single character. Knowing prefix key is handy: if you forget key bindings of
+some commands that use the same prefix key, and remember the prefix, you can
+press the prefix key and =C-h= to get a list of commands with that prefix. 
+
 *IMPORTANT*: =C-g= executes the command =keyboard-quit=, which cancels anything
 Emacs is executing. If you press any key sequence wrongly, C-g to cancel that
 incorrectly pressed key sequence and start again. 
 
-** (Basic) Emacs keys are easy to remember
+*TIP*: As you gradually learn Emacs, you will see the key bindings are
+really systematically organized and mnemonic. Whenever you see key bindings
+ending with =n= and =p=, it usually means *next* and *previous*; =o= means *open*;
+=h= means *help*; =C-h= is standard prefix for *help commands*; key bindings such
+as =o= and =C-o= are frequently used in many built-in tools such as /Dired/,
+/Ibuffer/, /Occur/ …  
+
+** DONE (Basic) Emacs keys are easy to remember
 
 The key bindings have a few simple and easy to remember rules:
 
@@ -291,7 +208,7 @@ The key bindings have a few simple and easy to remember rules:
 
 Most commands can be organized in an easy to remember way. For example, command
 like =helm-do-grep= (the command belongs to =Helm=) can have a key binding like
-=C-c h g=. The /h/ stands for /Helm/ and /g/ stands for /grep/. So, key
+=C-c h g=. The =h= stands for /Helm/ and =g= stands for /grep/. So, key
 bindings are not difficult to remember.  
 
 ** (Basic) Ask for help from Emacs
@@ -300,15 +217,15 @@ bindings are not difficult to remember.
 I will describe some most useful commands based on my experience. I will not
 list all, so you have to rely on Emacs to get your information: 
 
-| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                              |
-|------------+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                            |
-| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                             |
-| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you find-files.                                                                                                                                                                                                                                 |
-| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                 |
-| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                   |
-| C-h v      | describe-variable       | asks you for a variable; you can TAB to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                               |
-| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press C-h, Emacs will list available commands for that prefix. Prefix C-h is no exception. C-h C-h simply returns all key bindings and commands of prefix C-h. |
+| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                                    |
+|------------+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                                  |
+| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                                   |
+| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you =find-files=.                                                                                                                                                                                                                                     |
+| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                       |
+| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                         |
+| C-h v      | describe-variable       | asks you for a variable; you can *TAB* to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                                                                   |
+| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press =C-h=, Emacs will list available commands for that prefix. Prefix =C-h= is no exception. =C-h C-h= simply returns all key bindings and commands of prefix C-h. |
 
 *IMPORTANT*: With Emacs amazing help system, if you want to know all key
 bindings to prefix =C-x 4=, just =C-x 4= and then =C-h=. If you enter a prefix
@@ -316,7 +233,7 @@ key and enter =C-h= after it, it will list all of the key bindings and commands
 start with that prefix. This is really nice, compare to other editors that hide
 all this information deep within layers of menus.  
 
-*** Info
+*** DONE Info
 
 + =M-x info= or =C-h i= to see all the Info manual in Emacs. If you want to
   learn more about Emacs, the official Emacs manual in Info. 
@@ -327,27 +244,34 @@ Use Info often whenever you need to learn something in Emacs. Use it early to
 create a good habit of reading documentation, and this is beneficial not only
 for Emacs. 
 
-*** Man
+*** DONE Man
 
 You can view man pages with two commands:
 
 + =M-x man=: Get a UNIX manual page and put it in a buffer.
 
 + =M-x woman=: Browse UN*X man page for TOPIC (Without using external Man
-  program). It means, you can view man page without having the man program
-  installed, while the man command above invokes external man program. 
+  program). It means, you can view man page without having the /man/ program
+  installed, while the =man= command above invokes external /man/ program. 
 
-** (Basic) Point
+** DONE (Basic) Point
 
 Point is your current cursor position.
 
-** (Basic) Buffer
+** TODO (Basic) Opening files
+** DONE (Basic) Buffer
 
 Buffer is where you edit your file content. Buffer holds content of a file
 temporarily. Anything you write into the buffer won't make it into file until
 you explicitly save it with =save-buffer= command. =C-x C-s= executes the command
 save-buffer, so you can =C-x C-s= your files. You can also execute this from
 =M-x*=. 
+
+To save a buffer as other file ("Save As" in other editors), =C-x C-w=, which
+runs the commands =write-file=. 
+
+To kill a buffer, =C-x k=. If you want to kill the current buffer, *RET*
+immediately. Otherwise, type into the prompt the buffer name you want to kill. 
 
 Basic Keybinding:
 
@@ -357,6 +281,174 @@ Basic Keybinding:
 | C-x C-w    | write-file       | Save the buffer to a different file                 |
 | C-x b      | switch-to-buffer | Switch to a different buffer                        |
 | C-x k      | kill-buffer      | Kill a buffer. RET to kill the currently active one |
+** DONE (Basic) Major mode
+
+Major modes provide specialized facilities for working on a particular file
+type, such as syntax highlighting for a programming language. Major modes are
+mutually exclusive; each buffer has one and only one major mode at any time. 
+
+Emacs is bundled with many major modes for editing source code in different
+languages: C, C++, Java, Lisp, bash, asm… For example, when opening a file with
+=.c= extension, Emacs automatically recognizes it's a C file and selects the C 
+major mode to highlight the buffer properly. 
+
+** DONE (Basic) Minor mode
+
+Minor modes are optional features which you can turn on or off, not necessarily
+specific to a type of file or buffer. For example, /Auto Fill mode/ is a minor
+mode in which =SPC= breaks lines between words as you type. Minor modes are
+independent of one another, and of the selected major mode. 
+
+** TODO (Basic) Basic buffer managements
+
+So, you learn how to open file and create buffer of that file. In other
+editors, you got something called "tabs". Every time you open a file, you get a
+file tab for selecting an "opening file" (which is called buffer in Emacs). It
+quickly becomes a nuisance once you have lots of file tabs. If you use
+multi-row support for file tabs, it eats up your editing space. 
+
+How do you switch between opening buffers? =C-x b= opens a prompt to enter a
+buffer name. You can *TAB* to complete the buffer name similar to how you
+complete file names in =C-x C-f=. 
+
+After you open a file, and if point is in that buffer, =C-x C-f= prompts the
+current directory, so you can open another file within this directory. For
+example, buffer A is from =~/dir1/= and buffer B is in =~/dir2/=, if point is
+in 
+buffer A, =C-x C-f= starts in =~/dir1/=; if point is in buffer B, =C-x C-f=
+starts in =~/dir2/=. 
+
+In an Emacs session, you may have a lot of buffers, including non-file buffers
+such as shell buffers, email buffers… How do you manage buffers when it's
+getting large? =C-x C-b= executes =list-buffers=, provide you a list of buffer
+in which you can search. However, =list-buffers= is a simple command for buffer
+management. Emacs also provides /ibuffer/, which is a superior alternative. You
+will surely want to use /ibuffer/, but first let's replace =list-buffers= with
+=ibuffer= (by placing next directive to your emacs config file): 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+END_SRC
+
+Then =M-x eval-buffer= for the setup to take effect immediately. 
+
+** DONE (Basic) Basic motion commands
+
+These key bindings are also used by popular shells such as /bash/ or /zsh/. I
+highly recommended you to master these key bindings. 
+
++ Move forward one char: =C-f= (f stands for *forward*)
++ Move backward one char: =C-b= (b stands for *backward*)
++ Move upward one line: =C-p= (p stands for *previous*)
++ Move downward one line: =C-n= (n stands for *next*)
+
+The above operations can also be done with arrow keys. If you don't like the
+above key bindings, the arrow keys offer equivalent features. 
+
++ Move to beginning of line: =C-a=
++ Move to end of line: =C-e=
++ Move forward one word: =M-f=
++ Move backward one word: =M-b=
+
+These key bindings are in Emacs only:
+
++ Scroll forward one screen: =C-v=, *page down*
++ Scroll backward one screen: =M-v=, *page up*
++ Move to the beginning of a sentence: =M-a=
++ Move to the end of a sentence: =M-e=
++ Recenter a screen, making the current line point the center of your screen:
+  =C-l=  
++ Re-position point to the top, middle and bottom of the current screen: =M-r=
++ Move to top of the buffer: =M-<=
++ Move to end of the buffer: =M->=
++ Move to the nth character: =M-g c= (c stands for character)
++ Move to the nth line: =M-g l= for Emacs < 23.2, =M-g g= for emacs >= 23.2) (l/g
+  stands for line) 
+
+** DONE (Basic) Useful built-in key bindings for navigating pairs
+
++ =C-M-f= binds to =forward-sexp=, move forward over a balanced expression.
++ =C-M-b= binds to =backward-sexp=, move backward over a balanced expression.
++ =C-M-k= binds to =kill-sexp=, kill balanced expression forward.
++ =C-M-t= binds to =transpose-sexps=, transpose expressions.
++ =C-M-<SPC>= or =C-M-@= binds to =mark-sexp=, put mark after following expression.
+
+** DONE (Basic) Basic editing command
+
+In Emacs, /kill/ means /cut/ in other editors. These key bindings also work under
+the terminal. 
+
++ Kill a character at the point: =C-d=
++ Kill entire line: =C-S-DEL= (remember, DEL is your =<backspace>= key)
++ Kill forward to the end of a word from current point: =M-d=
++ Kill backward to the beginning of a word from the current point: =M-DEL=
++ Kill all spaces at point: =M-\=
++ Kill all spaces except one at point: =M-SPC=
++ Kill to the end of line: =C-k=
++ Kill a sentence: =M-k=
+
+When you kill something, the killed content is put into the /Kill Ring/.
+
+If you write code, you can also quickly add comments or comment/uncomment code
+with =M-;=
+
++ If you do not highlight a text region, =M-;= adds a comment to the end of line.
++ If you highlight a region (i.e. with a mouse), =M-;= comments out the region.
+
+** DONE (Basic) Dynamic Abbreviations
+
+Dynamic Abbreviations are a completion feature in Emacs, but work for text and
+is context-independent. After you type a word once, if you type that word
+again, you can type it partially and =M-/= to complete it. If you type a prefix
+that has many candidates, =M-/= cycles the candidates. This is a really cool
+feature and you ought to try it.
+
+** TODO (Basic) Search and replace
+
+Content search is an essential feature in every editor. Emacs has many built-in
+tools for this problem.
+
+*** DONE Incremental search
+
+So, you want to look for something in the buffer? =C-s= invokes =isearch-forward=,
+allows you to look forward from the current point for something. After =C-s=, you
+are prompted to enter the content to search for. Enter the content, and press
+=C-s= repeatedly to travel through the matches forward. 
+
+Similarly, =C-r= invokes =isearch-backward=, allows you to look backward from the
+current point. Press =C-r= repeatedly to travel through the matches backward. 
+
+=isearch= can be invoked from any valid buffer. You can perform =isearch= on
+=ibuffer=.
+
+If you want to search with regexp, =C-u C-s=.
+
+Now you get the basics of Isearch, it has more useful commands that are bound
+to =M-s= prefix key: 
+
+| Keybinding | Command                         | Description                                      |
+|------------+---------------------------------+--------------------------------------------------|
+| M-s .      | isearch-forward-symbol-at-point | Feed the symbol at point to =C-s= perform search |
+| M-s o      | occur                           | Run occur                                        |
+| M-s h .    | highlight-symbol-at-point       | Highlight the symbol at point                    |
+| M-s h l    | highlight-lines-matching-regexp | Highlight lines that match input regexp          |
+| M-s h r    | highlight-regexp                | Highlight according to regexp                    |
+| M-s h u    | unhighlight-regexp              | Turn off highlighting strings that match regexp  |
+*** DONE Query replace
+
+To replace something, =M-%= to execute =query-replace=. =M-%= asks you two inputs: 
+
++ A string to be replaced.
++ A string to replace.
+
+Supply the inputs and *RET*.
+
+Emacs will ask your confirmation to replace a matched string. If you want to
+replace all, press *!* instead of answer yes or no (*Note*: it will replace
+ocurrences only *beneath* your current point). 
+
+If you want to query and replace with regexp, =C-M-%=.
+
 ** TODO (Basic) Modeline
 
 The mode line is the empty area below the buffer. It has useful summary
@@ -473,7 +565,7 @@ In Emacs, =<next>= is the *PageDown* key, =<prior>= is the *PageUp* key.
 =M-<next>= runs =scroll-other-window= and scroll the other window forward;
 =M-<prior>= runs =scroll-other-window-down= and scroll the other window backward.
 
-** TODO (Basic) File management with =dired=
+** TODO (Basic) Basic file management with =dired=
 
 Emacs has a built-in one called Dired, short for =(Dir)ectory (Ed)itor=.
 
@@ -492,12 +584,93 @@ Each register has a name that consists of a single character, which we will
 denote by r; r can be a letter (such as ‘a’) or a number (such as ‘1’); case
 matters, so register ‘a’ is not the same as register ‘A’. 
 
-In Emacs, registers are for quick access to things. Things can be a position, a piece of text, a rectangle, a number, a file name, or a window configuration (yes, you can save how Emacs organizes its screens and restore it later!).
+In Emacs, registers are for quick access to things. Things can be a position, a
+piece of text, a rectangle, a number, a file name, or a window configuration
+(yes, you can save how Emacs organizes its screens and restore it later!). 
 
-Saving different types of objects has different key bindings, but to jump to a register, you use a single command C-x r j REG; REG is a register of your choice.
+Saving different types of objects has different key bindings, but to jump to a
+register, you use a single command =C-x r j REG=; =REG= is a register of your
+choice. 
 
-The prefix key for register commands is C-x r. If you forget the key bindings, C-x r C-h to get the list of key bindings.
-* Basics
+The prefix key for register commands is =C-x r=. If you forget the key bindings,
+=C-x r C-h= to get the list of key bindings. 
+
+*** Save window configuration
+*** Save frame configuration
+*** Save text
+*** Save rectangle
+*** Save Position
+*** Save number
+** TODO (Advanced) Macro
+** DONE (Basic) Version control
+
+This section is taken directly from [[https://www.gnu.org/software/emacs/tour/][GNU Emacs Tour]], with improvements.
+
+Emacs helps you manipulate and edit files stored in version control. Emacs
+supports CVS, Subversion, bzr, git, hg, and other systems, but it offers a
+uniform interface, called /VC/, regardless of the version control system you
+are using. The benefit of a unified interface is that even if you aren't
+familiar with some version control system (VCS), you can still work with that
+VCS quickly, without the burden of learning all the little details of a
+particular VCS. 
+
+Emacs automatically detects when a file you're editing is under version
+control, and displays something like this in the mode line: CVS-1.14 to
+indicate the version control system in use, and the current version. 
+
+=M-x vc-next-action= or =C-x v v= commits the current file (prompting you for a
+log message) if you've modified it. (Under version control systems that require 
+locking, this command also acquires a lock for you.) 
+
+/VC/ provides other commands for version control-related tasks:
+
+| Keybinding | Command                  | Description                                                                                                                                                                                                                        |
+|------------+--------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-x v =    | vc-diff                  | Displays a diff showing the changes you've made to the current files.                                                                                                                                                              |
+| C-x v ~    | vc-revision-other-window | Prompts you for a version number and shows you that version of the current file in another window.                                                                                                                                 |
+| C-x v g    | vc-annotate              | Displays an annotated version of the file showing, for each line, the commit where that line was last changed and by whom. On any line you can press =l= to view the log message for that commit or d to view the associated diff. |
+| C-x v l    | vc-print-log             | Displays a log of previous changes to the file. When point is on a particular log entry, you can press =d= to view the diff associated with that change or =f= to view that version of the file.                                   |
+| C-x v u    | vc-revert                | Revert working copies of the selected fileset to their repository contents. This asks for confirmation if the buffer contents are not identical to the working revision (except for keyword expansion).                            |
+
+If you use =git=, a more specialized package exists dedicated to Git only: =Magit=
+offers much better features than the general interface that Emacs provides,
+except for some features, such as =C-x v ==, =C-x v ~= and =C-x v u=. 
+
+The prefix key bindings for all VC related commands are =C-x v=. The above are
+just a few commands that I found most useful and used frequently, even when I
+use [[https://github.com/magit/magit][Magit]]. 
+
+** TODO Shell
+
+In Emacs, you have 3 types of shell commands: =shell=, =term= and =eshell=. 
+
+I will just quote a very good answer on [[http://unix.stackexchange.com/questions/104325/what-is-the-difference-between-shell-eshell-and-term-in-emacs][StackExchange: What is the difference
+between shell, eshell, and term in Emacs?]] 
+
+#+BEGIN_QUOTE
+[[%5B%5Bhttps://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Mode.html%5D%5Bshell%5D%5D][shell]] is the oldest of these 3 choices. It uses Emacs's comint-mode to run a
+subshell (e.g. bash). In this mode, you're using Emacs to edit a command line.
+The subprocess doesn't see any input until you press Enter. Emacs is acting
+like a dumb terminal. It does support color codes, but not things like moving
+the cursor around, so you can't run curses-based applications. 
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Term-Mode.html][term]] is a terminal emulator written in Emacs Lisp. In this mode, the keys you
+press are sent directly to the subprocess; you're using whatever line editing
+capabilities the shell presents, not Emacs's. It also allows you to run
+programs that use advanced terminal capabilities like cursor movement (e.g. you
+could run nano or less inside Emacs). 
+
+[[https://www.gnu.org/software/emacs/manual/html_node/eshell/index.html][eshll]] is a shell implemented directly in Emacs Lisp. You're not running bash
+or any other shell as a subprocess. As a result, the syntax is not quite the
+same as bash or sh. It allows things like redirecting the output of a process
+directly to an Emacs buffer (try echo hello >#<buffer results>). 
+#+END_QUOTE
+
+I suggest you to use eshell, since you can use any Emacs commands within Eshell
+as well. However, in Eshell, to send an interrupt signal, instead of =Ctrl+C=,
+you need to press twice: =Ctrl+C Ctrl+C=. 
+
+* Basics configuration
 ** General settings
 *** Personal Information
 
@@ -661,13 +834,120 @@ With [[https://www.emacswiki.org/emacs/uniquify][uniquify]], buffers visiting "/
   (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
   (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
 #+END_SRC
-* Display
-** Full Screen
+** Helm
+*** Helm core
+
+[[https://github.com/emacs-helm/helm][Helm]] makes it easy to complete various things. I find it to be easier to
+configure than ido in order to get completion in as many places as possible,
+although I prefer ido's way of switching buffers.
+
+l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm
+    :ensure t
+    :diminish ""
+    :init
+    (require 'helm)
+    (require 'helm-config)
+
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+
+    ;; rebind tab to run persistent action
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+    ;; make TAB works in terminal
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    ;; list actions using C-z
+    (define-key helm-map (kbd "C-z")  'helm-select-action)
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
+
+    (setq helm-split-window-in-side-p           t
+          helm-move-to-line-cycle-in-source     t
+          helm-ff-search-library-in-sexp        t
+          helm-scroll-amount                    8
+          helm-ff-file-name-history-use-recentf t)
+
+    (helm-mode 1)
+
+    :config
+    ;; fuzzy matching
+    (setq helm-recentf-fuzzy-match t
+          helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
+          helm-M-x-fuzzy-match t
+          helm-buffers-fuzzy-matching t
+          helm-semantic-fuzzy-match t
+          helm-apropos-fuzzy-match t
+          helm-imenu-fuzzy-match t
+          helm-lisp-fuzzy-completion t
+          helm-completion-in-region-fuzzy-match t)
+
+    :bind (("M-x" . helm-M-x)
+           ("M-y" . helm-show-kill-ring)
+
+           ("C-x b" . helm-mini)
+           ("C-x C-b" . helm-buffers-list)
+           ("C-x C-f" . helm-find-files)
+           ("C-x C-r" . helm-recentf)
+
+           ("C-c s" . helm-swoop)
+           ("C-c o" . helm-occur)
+           
+           ("C-c h a" . helm-apropos)
+           ("C-c h y" . helm-yas-complete)
+           ("C-c h SPC" . helm-all-mark-rings)
+           ("C-c h i" . helm-semantic-or-imenu)
+           ("C-c h m" . helm-man-woman)
+           ))
+#+END_SRC
+*** Helm-swoop
+
+This promises to be a fast way to find things.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm-swoop
+    :bind (("M-i" . helm-swoop)
+           ("M-I" . helm-swoop-back-to-last-point)
+           ("C-c M-i" . helm-multi-swoop))
+    :config
+    ;; When doing isearch, hand the word over to helm-swoop
+    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+    ;; From helm-swoop to helm-multi-swoop-all
+    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+    ;; Save buffer when helm-multi-swoop-edit complete
+    (setq helm-multi-swoop-edit-save t
+          ;; If this value is t, split window inside the current window
+          helm-swoop-split-with-multiple-windows t
+          ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
+          helm-swoop-split-direction 'split-window-vertically
+          ;; If nil, you can slightly boost invoke speed in exchange for text color
+          helm-swoop-speed-or-color nil))
+#+END_SRC
+
+*** Helm-describe
+
+Helm Descbinds provides an interface to emacs’ describe-bindings making the
+currently active key bindings interactively searchable with helm. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm-descbinds
+    :bind ("C-h b" . helm-descbinds)
+    :init (fset 'describe-bindings 'helm-descbinds)
+    :config (require 'helm-config))
+#+END_SRC
+* Modules
+** Display
+*** Full Screen
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;;  (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
 #+END_SRC
-** Color Theme
+*** Color Theme
 
 [[http://ethanschoonover.com/solarized][Solarized]] is my favourite color theme. it is available for multiple
 applications, not only for emacs. I'll set this as the default theme for
@@ -700,8 +980,8 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
   (setq curr-theme my-themes)
   (load-theme (car curr-theme) t)
 #+END_SRC
-** Modeline
-*** Amit's mode line
+*** Modeline
+**** Amit's mode line
 
 #+BEGIN_SRC emacs-lisp :tangle no
   ;; Mode line setup
@@ -816,7 +1096,7 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
                       :foreground "black" :background "#eab700")
 
 #+END_SRC
-*** Nyan-mode
+**** Nyan-mode
 
 Let [[https://en.wikipedia.org/wiki/Nyan_Cat][Nyan Cat]] show you your buffer position in mode line.
 
@@ -828,7 +1108,7 @@ and the space in front of it.
       :init
       (nyan-mode))
 #+END_SRC
-** Fonts
+*** Fonts
 
 Choosing a good and comfortable font is quite important in your whole coding
 life.
@@ -850,7 +1130,7 @@ I prefer Monaco. And, as a Chinese, l choose WenQuanYi for Chinese charset.
     (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
     )
 #+END_SRC
-** Symbols
+*** Symbols
 
 Prettify all the symbols.
 
@@ -864,8 +1144,8 @@ Prettify all the symbols.
                 (push '("fn" . ?ƒ) prettify-symbols-alist)))
     (global-prettify-symbols-mode +1))
 #+END_SRC
-* Persistence
-** Bookmarks
+** Persistence
+*** Bookmarks
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; `C-x r m' – set a bookmark at the current location (e.g. in a file)
@@ -877,7 +1157,7 @@ Prettify all the symbols.
   (setq bookmark-default-file "~/.emacs.d/bookmarks")
   (setq bookmark-save-flag 1)             ; autosave each change
 #+END_SRC
-** Recentf
+*** Recentf
 
 =Recentf= is a minor mode that builds a list of recently opened files. This
 list is automatically saved across sessions on exiting Emacs - you can then
@@ -889,7 +1169,7 @@ access this list through a command or the menu.
         recentf-max-menu-items 15)
   (recentf-mode)
 #+END_SRC
-** Saveplace
+*** Saveplace
 
 When you visit a file, point goes to the last place where it was when you
 previously visited the same file.  
@@ -899,7 +1179,7 @@ previously visited the same file.
   (setq-default save-place t)
   (setq save-place-file (concat user-emacs-directory ".saveplace"))
 #+END_SRC
-** Savehist
+*** Savehist
 
 By default, =Savehist= mode saves only your minibuffer histories, but you can
 optionally save other histories and other variables as well.
@@ -915,8 +1195,8 @@ optionally save other histories and other variables as well.
           search-ring
           regexp-search-ring))
 #+END_SRC
-* Navigation
-** Switch-window
+** Navigation
+*** Switch-window
 
 A visual replacement for =C-x o=.
 
@@ -924,7 +1204,7 @@ A visual replacement for =C-x o=.
 (use-package switch-window
   :bind (("C-x o" . switch-window)))
 #+end_src
-** Ace-jump
+*** Ace-jump
 
 [[https://github.com/winterTTr/ace-jump-mode][Ace-jump-mode]] is a minor mode for Emacs, enabling fast/direct cursor movement
 in current view. 
@@ -935,8 +1215,8 @@ in current view.
     :bind (("C-c SPC" . ace-jump-word-mode)
            ("C-c M-SPC" . ace-jump-line-mode)))
 #+END_SRC
-* File manager
-** Dired
+** File manager
+*** Dired
 
 Dired is sweet, I require =dired-x= also so I can hit =C-x C-j= and go directly
 to a dired buffer. 
@@ -995,8 +1275,8 @@ writable-dired mode is aawwweeeesssoooommee, it makes renames super easy.
     (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
     (add-hook 'dired-mode-hook #'my/dired-mode-hook)))
 #+END_SRC
-* Project manager
-** Projectile
+** Project manager
+*** Projectile
 
 Projectile guide: [[http://tuhdo.github.io/helm-projectile.html][Exploring large projects with Projectile and Helm Projectile]]
 
@@ -1012,7 +1292,57 @@ Projectile guide: [[http://tuhdo.github.io/helm-projectile.html][Exploring large
     (setq projectile-switch-project-action 'helm-projectile)
     )
 #+END_SRC
+** Completion
+*** Hippie-expand
+
+=Hippie-expand= looks at the word before point and tries to expand it in
+various ways including expanding from a fixed list (like =`expand-abbrev’=),
+expanding from matching text found in a buffer (like =`dabbrev-expand’=) or
+expanding in ways defined by your own functions. Which of these it tries and in
+what order is controlled by a configurable list of functions.  
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "M-/") 'hippie-expand)
+
+  (setq hippie-expand-try-functions-list
+   '(try-expand-dabbrev
+     try-expand-dabbrev-all-buffers
+     try-expand-dabbrev-from-kill
+     try-complete-file-name-partially
+     try-complete-file-name
+     try-expand-all-abbrevs
+     try-expand-list
+     try-expand-line
+     try-complete-lisp-symbol-partially
+     try-complete-lisp-symbol))
+#+END_SRC
+*** Company
+
+[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete 
+anything". It uses pluggable back-ends and front-ends to retrieve and display
+completion candidates. 
+
+It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
+Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags, files, 
+keywords and a few others. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package company
+    :ensure t
+    :diminish company-mode
+    :init
+    (add-hook 'after-init-hook 'global-company-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package company-quickhelp
+    :ensure t
+    :config
+    (company-quickhelp-mode 1))
+#+END_SRC
+
 * Editing
+** Kill
 ** Unicode
 *** UTF-8
 
@@ -1288,54 +1618,6 @@ Highlights things like undo, copy, paste, etc.
          (require 'volatile-highlights) ;; vh has a problem with autoloads
          (add-hook 'org-mode-hook #'my/turn-on-volatile-highlights)
          (add-hook 'prog-mode-hook #'my/turn-on-volatile-highlights)))
-#+END_SRC
-* Completion
-** Hippie-expand
-
-=Hippie-expand= looks at the word before point and tries to expand it in
-various ways including expanding from a fixed list (like =`expand-abbrev’=),
-expanding from matching text found in a buffer (like =`dabbrev-expand’=) or
-expanding in ways defined by your own functions. Which of these it tries and in
-what order is controlled by a configurable list of functions.  
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (global-set-key (kbd "M-/") 'hippie-expand)
-
-  (setq hippie-expand-try-functions-list
-   '(try-expand-dabbrev
-     try-expand-dabbrev-all-buffers
-     try-expand-dabbrev-from-kill
-     try-complete-file-name-partially
-     try-complete-file-name
-     try-expand-all-abbrevs
-     try-expand-list
-     try-expand-line
-     try-complete-lisp-symbol-partially
-     try-complete-lisp-symbol))
-#+END_SRC
-** Company
-
-[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete 
-anything". It uses pluggable back-ends and front-ends to retrieve and display
-completion candidates. 
-
-It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
-Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags, files, 
-keywords and a few others. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package company
-    :ensure t
-    :diminish company-mode
-    :init
-    (add-hook 'after-init-hook 'global-company-mode))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package company-quickhelp
-    :ensure t
-    :config
-    (company-quickhelp-mode 1))
 #+END_SRC
 * Development environment
 
@@ -1710,7 +1992,19 @@ visible on your screen:
   |----------------------------+--------------------------------------|
 #+END_SRC
 
-* Programming Tools
+* Language-specific configuration
+** SML
+
+SML Installation Guide: [[https://courses.cs.washington.edu/courses/cse341/16sp/sml_emacs.pdf][Programming Languages Using SML and Emacs]]. 
+
+Configuration for [[https://www.coursera.org/learn/programming-languages/][Programming Language]] in Coursera taught by Dan Grossman.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package sml-mode)
+  (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
+  (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
+#+END_SRC
+* Applications and tools
 ** Utilities
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1809,14 +2103,6 @@ visible on your screen:
 (use-package git-messenger
   :bind (("C-x v m" . git-messenger:popup-message)))
 #+end_src
-* Programming language
-** SML
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package sml-mode)
-  (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
-  (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
-#+END_SRC
 * Org
 ** Introduction
 
@@ -2023,8 +2309,9 @@ list.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq org-agenda-files (list "~/org/work.org"
-                               "~/org/school.org" 
+                               "~/org/school.org"
                                "~/org/home.org"
+                               "~/org/learning.org"
                                "~/org/projects.org"))
 #+END_SRC
 *** Proper syntax highlighting
@@ -2066,9 +2353,9 @@ languages, you need to add this to your emacs init:
      (ruby . t)
      (dot . t)
      (sh . t)
-     (latex . t)))
+     (latex . t)
+     (ledger . t)))
 #+END_SRC
-
 *** Proper syntax highlighting
 
 To make org mode syntax color embeded source code:
