@@ -5,75 +5,609 @@
 * About
 ** My Emacs Init File
 
-This is my emacs init file. I’ve written it in a literate style, to make it
-easy to explain. The notes also include hyperlinks to where I stole it. ;-)
-
-This document is available as an org file which you can load in Emacs and
-tangle with =C-c C-v C-t= which will create org-mode.el in the same directory as
-the org-mode.org file. This will extract all of the elisp examples in this
-document into a file you can include in your emacs config file. 
+This is my Emacs configuration file. Inspired by [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha]] and [[http://doc.norang.ca/org-mode.html][Bernt]], l written it
+using Org-babel in literate style, to make it easy to explain.
 
 #+BEGIN_SRC org
-Author: Xiaojie Feng
-Keywords: emacs, dotfile, config
+  Author: Xiaojie Feng
+  Keywords: emacs, dotfile, config
 
-   ___ _ __ ___   __ _  ___ ___
-  / _ \ '_ ` _ \ / _` |/ __/ __|
- |  __/ | | | | | (_| | (__\__ \
-(_)___|_| |_| |_|\__,_|\___|___/
+     ___ _ __ ___   __ _  ___ ___
+    / _ \ '_ ` _ \ / _` |/ __/ __|
+   |  __/ | | | | | (_| | (__\__ \
+  (_)___|_| |_| |_|\__,_|\___|___/
 #+END_SRC
 ** License
 
 #+BEGIN_EXAMPLE
-Copyright (C)  2016  Xiaojie Feng.
-Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.3
-or any later version published by the Free Software Foundation;
-with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+  Copyright (C)  2016  Xiaojie Feng.
+  Permission is granted to copy, distribute and/or modify this document under the
+  terms of the GNU Free Documentation License, Version 1.3 or any later version
+  published by the Free Software Foundation; with no Invariant Sections, no
+  Front-Cover Texts, and no Back-Cover Texts.
 
-Code in this document is free software: you can redistribute it
-and/or modify it under the terms of the GNU General Public
-License as published by the Free Software Foundation, either
-version 3 of the License, or (at your option) any later version.
+  Code in this document is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
 
-This code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This code is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #+END_EXAMPLE
 ** Commentary
 
 #+BEGIN_EXAMPLE
-"Show me your ~/.emacs and I will tell you who you are."
-                                                         [Bogdan Maryniuk]
+  Emacs outshines all other editing software in approximately the same way that
+  the noonday sun does the stars. It is not just bigger and brighter; it simply
+  makes everything else vanish.
+                                                                 [Neal Stephenson]
 
-"Emacs is like a laser guided missile. It only has to be slightly 
-mis-configured to ruin your whole day."
-                                                            [Sean McGrath]
+  "Show me your ~/.emacs and I will tell you who you are."
+                                                                 [Bogdan Maryniuk]
 
-"While any text editor can save your files, only Emacs can save your
-soul."
-                                                          [Per Abrahamsen]
+  "Emacs is like a laser guided missile. It only has to be slightly 
+  mis-configured to ruin your whole day."
+                                                                    [Sean McGrath]
+
+  "While any text editor can save your files, only Emacs can save your
+  soul."
+                                                                  [Per Abrahamsen]
 #+END_EXAMPLE
-** How to use
+** How to Use This Document
+
+This document is available as an org file which you can load in Emacs and
+tangle with =M-x org-babel-tangle (C-c C-v C-t)= which will create
+=org-mode.el= in the same directory as the =org-mode.org= file. This will
+extract all of the elisp examples in this document into a file you can include
+in your .emacs file.
 
 If you're new to Emacs Lisp, you probably don't want to copy and paste large
 chunks of this code. Instead, copy small parts of it (always making sure to
 copy a complete set of parentheses) into your =*scratch*= buffer or some other
 buffer in =emacs-lisp-mode=. Use =M-x eval-buffer= to evaluate the code and see
-if you like the way that Emacs behaves. See [[https://www.gnu.org/software/emacs/manual/html_mono/eintr.html][An Introduction to Programming in
-Emacs Lisp]] for more details on Emacs Lisp. You can also find the manual by
-using =C-h i= (info) and choosing "Emacs Lisp Intro". 
+if you like the way that Emacs behaves.
 
-This document is available as an org file which you can load in Emacs and
-tangle with =C-c C-v C-t= which will create org-mode.el in the same directory as
-the org-mode.org file. This will extract all of the elisp examples in this
-document into a file you can include in your .emacs file. 
+If you're a Emacs newbie, you should learn Emacs basic concepts and usage
+first.
 
-* Prerequisites
-** Emacs newbie?
+* Guide for Newbie
+  
+*Reference*: [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (PART 1)]]
+** Concepts
+*** DONE (Basic) Command
 
-Here are some beginner-oriented tutorials written by users worth reading:
+In Emacs, every user interaction is a function execution. You press a key to
+insert a character, Emacs runs =self-insert-command=. There are two types of
+functions in Emacs: 
+
++ /Normal functions/: These are like functions in other programming languages,
+  and are used for implementing features in Emacs. Users do not need to care
+  about these functions, unless they want to implement something or modify an
+  existing implementation. 
+
++ /Commands/: Commands are like functions, but interactive. It means, commands
+  are features provided to users and users directly use them. 
+
+By default, =execute-extended-command= is bound to =M-x=. I replace it with
+=helm-M-x=, which is much better.
+
+*** DONE (Basic) Emacs key notation
+
+| Prefix | Meaning                                       |
+|--------+-----------------------------------------------|
+| =C-=   | (press and hold) the Control key              |
+| =M-=   | the Meta key (the Alt key, on most keyboards) |
+| =S-=   | the Shift key (e.g. ‘S-TAB’ means Shift Tab)  |
+| =DEL=  | the Backspace key (not the Delete key)        |
+| =RET=  | the Return or Enter key                       |
+| =SPC=  | the Space bar                                 |
+| =ESC=  | the Escape key                                |
+| =TAB=  | the Tab key                                   |
+
+A notation such as =C-M-x= (or, equivalently, =M-C-x=) means press and hold
+both Control and Meta (Alt) keys while hitting the ‘x’ key. 
+
+If you see =M-x command=, it means you need to =M-x= and type command.
+
+A prefix key is a part of a full key binding. For example, a full key binding
+is =C-x r l= to run the command =bookmark-bmenu-list=, then =C-x= and =C-x r=
+are its prefixes. Note that key sequence such as =C-x= and =M-x= are considered
+a single character. Knowing prefix key is handy: if you forget key bindings of
+some commands that use the same prefix key, and remember the prefix, you can
+press the prefix key and =C-h= to get a list of commands with that prefix. 
+
+*IMPORTANT*: =C-g= executes the command =keyboard-quit=, which cancels anything
+Emacs is executing. If you press any key sequence wrongly, C-g to cancel that
+incorrectly pressed key sequence and start again. 
+
+*TIP*: As you gradually learn Emacs, you will see the key bindings are
+really systematically organized and mnemonic. Whenever you see key bindings
+ending with =n= and =p=, it usually means *next* and *previous*; =o= means *open*;
+=h= means *help*; =C-h= is standard prefix for *help commands*; key bindings such
+as =o= and =C-o= are frequently used in many built-in tools such as /Dired/,
+/Ibuffer/, /Occur/ …  
+
+*** DONE (Basic) Emacs keys are easy to remember
+
+The key bindings have a few simple and easy to remember rules:
+
++ =C-x= prefix is for default and global binding that come with Emacs.
++ =C-c= prefix is for users to define.
++ =C-u= is for altering behaviors of commands. That is, one command can behave
+  differently depending on how many C-u you pressed first before executing a
+  command. Mostly you just have to hit C-u once. 
++ =C-<number>= like =C-1=, =C-2= … is similar to =C-u=, but passing a number to
+  a command. Usually, the number specifies how many times you want to repeat a
+  command. 
+
+Most commands can be organized in an easy to remember way. For example, command
+like =helm-do-grep= (the command belongs to =Helm=) can have a key binding like
+=C-c h g=. The =h= stands for /Helm/ and =g= stands for /grep/. So, key
+bindings are not difficult to remember.  
+
+*** (Basic) Ask for help from Emacs
+**** Build-in help system
+
+I will describe some most useful commands based on my experience. I will not
+list all, so you have to rely on Emacs to get your information: 
+
+| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                                    |
+|------------+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                                  |
+| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                                   |
+| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you =find-files=.                                                                                                                                                                                                                                     |
+| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                       |
+| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                         |
+| C-h v      | describe-variable       | asks you for a variable; you can *TAB* to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                                                                   |
+| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press =C-h=, Emacs will list available commands for that prefix. Prefix =C-h= is no exception. =C-h C-h= simply returns all key bindings and commands of prefix C-h. |
+
+*IMPORTANT*: With Emacs amazing help system, if you want to know all key
+bindings to prefix =C-x 4=, just =C-x 4= and then =C-h=. If you enter a prefix
+key and enter =C-h= after it, it will list all of the key bindings and commands
+start with that prefix. This is really nice, compare to other editors that hide
+all this information deep within layers of menus.  
+
+**** DONE Info
+
++ =M-x info= or =C-h i= to see all the Info manual in Emacs. If you want to
+  learn more about Emacs, the official Emacs manual in Info. 
+
++ =M-x info-emacs-manual= or, =C-h r=, to see manual section for Emacs.
+
+Use Info often whenever you need to learn something in Emacs. Use it early to
+create a good habit of reading documentation, and this is beneficial not only
+for Emacs. 
+
+**** DONE Man
+
+You can view man pages with two commands:
+
++ =M-x man=: Get a UNIX manual page and put it in a buffer.
+
++ =M-x woman=: Browse UN*X man page for TOPIC (Without using external Man
+  program). It means, you can view man page without having the /man/ program
+  installed, while the =man= command above invokes external /man/ program. 
+
+*** DONE (Basic) Point
+
+Point is your current cursor position.
+
+*** TODO (Basic) Opening files
+*** DONE (Basic) Buffer
+
+Buffer is where you edit your file content. Buffer holds content of a file
+temporarily. Anything you write into the buffer won't make it into file until
+you explicitly save it with =save-buffer= command. =C-x C-s= executes the command
+save-buffer, so you can =C-x C-s= your files. You can also execute this from
+=M-x*=. 
+
+To save a buffer as other file ("Save As" in other editors), =C-x C-w=, which
+runs the commands =write-file=. 
+
+To kill a buffer, =C-x k=. If you want to kill the current buffer, *RET*
+immediately. Otherwise, type into the prompt the buffer name you want to kill. 
+
+Basic Keybinding:
+
+| Keybinding | Command          | Description                                         |
+|------------+------------------+-----------------------------------------------------|
+| C-x C-s    | save-buffer      | Save the buffer at point                            |
+| C-x C-w    | write-file       | Save the buffer to a different file                 |
+| C-x b      | switch-to-buffer | Switch to a different buffer                        |
+| C-x k      | kill-buffer      | Kill a buffer. RET to kill the currently active one |
+*** DONE (Basic) Major mode
+
+Major modes provide specialized facilities for working on a particular file
+type, such as syntax highlighting for a programming language. Major modes are
+mutually exclusive; each buffer has one and only one major mode at any time. 
+
+Emacs is bundled with many major modes for editing source code in different
+languages: C, C++, Java, Lisp, bash, asm… For example, when opening a file with
+=.c= extension, Emacs automatically recognizes it's a C file and selects the C 
+major mode to highlight the buffer properly. 
+
+*** DONE (Basic) Minor mode
+
+Minor modes are optional features which you can turn on or off, not necessarily
+specific to a type of file or buffer. For example, /Auto Fill mode/ is a minor
+mode in which =SPC= breaks lines between words as you type. Minor modes are
+independent of one another, and of the selected major mode. 
+
+*** TODO (Basic) Basic buffer managements
+
+So, you learn how to open file and create buffer of that file. In other
+editors, you got something called "tabs". Every time you open a file, you get a
+file tab for selecting an "opening file" (which is called buffer in Emacs). It
+quickly becomes a nuisance once you have lots of file tabs. If you use
+multi-row support for file tabs, it eats up your editing space. 
+
+How do you switch between opening buffers? =C-x b= opens a prompt to enter a
+buffer name. You can *TAB* to complete the buffer name similar to how you
+complete file names in =C-x C-f=. 
+
+After you open a file, and if point is in that buffer, =C-x C-f= prompts the
+current directory, so you can open another file within this directory. For
+example, buffer A is from =~/dir1/= and buffer B is in =~/dir2/=, if point is
+in 
+buffer A, =C-x C-f= starts in =~/dir1/=; if point is in buffer B, =C-x C-f=
+starts in =~/dir2/=. 
+
+In an Emacs session, you may have a lot of buffers, including non-file buffers
+such as shell buffers, email buffers… How do you manage buffers when it's
+getting large? =C-x C-b= executes =list-buffers=, provide you a list of buffer
+in which you can search. However, =list-buffers= is a simple command for buffer
+management. Emacs also provides /ibuffer/, which is a superior alternative. You
+will surely want to use /ibuffer/, but first let's replace =list-buffers= with
+=ibuffer= (by placing next directive to your emacs config file): 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+END_SRC
+
+Then =M-x eval-buffer= for the setup to take effect immediately. 
+
+*** DONE (Basic) Basic motion commands
+
+These key bindings are also used by popular shells such as /bash/ or /zsh/. I
+highly recommended you to master these key bindings. 
+
++ Move forward one char: =C-f= (f stands for *forward*)
++ Move backward one char: =C-b= (b stands for *backward*)
++ Move upward one line: =C-p= (p stands for *previous*)
++ Move downward one line: =C-n= (n stands for *next*)
+
+The above operations can also be done with arrow keys. If you don't like the
+above key bindings, the arrow keys offer equivalent features. 
+
++ Move to beginning of line: =C-a=
++ Move to end of line: =C-e=
++ Move forward one word: =M-f=
++ Move backward one word: =M-b=
+
+These key bindings are in Emacs only:
+
++ Scroll forward one screen: =C-v=, *page down*
++ Scroll backward one screen: =M-v=, *page up*
++ Move to the beginning of a sentence: =M-a=
++ Move to the end of a sentence: =M-e=
++ Recenter a screen, making the current line point the center of your screen:
+  =C-l=  
++ Re-position point to the top, middle and bottom of the current screen: =M-r=
++ Move to top of the buffer: =M-<=
++ Move to end of the buffer: =M->=
++ Move to the nth character: =M-g c= (c stands for character)
++ Move to the nth line: =M-g l= for Emacs < 23.2, =M-g g= for emacs >= 23.2) (l/g
+  stands for line) 
+
+*** DONE (Basic) Useful built-in key bindings for navigating pairs
+
++ =C-M-f= binds to =forward-sexp=, move forward over a balanced expression.
++ =C-M-b= binds to =backward-sexp=, move backward over a balanced expression.
++ =C-M-k= binds to =kill-sexp=, kill balanced expression forward.
++ =C-M-t= binds to =transpose-sexps=, transpose expressions.
++ =C-M-<SPC>= or =C-M-@= binds to =mark-sexp=, put mark after following expression.
+
+*** DONE (Basic) Basic editing command
+
+In Emacs, /kill/ means /cut/ in other editors. These key bindings also work under
+the terminal. 
+
++ Kill a character at the point: =C-d=
++ Kill entire line: =C-S-DEL= (remember, DEL is your =<backspace>= key)
++ Kill forward to the end of a word from current point: =M-d=
++ Kill backward to the beginning of a word from the current point: =M-DEL=
++ Kill all spaces at point: =M-\=
++ Kill all spaces except one at point: =M-SPC=
++ Kill to the end of line: =C-k=
++ Kill a sentence: =M-k=
+
+When you kill something, the killed content is put into the /Kill Ring/.
+
+If you write code, you can also quickly add comments or comment/uncomment code
+with =M-;=
+
++ If you do not highlight a text region, =M-;= adds a comment to the end of line.
++ If you highlight a region (i.e. with a mouse), =M-;= comments out the region.
+
+*** DONE (Basic) Dynamic Abbreviations
+
+Dynamic Abbreviations are a completion feature in Emacs, but work for text and
+is context-independent. After you type a word once, if you type that word
+again, you can type it partially and =M-/= to complete it. If you type a prefix
+that has many candidates, =M-/= cycles the candidates. This is a really cool
+feature and you ought to try it.
+
+*** TODO (Basic) Search and replace
+
+Content search is an essential feature in every editor. Emacs has many built-in
+tools for this problem.
+
+**** DONE Incremental search
+
+So, you want to look for something in the buffer? =C-s= invokes =isearch-forward=,
+allows you to look forward from the current point for something. After =C-s=, you
+are prompted to enter the content to search for. Enter the content, and press
+=C-s= repeatedly to travel through the matches forward. 
+
+Similarly, =C-r= invokes =isearch-backward=, allows you to look backward from the
+current point. Press =C-r= repeatedly to travel through the matches backward. 
+
+=isearch= can be invoked from any valid buffer. You can perform =isearch= on
+=ibuffer=.
+
+If you want to search with regexp, =C-u C-s=.
+
+Now you get the basics of Isearch, it has more useful commands that are bound
+to =M-s= prefix key: 
+
+| Keybinding | Command                         | Description                                      |
+|------------+---------------------------------+--------------------------------------------------|
+| M-s .      | isearch-forward-symbol-at-point | Feed the symbol at point to =C-s= perform search |
+| M-s o      | occur                           | Run occur                                        |
+| M-s h .    | highlight-symbol-at-point       | Highlight the symbol at point                    |
+| M-s h l    | highlight-lines-matching-regexp | Highlight lines that match input regexp          |
+| M-s h r    | highlight-regexp                | Highlight according to regexp                    |
+| M-s h u    | unhighlight-regexp              | Turn off highlighting strings that match regexp  |
+**** DONE Query replace
+
+To replace something, =M-%= to execute =query-replace=. =M-%= asks you two inputs: 
+
++ A string to be replaced.
++ A string to replace.
+
+Supply the inputs and *RET*.
+
+Emacs will ask your confirmation to replace a matched string. If you want to
+replace all, press *!* instead of answer yes or no (*Note*: it will replace
+ocurrences only *beneath* your current point). 
+
+If you want to query and replace with regexp, =C-M-%=.
+
+*** TODO (Basic) Modeline
+
+The mode line is the empty area below the buffer. It has useful summary
+information about the buffer shown in the window. 
+
+The text displayed in the mode line has the following format:
+
+#+BEGIN_SRC org
+  |cs:ch-fr | buf | pos line | (major minor)|
+#+END_SRC
+*** (Basic) Minibuffer
+
+/Minibuffer/ is the small area at the bottom of your Emacs screen.
+
+The /Minibuffer/ is where Emacs commands read complicated arguments, such as
+file names, buffer names, Emacs command names, or Lisp expressions. When you
+execute =find-file=, it asks for your file from the Minibuffer, which is one of
+=find-file= required argument. Remember that in Emacs,everything is a function.
+=find-file= is a command, in other words, it's an interactive function. As a
+function, it also takes arguments. Minibuffer is where users can feed arguments
+to the interactive functions.
+
+Minibuffer has an input history. If you enter anything into the minibuffer and
+*RET*, minibuffer remembers the input and you can access the input again with:
+
++ =M-p= moves to the previous input in minibuffer history.
++ =M-n= moves to the next input in minibuffer history.
++ =M-r= searches for an input that matches the supplied regexp.
+
+*** (Basic) Echo area
+
+/Minibuffer/ can be used for output as well. The /echo area/ is used for displaying
+messages made with the message primitive, and for echoing keystrokes. 
+
+Both Minibuffer and Echo Area, although serve different purposes, share the
+same physical space. You should not be confused between the two. 
+
+*** (Basic) Frame
+
+An application window in an operating system is called a /Frame/ in Emacs. So,
+you execute Emacs from the command line and open Emacs, that's a frame that
+contains your Emacs session. Emacs can have multiple frames to hold different
+parts of Emacs, such as a separate frame to hold the minibuffer. 
+
+Personally, I only use a single frame. However, frames can be useful if you
+want to organize buffers into different groups. For example, each frame can be
+a project: frame F1 holds buffers related to my C programming projects, frame
+F2 holds buffers related to customizing Emacs, frame F3 holds buffers related
+to emails and reading, newsgroups… 
+
+As stated earlier, multiple frames under the terminal have names F1, F2 …. Fn
+for each frame.
+
+These are the key bindings for manipulating frames:
+
+| Keybinding | Command                         | Description                                           |
+|------------+---------------------------------+-------------------------------------------------------|
+| C-x 5 C-f  | find-file-other-frame           | Open file in a different frame                        |
+| C-x 5 f    | find-file-other-frame           | Same as C-x 5 C-f                                     |
+| C-x 5 C-o  | display-buffer-other-frame      | Open buffer in a different frame and move point there |
+| C-x 5 .    | find-tag-other-frame            | Find tag at point in a different frame                |
+| C-x 5 0    | delete-frame                    | Delete the current frame point is in                  |
+| C-x 5 1    | delete-other-frames             | Delete other frames except the one at point           |
+| C-x 5 2    | make-frame-command              | Create a frame                                        |
+| C-x 5 b    | switch-to-buffer-other-frame    | Same as C-x 5 C-o                                     |
+| C-x 5 d    | dired-other-frame               | Open a Dired buffer in another frame                  |
+| C-x 5 m    | compose-mail-other-frame        | Open another frame for composing email                |
+| C-x 5 o    | other-frame                     | Cycle through available frames                        |
+| C-x 5 r    | find-file-read-only-other-frame | Open file for read only in another frame              |
+*** (Basic) Window
+
+Unlike other editors, Emacs can split your frame area into multiple smaller
+areas. Each such area is called a /window/. You can divide a frame into as many
+windows as you want and each window can have anything in it, i.e. your current
+editing buffer, file management buffer, help buffer, a shell… Basically
+anything that Emacs can display. Let's try them out: 
+
+| Keybinding | Command              | Description                                             |
+|------------+----------------------+---------------------------------------------------------|
+| C-x 2      | split-window-below   | Split the current window into two horizontal windows.   |
+| C-x 3      | split-window-right   | Split your current window into two vertical windows.    |
+| C-x 0      | delete-window        | Close the window at point.                              |
+| C-x 1      | delete-other-windows | Close all other windows except the current selected one |
+| C-x o      | switch-window        | Switch to other window                                  |
+
+After you execute two command =C-x 2= and =C-x 3=, you will have three windows: two
+above and one below. Each window can hold a buffer. With the above two commands
+,you can create arbitrary window layout. In Emacs, a window layout is called a
+window configuration. 
+
+To navigate through the windows, use =C-x o= which runs the command =other-window=.
+Try cycle around the windows a few times to get used to it. 
+
+=C-x 4= is a common prefix for opening things in other buffer. Things here can be
+files, shell, or a tree explorer. Here are standard =C-x 4= bindings: 
+
+| Keybinding | Command                            | Description                                                                                                                                                                                                                                        |
+|------------+------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-x 4 C-f  | find-file-other-window             | Just like find-file discussed earlier, except open file in new window. If the current frame only has one window, a new window is created.                                                                                                          |
+| C-x 4 C-o  | display-buffer                     | Select a buffer from buffer list and display it in another window but not move point to that window.                                                                                                                                               |
+| C-x 4 .    | find-tag-other-window              | Open the tag at point in another window (more on this later)                                                                                                                                                                                       |
+| C-x 4 0    | kill-buffer-and-window             | Just like C-x 0 but kill the buffer in that window as well.                                                                                                                                                                                        |
+| C-x 4 a    | add-change-log-entry-other-window  | Open another buffer and allow you to record the change of the current editing file. These days, you use version control system to manage file changes,and Emacs does this better. Probably this feature exists when thing like Git does not exist. |
+| C-x 4 b    | switch-to-buffer-other-window      | Open a selected buffer in another window and move point to that window.                                                                                                                                                                            |
+| C-x 4 c    | clone-indirect-buffer-other-window | Clone the current buffer in another window and give it a different buffer name.                                                                                                                                                                    |
+| C-x 4 d    | dired-other-window                 | Open a dired buffer in another window. Dired is a built-int file manager in Emacs. We will discuss later.                                                                                                                                          |
+| C-x 4 f    | find-file-other-window             | Same as C-x 4 C-f                                                                                                                                                                                                                                  |
+| C-x 4 m    | compose-mail-other-window          | Write mail in other window. You can write email and send it directly from Emacs.                                                                                                                                                                   |
+| C-x 4 r    | find-file-read-only-other-window   | Similar to find-file-other-window, but open for read-only.                                                                                                                                                                                         |
+| M-<next>   | scroll-other-window                | Scroll other window forward.                                                                                                                                                                                                                       |
+| M-<prior>  | scroll-other-window-down           | Scroll the other window backward.                                                                                                                                                                                                                  |
+
+In Emacs, =<next>= is the *PageDown* key, =<prior>= is the *PageUp* key.
+=M-<next>= runs =scroll-other-window= and scroll the other window forward;
+=M-<prior>= runs =scroll-other-window-down= and scroll the other window backward.
+
+*** TODO (Basic) Basic file management with =dired=
+
+Emacs has a built-in one called Dired, short for =(Dir)ectory (Ed)itor=.
+
+This section is a shortened version of Dired in GNU Emacs Manual. After you
+read and practice these commands, read the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired Manual]] if possible. 
+
+*** TODO (Basic) Regisiter
+
+When I first heard about registers in Emacs, it scared me. I thought "Wow, what
+is this "register" thing? Am I going to work directly with CPU registers?" As
+it turned out, despite the name "Register", it's not something that complicated
+to understand. Although, an Emacs register is similar to a CPU register in the
+sense that it allows quick access to temporal data. 
+
+Each register has a name that consists of a single character, which we will
+denote by r; r can be a letter (such as ‘a’) or a number (such as ‘1’); case
+matters, so register ‘a’ is not the same as register ‘A’. 
+
+In Emacs, registers are for quick access to things. Things can be a position, a
+piece of text, a rectangle, a number, a file name, or a window configuration
+(yes, you can save how Emacs organizes its screens and restore it later!). 
+
+Saving different types of objects has different key bindings, but to jump to a
+register, you use a single command =C-x r j REG=; =REG= is a register of your
+choice. 
+
+The prefix key for register commands is =C-x r=. If you forget the key bindings,
+=C-x r C-h= to get the list of key bindings. 
+
+**** Save window configuration
+**** Save frame configuration
+**** Save text
+**** Save rectangle
+**** Save Position
+**** Save number
+*** TODO (Advanced) Macro
+*** DONE (Basic) Version control
+
+This section is taken directly from [[https://www.gnu.org/software/emacs/tour/][GNU Emacs Tour]], with improvements.
+
+Emacs helps you manipulate and edit files stored in version control. Emacs
+supports CVS, Subversion, bzr, git, hg, and other systems, but it offers a
+uniform interface, called /VC/, regardless of the version control system you
+are using. The benefit of a unified interface is that even if you aren't
+familiar with some version control system (VCS), you can still work with that
+VCS quickly, without the burden of learning all the little details of a
+particular VCS. 
+
+Emacs automatically detects when a file you're editing is under version
+control, and displays something like this in the mode line: CVS-1.14 to
+indicate the version control system in use, and the current version. 
+
+=M-x vc-next-action= or =C-x v v= commits the current file (prompting you for a
+log message) if you've modified it. (Under version control systems that require 
+locking, this command also acquires a lock for you.) 
+
+/VC/ provides other commands for version control-related tasks:
+
+| Keybinding | Command                  | Description                                                                                                                                                                                                                        |
+|------------+--------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-x v =    | vc-diff                  | Displays a diff showing the changes you've made to the current files.                                                                                                                                                              |
+| C-x v ~    | vc-revision-other-window | Prompts you for a version number and shows you that version of the current file in another window.                                                                                                                                 |
+| C-x v g    | vc-annotate              | Displays an annotated version of the file showing, for each line, the commit where that line was last changed and by whom. On any line you can press =l= to view the log message for that commit or d to view the associated diff. |
+| C-x v l    | vc-print-log             | Displays a log of previous changes to the file. When point is on a particular log entry, you can press =d= to view the diff associated with that change or =f= to view that version of the file.                                   |
+| C-x v u    | vc-revert                | Revert working copies of the selected fileset to their repository contents. This asks for confirmation if the buffer contents are not identical to the working revision (except for keyword expansion).                            |
+
+If you use =git=, a more specialized package exists dedicated to Git only: =Magit=
+offers much better features than the general interface that Emacs provides,
+except for some features, such as =C-x v ==, =C-x v ~= and =C-x v u=. 
+
+The prefix key bindings for all VC related commands are =C-x v=. The above are
+just a few commands that I found most useful and used frequently, even when I
+use [[https://github.com/magit/magit][Magit]]. 
+
+*** TODO Shell
+
+In Emacs, you have 3 types of shell commands: =shell=, =term= and =eshell=. 
+
+I will just quote a very good answer on [[http://unix.stackexchange.com/questions/104325/what-is-the-difference-between-shell-eshell-and-term-in-emacs][StackExchange: What is the difference
+between shell, eshell, and term in Emacs?]] 
+
+#+BEGIN_QUOTE
+[[%5B%5Bhttps://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Mode.html%5D%5Bshell%5D%5D][shell]] is the oldest of these 3 choices. It uses Emacs's comint-mode to run a
+subshell (e.g. bash). In this mode, you're using Emacs to edit a command line.
+The subprocess doesn't see any input until you press Enter. Emacs is acting
+like a dumb terminal. It does support color codes, but not things like moving
+the cursor around, so you can't run curses-based applications. 
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Term-Mode.html][term]] is a terminal emulator written in Emacs Lisp. In this mode, the keys you
+press are sent directly to the subprocess; you're using whatever line editing
+capabilities the shell presents, not Emacs's. It also allows you to run
+programs that use advanced terminal capabilities like cursor movement (e.g. you
+could run nano or less inside Emacs). 
+
+[[https://www.gnu.org/software/emacs/manual/html_node/eshell/index.html][eshll]] is a shell implemented directly in Emacs Lisp. You're not running bash
+or any other shell as a subprocess. As a result, the syntax is not quite the
+same as bash or sh. It allows things like redirecting the output of a process
+directly to an Emacs buffer (try echo hello >#<buffer results>). 
+#+END_QUOTE
+
+I suggest you to use eshell, since you can use any Emacs commands within Eshell
+as well. However, in Eshell, to send an interrupt signal, instead of =Ctrl+C=,
+you need to press twice: =Ctrl+C Ctrl+C=. 
+
+** More Emacs Learning Sources
+
+Here are some beginner-oriented tutorials written by users:
 
 + [[https://www.gnu.org/software/emacs/tour/][GNU Guide Tour of Emacs]]
 + [[http://tuhdo.github.io/emacs-tutor.html][Tuhod's Emacs Mini Manual (PART 1)]]
@@ -84,6 +618,7 @@ You can learn more from other people who use Emacs:
 + [[https://www.emacswiki.org/emacs/CategoryCommunity][EmacsWiki]]
 + [[http://orgmode.org][OrgWorg]]
 
+* Prerequisites
 ** Extending emacs primer
 
 To let Emacs automatically load your configuration, save it to either of these
@@ -136,540 +671,6 @@ time by autoloading packages instead loading them on startup.
 
   (setq load-prefer-newer t)
 #+END_SRC
-* TODO Concepts
-
-Reference: [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (PART 1)]]
-
-** DONE (Basic) Command
-
-In Emacs, every user interaction is a function execution. You press a key to
-insert a character, Emacs runs =self-insert-command=. There are two types of
-functions in Emacs: 
-
-+ /Normal functions/: These are like functions in other programming languages,
-  and are used for implementing features in Emacs. Users do not need to care
-  about these functions, unless they want to implement something or modify an
-  existing implementation. 
-
-+ /Commands/: Commands are like functions, but interactive. It means, commands
-  are features provided to users and users directly use them. 
-
-By default, =execute-extended-command= is bound to =M-x=. I replace it with
-=helm-M-x=, which is much better.
-
-** DONE (Basic) Emacs key notation
-
-| Prefix | Meaning                                       |
-|--------+-----------------------------------------------|
-| =C-=   | (press and hold) the Control key              |
-| =M-=   | the Meta key (the Alt key, on most keyboards) |
-| =S-=   | the Shift key (e.g. ‘S-TAB’ means Shift Tab)  |
-| =DEL=  | the Backspace key (not the Delete key)        |
-| =RET=  | the Return or Enter key                       |
-| =SPC=  | the Space bar                                 |
-| =ESC=  | the Escape key                                |
-| =TAB=  | the Tab key                                   |
-
-A notation such as =C-M-x= (or, equivalently, =M-C-x=) means press and hold
-both Control and Meta (Alt) keys while hitting the ‘x’ key. 
-
-If you see =M-x command=, it means you need to =M-x= and type command.
-
-A prefix key is a part of a full key binding. For example, a full key binding
-is =C-x r l= to run the command =bookmark-bmenu-list=, then =C-x= and =C-x r=
-are its prefixes. Note that key sequence such as =C-x= and =M-x= are considered
-a single character. Knowing prefix key is handy: if you forget key bindings of
-some commands that use the same prefix key, and remember the prefix, you can
-press the prefix key and =C-h= to get a list of commands with that prefix. 
-
-*IMPORTANT*: =C-g= executes the command =keyboard-quit=, which cancels anything
-Emacs is executing. If you press any key sequence wrongly, C-g to cancel that
-incorrectly pressed key sequence and start again. 
-
-*TIP*: As you gradually learn Emacs, you will see the key bindings are
-really systematically organized and mnemonic. Whenever you see key bindings
-ending with =n= and =p=, it usually means *next* and *previous*; =o= means *open*;
-=h= means *help*; =C-h= is standard prefix for *help commands*; key bindings such
-as =o= and =C-o= are frequently used in many built-in tools such as /Dired/,
-/Ibuffer/, /Occur/ …  
-
-** DONE (Basic) Emacs keys are easy to remember
-
-The key bindings have a few simple and easy to remember rules:
-
-+ =C-x= prefix is for default and global binding that come with Emacs.
-+ =C-c= prefix is for users to define.
-+ =C-u= is for altering behaviors of commands. That is, one command can behave
-  differently depending on how many C-u you pressed first before executing a
-  command. Mostly you just have to hit C-u once. 
-+ =C-<number>= like =C-1=, =C-2= … is similar to =C-u=, but passing a number to
-  a command. Usually, the number specifies how many times you want to repeat a
-  command. 
-
-Most commands can be organized in an easy to remember way. For example, command
-like =helm-do-grep= (the command belongs to =Helm=) can have a key binding like
-=C-c h g=. The =h= stands for /Helm/ and =g= stands for /grep/. So, key
-bindings are not difficult to remember.  
-
-** (Basic) Ask for help from Emacs
-*** Build-in help system
-
-I will describe some most useful commands based on my experience. I will not
-list all, so you have to rely on Emacs to get your information: 
-
-| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                                    |
-|------------+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                                  |
-| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                                   |
-| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you =find-files=.                                                                                                                                                                                                                                     |
-| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                       |
-| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                         |
-| C-h v      | describe-variable       | asks you for a variable; you can *TAB* to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                                                                   |
-| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press =C-h=, Emacs will list available commands for that prefix. Prefix =C-h= is no exception. =C-h C-h= simply returns all key bindings and commands of prefix C-h. |
-
-*IMPORTANT*: With Emacs amazing help system, if you want to know all key
-bindings to prefix =C-x 4=, just =C-x 4= and then =C-h=. If you enter a prefix
-key and enter =C-h= after it, it will list all of the key bindings and commands
-start with that prefix. This is really nice, compare to other editors that hide
-all this information deep within layers of menus.  
-
-*** DONE Info
-
-+ =M-x info= or =C-h i= to see all the Info manual in Emacs. If you want to
-  learn more about Emacs, the official Emacs manual in Info. 
-
-+ =M-x info-emacs-manual= or, =C-h r=, to see manual section for Emacs.
-
-Use Info often whenever you need to learn something in Emacs. Use it early to
-create a good habit of reading documentation, and this is beneficial not only
-for Emacs. 
-
-*** DONE Man
-
-You can view man pages with two commands:
-
-+ =M-x man=: Get a UNIX manual page and put it in a buffer.
-
-+ =M-x woman=: Browse UN*X man page for TOPIC (Without using external Man
-  program). It means, you can view man page without having the /man/ program
-  installed, while the =man= command above invokes external /man/ program. 
-
-** DONE (Basic) Point
-
-Point is your current cursor position.
-
-** TODO (Basic) Opening files
-** DONE (Basic) Buffer
-
-Buffer is where you edit your file content. Buffer holds content of a file
-temporarily. Anything you write into the buffer won't make it into file until
-you explicitly save it with =save-buffer= command. =C-x C-s= executes the command
-save-buffer, so you can =C-x C-s= your files. You can also execute this from
-=M-x*=. 
-
-To save a buffer as other file ("Save As" in other editors), =C-x C-w=, which
-runs the commands =write-file=. 
-
-To kill a buffer, =C-x k=. If you want to kill the current buffer, *RET*
-immediately. Otherwise, type into the prompt the buffer name you want to kill. 
-
-Basic Keybinding:
-
-| Keybinding | Command          | Description                                         |
-|------------+------------------+-----------------------------------------------------|
-| C-x C-s    | save-buffer      | Save the buffer at point                            |
-| C-x C-w    | write-file       | Save the buffer to a different file                 |
-| C-x b      | switch-to-buffer | Switch to a different buffer                        |
-| C-x k      | kill-buffer      | Kill a buffer. RET to kill the currently active one |
-** DONE (Basic) Major mode
-
-Major modes provide specialized facilities for working on a particular file
-type, such as syntax highlighting for a programming language. Major modes are
-mutually exclusive; each buffer has one and only one major mode at any time. 
-
-Emacs is bundled with many major modes for editing source code in different
-languages: C, C++, Java, Lisp, bash, asm… For example, when opening a file with
-=.c= extension, Emacs automatically recognizes it's a C file and selects the C 
-major mode to highlight the buffer properly. 
-
-** DONE (Basic) Minor mode
-
-Minor modes are optional features which you can turn on or off, not necessarily
-specific to a type of file or buffer. For example, /Auto Fill mode/ is a minor
-mode in which =SPC= breaks lines between words as you type. Minor modes are
-independent of one another, and of the selected major mode. 
-
-** TODO (Basic) Basic buffer managements
-
-So, you learn how to open file and create buffer of that file. In other
-editors, you got something called "tabs". Every time you open a file, you get a
-file tab for selecting an "opening file" (which is called buffer in Emacs). It
-quickly becomes a nuisance once you have lots of file tabs. If you use
-multi-row support for file tabs, it eats up your editing space. 
-
-How do you switch between opening buffers? =C-x b= opens a prompt to enter a
-buffer name. You can *TAB* to complete the buffer name similar to how you
-complete file names in =C-x C-f=. 
-
-After you open a file, and if point is in that buffer, =C-x C-f= prompts the
-current directory, so you can open another file within this directory. For
-example, buffer A is from =~/dir1/= and buffer B is in =~/dir2/=, if point is
-in 
-buffer A, =C-x C-f= starts in =~/dir1/=; if point is in buffer B, =C-x C-f=
-starts in =~/dir2/=. 
-
-In an Emacs session, you may have a lot of buffers, including non-file buffers
-such as shell buffers, email buffers… How do you manage buffers when it's
-getting large? =C-x C-b= executes =list-buffers=, provide you a list of buffer
-in which you can search. However, =list-buffers= is a simple command for buffer
-management. Emacs also provides /ibuffer/, which is a superior alternative. You
-will surely want to use /ibuffer/, but first let's replace =list-buffers= with
-=ibuffer= (by placing next directive to your emacs config file): 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-#+END_SRC
-
-Then =M-x eval-buffer= for the setup to take effect immediately. 
-
-** DONE (Basic) Basic motion commands
-
-These key bindings are also used by popular shells such as /bash/ or /zsh/. I
-highly recommended you to master these key bindings. 
-
-+ Move forward one char: =C-f= (f stands for *forward*)
-+ Move backward one char: =C-b= (b stands for *backward*)
-+ Move upward one line: =C-p= (p stands for *previous*)
-+ Move downward one line: =C-n= (n stands for *next*)
-
-The above operations can also be done with arrow keys. If you don't like the
-above key bindings, the arrow keys offer equivalent features. 
-
-+ Move to beginning of line: =C-a=
-+ Move to end of line: =C-e=
-+ Move forward one word: =M-f=
-+ Move backward one word: =M-b=
-
-These key bindings are in Emacs only:
-
-+ Scroll forward one screen: =C-v=, *page down*
-+ Scroll backward one screen: =M-v=, *page up*
-+ Move to the beginning of a sentence: =M-a=
-+ Move to the end of a sentence: =M-e=
-+ Recenter a screen, making the current line point the center of your screen:
-  =C-l=  
-+ Re-position point to the top, middle and bottom of the current screen: =M-r=
-+ Move to top of the buffer: =M-<=
-+ Move to end of the buffer: =M->=
-+ Move to the nth character: =M-g c= (c stands for character)
-+ Move to the nth line: =M-g l= for Emacs < 23.2, =M-g g= for emacs >= 23.2) (l/g
-  stands for line) 
-
-** DONE (Basic) Useful built-in key bindings for navigating pairs
-
-+ =C-M-f= binds to =forward-sexp=, move forward over a balanced expression.
-+ =C-M-b= binds to =backward-sexp=, move backward over a balanced expression.
-+ =C-M-k= binds to =kill-sexp=, kill balanced expression forward.
-+ =C-M-t= binds to =transpose-sexps=, transpose expressions.
-+ =C-M-<SPC>= or =C-M-@= binds to =mark-sexp=, put mark after following expression.
-
-** DONE (Basic) Basic editing command
-
-In Emacs, /kill/ means /cut/ in other editors. These key bindings also work under
-the terminal. 
-
-+ Kill a character at the point: =C-d=
-+ Kill entire line: =C-S-DEL= (remember, DEL is your =<backspace>= key)
-+ Kill forward to the end of a word from current point: =M-d=
-+ Kill backward to the beginning of a word from the current point: =M-DEL=
-+ Kill all spaces at point: =M-\=
-+ Kill all spaces except one at point: =M-SPC=
-+ Kill to the end of line: =C-k=
-+ Kill a sentence: =M-k=
-
-When you kill something, the killed content is put into the /Kill Ring/.
-
-If you write code, you can also quickly add comments or comment/uncomment code
-with =M-;=
-
-+ If you do not highlight a text region, =M-;= adds a comment to the end of line.
-+ If you highlight a region (i.e. with a mouse), =M-;= comments out the region.
-
-** DONE (Basic) Dynamic Abbreviations
-
-Dynamic Abbreviations are a completion feature in Emacs, but work for text and
-is context-independent. After you type a word once, if you type that word
-again, you can type it partially and =M-/= to complete it. If you type a prefix
-that has many candidates, =M-/= cycles the candidates. This is a really cool
-feature and you ought to try it.
-
-** TODO (Basic) Search and replace
-
-Content search is an essential feature in every editor. Emacs has many built-in
-tools for this problem.
-
-*** DONE Incremental search
-
-So, you want to look for something in the buffer? =C-s= invokes =isearch-forward=,
-allows you to look forward from the current point for something. After =C-s=, you
-are prompted to enter the content to search for. Enter the content, and press
-=C-s= repeatedly to travel through the matches forward. 
-
-Similarly, =C-r= invokes =isearch-backward=, allows you to look backward from the
-current point. Press =C-r= repeatedly to travel through the matches backward. 
-
-=isearch= can be invoked from any valid buffer. You can perform =isearch= on
-=ibuffer=.
-
-If you want to search with regexp, =C-u C-s=.
-
-Now you get the basics of Isearch, it has more useful commands that are bound
-to =M-s= prefix key: 
-
-| Keybinding | Command                         | Description                                      |
-|------------+---------------------------------+--------------------------------------------------|
-| M-s .      | isearch-forward-symbol-at-point | Feed the symbol at point to =C-s= perform search |
-| M-s o      | occur                           | Run occur                                        |
-| M-s h .    | highlight-symbol-at-point       | Highlight the symbol at point                    |
-| M-s h l    | highlight-lines-matching-regexp | Highlight lines that match input regexp          |
-| M-s h r    | highlight-regexp                | Highlight according to regexp                    |
-| M-s h u    | unhighlight-regexp              | Turn off highlighting strings that match regexp  |
-*** DONE Query replace
-
-To replace something, =M-%= to execute =query-replace=. =M-%= asks you two inputs: 
-
-+ A string to be replaced.
-+ A string to replace.
-
-Supply the inputs and *RET*.
-
-Emacs will ask your confirmation to replace a matched string. If you want to
-replace all, press *!* instead of answer yes or no (*Note*: it will replace
-ocurrences only *beneath* your current point). 
-
-If you want to query and replace with regexp, =C-M-%=.
-
-** TODO (Basic) Modeline
-
-The mode line is the empty area below the buffer. It has useful summary
-information about the buffer shown in the window. 
-
-The text displayed in the mode line has the following format:
-
-#+BEGIN_SRC org
-  |cs:ch-fr | buf | pos line | (major minor)|
-#+END_SRC
-** (Basic) Minibuffer
-
-/Minibuffer/ is the small area at the bottom of your Emacs screen.
-
-The /Minibuffer/ is where Emacs commands read complicated arguments, such as
-file names, buffer names, Emacs command names, or Lisp expressions. When you
-execute =find-file=, it asks for your file from the Minibuffer, which is one of
-=find-file= required argument. Remember that in Emacs,everything is a function.
-=find-file= is a command, in other words, it's an interactive function. As a
-function, it also takes arguments. Minibuffer is where users can feed arguments
-to the interactive functions.
-
-Minibuffer has an input history. If you enter anything into the minibuffer and
-*RET*, minibuffer remembers the input and you can access the input again with:
-
-+ =M-p= moves to the previous input in minibuffer history.
-+ =M-n= moves to the next input in minibuffer history.
-+ =M-r= searches for an input that matches the supplied regexp.
-
-** (Basic) Echo area
-
-/Minibuffer/ can be used for output as well. The /echo area/ is used for displaying
-messages made with the message primitive, and for echoing keystrokes. 
-
-Both Minibuffer and Echo Area, although serve different purposes, share the
-same physical space. You should not be confused between the two. 
-
-** (Basic) Frame
-
-An application window in an operating system is called a /Frame/ in Emacs. So,
-you execute Emacs from the command line and open Emacs, that's a frame that
-contains your Emacs session. Emacs can have multiple frames to hold different
-parts of Emacs, such as a separate frame to hold the minibuffer. 
-
-Personally, I only use a single frame. However, frames can be useful if you
-want to organize buffers into different groups. For example, each frame can be
-a project: frame F1 holds buffers related to my C programming projects, frame
-F2 holds buffers related to customizing Emacs, frame F3 holds buffers related
-to emails and reading, newsgroups… 
-
-As stated earlier, multiple frames under the terminal have names F1, F2 …. Fn
-for each frame.
-
-These are the key bindings for manipulating frames:
-
-| Keybinding | Command                         | Description                                           |
-|------------+---------------------------------+-------------------------------------------------------|
-| C-x 5 C-f  | find-file-other-frame           | Open file in a different frame                        |
-| C-x 5 f    | find-file-other-frame           | Same as C-x 5 C-f                                     |
-| C-x 5 C-o  | display-buffer-other-frame      | Open buffer in a different frame and move point there |
-| C-x 5 .    | find-tag-other-frame            | Find tag at point in a different frame                |
-| C-x 5 0    | delete-frame                    | Delete the current frame point is in                  |
-| C-x 5 1    | delete-other-frames             | Delete other frames except the one at point           |
-| C-x 5 2    | make-frame-command              | Create a frame                                        |
-| C-x 5 b    | switch-to-buffer-other-frame    | Same as C-x 5 C-o                                     |
-| C-x 5 d    | dired-other-frame               | Open a Dired buffer in another frame                  |
-| C-x 5 m    | compose-mail-other-frame        | Open another frame for composing email                |
-| C-x 5 o    | other-frame                     | Cycle through available frames                        |
-| C-x 5 r    | find-file-read-only-other-frame | Open file for read only in another frame              |
-** (Basic) Window
-
-Unlike other editors, Emacs can split your frame area into multiple smaller
-areas. Each such area is called a /window/. You can divide a frame into as many
-windows as you want and each window can have anything in it, i.e. your current
-editing buffer, file management buffer, help buffer, a shell… Basically
-anything that Emacs can display. Let's try them out: 
-
-| Keybinding | Command              | Description                                             |
-|------------+----------------------+---------------------------------------------------------|
-| C-x 2      | split-window-below   | Split the current window into two horizontal windows.   |
-| C-x 3      | split-window-right   | Split your current window into two vertical windows.    |
-| C-x 0      | delete-window        | Close the window at point.                              |
-| C-x 1      | delete-other-windows | Close all other windows except the current selected one |
-| C-x o      | switch-window        | Switch to other window                                  |
-
-After you execute two command =C-x 2= and =C-x 3=, you will have three windows: two
-above and one below. Each window can hold a buffer. With the above two commands
-,you can create arbitrary window layout. In Emacs, a window layout is called a
-window configuration. 
-
-To navigate through the windows, use =C-x o= which runs the command =other-window=.
-Try cycle around the windows a few times to get used to it. 
-
-=C-x 4= is a common prefix for opening things in other buffer. Things here can be
-files, shell, or a tree explorer. Here are standard =C-x 4= bindings: 
-
-| Keybinding | Command                            | Description                                                                                                                                                                                                                                        |
-|------------+------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-x 4 C-f  | find-file-other-window             | Just like find-file discussed earlier, except open file in new window. If the current frame only has one window, a new window is created.                                                                                                          |
-| C-x 4 C-o  | display-buffer                     | Select a buffer from buffer list and display it in another window but not move point to that window.                                                                                                                                               |
-| C-x 4 .    | find-tag-other-window              | Open the tag at point in another window (more on this later)                                                                                                                                                                                       |
-| C-x 4 0    | kill-buffer-and-window             | Just like C-x 0 but kill the buffer in that window as well.                                                                                                                                                                                        |
-| C-x 4 a    | add-change-log-entry-other-window  | Open another buffer and allow you to record the change of the current editing file. These days, you use version control system to manage file changes,and Emacs does this better. Probably this feature exists when thing like Git does not exist. |
-| C-x 4 b    | switch-to-buffer-other-window      | Open a selected buffer in another window and move point to that window.                                                                                                                                                                            |
-| C-x 4 c    | clone-indirect-buffer-other-window | Clone the current buffer in another window and give it a different buffer name.                                                                                                                                                                    |
-| C-x 4 d    | dired-other-window                 | Open a dired buffer in another window. Dired is a built-int file manager in Emacs. We will discuss later.                                                                                                                                          |
-| C-x 4 f    | find-file-other-window             | Same as C-x 4 C-f                                                                                                                                                                                                                                  |
-| C-x 4 m    | compose-mail-other-window          | Write mail in other window. You can write email and send it directly from Emacs.                                                                                                                                                                   |
-| C-x 4 r    | find-file-read-only-other-window   | Similar to find-file-other-window, but open for read-only.                                                                                                                                                                                         |
-| M-<next>   | scroll-other-window                | Scroll other window forward.                                                                                                                                                                                                                       |
-| M-<prior>  | scroll-other-window-down           | Scroll the other window backward.                                                                                                                                                                                                                  |
-
-In Emacs, =<next>= is the *PageDown* key, =<prior>= is the *PageUp* key.
-=M-<next>= runs =scroll-other-window= and scroll the other window forward;
-=M-<prior>= runs =scroll-other-window-down= and scroll the other window backward.
-
-** TODO (Basic) Basic file management with =dired=
-
-Emacs has a built-in one called Dired, short for =(Dir)ectory (Ed)itor=.
-
-This section is a shortened version of Dired in GNU Emacs Manual. After you
-read and practice these commands, read the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired Manual]] if possible. 
-
-** TODO (Basic) Regisiter
-
-When I first heard about registers in Emacs, it scared me. I thought "Wow, what
-is this "register" thing? Am I going to work directly with CPU registers?" As
-it turned out, despite the name "Register", it's not something that complicated
-to understand. Although, an Emacs register is similar to a CPU register in the
-sense that it allows quick access to temporal data. 
-
-Each register has a name that consists of a single character, which we will
-denote by r; r can be a letter (such as ‘a’) or a number (such as ‘1’); case
-matters, so register ‘a’ is not the same as register ‘A’. 
-
-In Emacs, registers are for quick access to things. Things can be a position, a
-piece of text, a rectangle, a number, a file name, or a window configuration
-(yes, you can save how Emacs organizes its screens and restore it later!). 
-
-Saving different types of objects has different key bindings, but to jump to a
-register, you use a single command =C-x r j REG=; =REG= is a register of your
-choice. 
-
-The prefix key for register commands is =C-x r=. If you forget the key bindings,
-=C-x r C-h= to get the list of key bindings. 
-
-*** Save window configuration
-*** Save frame configuration
-*** Save text
-*** Save rectangle
-*** Save Position
-*** Save number
-** TODO (Advanced) Macro
-** DONE (Basic) Version control
-
-This section is taken directly from [[https://www.gnu.org/software/emacs/tour/][GNU Emacs Tour]], with improvements.
-
-Emacs helps you manipulate and edit files stored in version control. Emacs
-supports CVS, Subversion, bzr, git, hg, and other systems, but it offers a
-uniform interface, called /VC/, regardless of the version control system you
-are using. The benefit of a unified interface is that even if you aren't
-familiar with some version control system (VCS), you can still work with that
-VCS quickly, without the burden of learning all the little details of a
-particular VCS. 
-
-Emacs automatically detects when a file you're editing is under version
-control, and displays something like this in the mode line: CVS-1.14 to
-indicate the version control system in use, and the current version. 
-
-=M-x vc-next-action= or =C-x v v= commits the current file (prompting you for a
-log message) if you've modified it. (Under version control systems that require 
-locking, this command also acquires a lock for you.) 
-
-/VC/ provides other commands for version control-related tasks:
-
-| Keybinding | Command                  | Description                                                                                                                                                                                                                        |
-|------------+--------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-x v =    | vc-diff                  | Displays a diff showing the changes you've made to the current files.                                                                                                                                                              |
-| C-x v ~    | vc-revision-other-window | Prompts you for a version number and shows you that version of the current file in another window.                                                                                                                                 |
-| C-x v g    | vc-annotate              | Displays an annotated version of the file showing, for each line, the commit where that line was last changed and by whom. On any line you can press =l= to view the log message for that commit or d to view the associated diff. |
-| C-x v l    | vc-print-log             | Displays a log of previous changes to the file. When point is on a particular log entry, you can press =d= to view the diff associated with that change or =f= to view that version of the file.                                   |
-| C-x v u    | vc-revert                | Revert working copies of the selected fileset to their repository contents. This asks for confirmation if the buffer contents are not identical to the working revision (except for keyword expansion).                            |
-
-If you use =git=, a more specialized package exists dedicated to Git only: =Magit=
-offers much better features than the general interface that Emacs provides,
-except for some features, such as =C-x v ==, =C-x v ~= and =C-x v u=. 
-
-The prefix key bindings for all VC related commands are =C-x v=. The above are
-just a few commands that I found most useful and used frequently, even when I
-use [[https://github.com/magit/magit][Magit]]. 
-
-** TODO Shell
-
-In Emacs, you have 3 types of shell commands: =shell=, =term= and =eshell=. 
-
-I will just quote a very good answer on [[http://unix.stackexchange.com/questions/104325/what-is-the-difference-between-shell-eshell-and-term-in-emacs][StackExchange: What is the difference
-between shell, eshell, and term in Emacs?]] 
-
-#+BEGIN_QUOTE
-[[%5B%5Bhttps://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Mode.html%5D%5Bshell%5D%5D][shell]] is the oldest of these 3 choices. It uses Emacs's comint-mode to run a
-subshell (e.g. bash). In this mode, you're using Emacs to edit a command line.
-The subprocess doesn't see any input until you press Enter. Emacs is acting
-like a dumb terminal. It does support color codes, but not things like moving
-the cursor around, so you can't run curses-based applications. 
-
-[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Term-Mode.html][term]] is a terminal emulator written in Emacs Lisp. In this mode, the keys you
-press are sent directly to the subprocess; you're using whatever line editing
-capabilities the shell presents, not Emacs's. It also allows you to run
-programs that use advanced terminal capabilities like cursor movement (e.g. you
-could run nano or less inside Emacs). 
-
-[[https://www.gnu.org/software/emacs/manual/html_node/eshell/index.html][eshll]] is a shell implemented directly in Emacs Lisp. You're not running bash
-or any other shell as a subprocess. As a result, the syntax is not quite the
-same as bash or sh. It allows things like redirecting the output of a process
-directly to an Emacs buffer (try echo hello >#<buffer results>). 
-#+END_QUOTE
-
-I suggest you to use eshell, since you can use any Emacs commands within Eshell
-as well. However, in Eshell, to send an interrupt signal, instead of =Ctrl+C=,
-you need to press twice: =Ctrl+C Ctrl+C=. 
-
 * Basics configuration
 ** General settings
 *** Personal Information
@@ -2104,6 +2105,9 @@ Configuration for [[https://www.coursera.org/learn/programming-languages/][Progr
   :bind (("C-x v m" . git-messenger:popup-message)))
 #+end_src
 * Org
+
+Reference: [[http://doc.norang.ca/org-mode.html][Org Mode - Organize Your Life In Plain Text!]]
+
 ** Introduction
 
 [[http://orgmode.org][Org-mode]] is for keeping notes, maintaining ToDo lists, doing project planning,
@@ -2118,16 +2122,13 @@ first, then try to learn more about org-mode.
 [[http://orgmode.org/guide/][The compact guide]] and [[http://orgmode.org/manual/index.html][the complete manual]] is the best manual. [[http://orgmode.org/worg/][Org Worg]], the
 most large org-mode wiki is really helpful. 
 
-*** Activation
+** Activation
 
-The minimal customization needed to use Org-mode is – Nothing at all! \par
-Org-mode works out of the box, and besides the steps described in the manual to
-[[http://orgmode.org/manual/Activation.html#Activation][activate]] it, nothing is needed at all. Just open a .org file, press =C-c [= to
-tell org that this is a file you want to use in your agenda, and start putting
-your life into plain text. 
-
-OK, for completeness, let's just repeat what is needed to activate Org-mode in
-files with =.org= extension, and a few important key assignments. 
+The minimal customization needed to use Org-mode is – Nothing at all! Org-mode
+works out of the box, and besides the steps described in the manual to [[http://orgmode.org/manual/Activation.html#Activation][activate]]
+it, nothing is needed at all. Just open a =.org= file, press =C-c [= to tell
+org that this is a file you want to use in your agenda, and start putting your
+life into plain text.
 
 The last four lines define global keys for some most important commands.
 
@@ -2150,26 +2151,33 @@ state. =@= and =!= toggle logging. =@= prompts you for a note, and =!=
 automatically logs the timestamp of the state change. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-    (setq org-todo-keywords
-          '((sequence
-             "TODO(t)"  ; next action
-             "TOBLOG(b)"  ; next action
-             "STARTED(s)"
-             "WAITING(w@/!)"
-             "SOMEDAY(.)"
-             "|" "DONE(x!)" "CANCELLED(c@)")
-            (sequence "LEARN" "TRY" "TEACH" "|" "COMPLETE(x)")
-            (sequence "TOSKETCH" "SKETCHED" "|" "POSTED")
-            (sequence "TOBUY" "TOSHRINK" "TOCUT"  "TOSEW" "|" "DONE(x)")
-            (sequence "TODELEGATE(-)" "DELEGATED(d)" "|" "COMPLETE(x)")))
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"  ; next action
+           "TOBLOG(b)"  ; next action
+           "STARTED(s)"
+           "WAITING(w@/!)"
+           "SOMEDAY(.)"
+           "|" "DONE(x!)" "CANCELLED(c@)")
+          (sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+          (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING")))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle no
   (setq org-todo-keyword-faces
-        '(("TODO" . (:foreground "green" :weight bold))
-          ("DONE" . (:foreground "cyan" :weight bold))
-          ("WAITING" . (:foreground "red" :weight bold))
-          ("SOMEDAY" . (:foreground "gray" :weight bold))))
+        '(;;("TODO" . (:foreground "green" :weight bold))
+          ;;("DONE" . (:foreground "cyan" :weight bold))
+          ;;("WAITING" . (:foreground "red" :weight bold))
+          ;;("SOMEDAY" . (:foreground "gray" :weight bold))
+          ("TODO" . (:foreground "red" :weight bold))
+          ("NEXT" . (:foreground "blue" :weight bold))
+          ("DONE" . (:foreground "forest green" :weight bold))
+          ("WAITING" . (:foreground "orange" :weight bold))
+          ("HOLD" . (:foreground "magenta" :weight bold))
+          ("CANCELLED" . (:foreground "forest green" :weight bold))
+          ("MEETING" . (:foreground "forest green" :weight bold))
+          ("PHONE" . (:foreground "forest green" :weight bold))
+          ))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -2180,132 +2188,205 @@ automatically logs the timestamp of the state change.
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq org-enforce-todo-dependencies t)
 #+END_SRC
-** Capture-Refile-Archive
+*** Fast Todo Selection
 
-An important part of any organization system is the ability to quickly capture
-new ideas and tasks, and to associate reference material with them. Org does
-this using a process called [[http://orgmode.org/manual/Capture-_002d-Refile-_002d-Archive.html#Capture-_002d-Refile-_002d-Archive][capture]]. It also can store files related to a task
-(attachments) in a special directory. Once in the system, tasks and projects
-need to be moved around. Moving completed project trees to an archive file
-keeps the system compact and fast. 
-
-*** Capture
-
-Capture lets you quickly store notes with little interruption of your work
-flow. Org's method for capturing new items is heavily inspired by John Wiegley
-excellent remember.el package. Up to version 6.36, Org used a special setup for
-remember.el, then replaced it with org-remember.el. As of version 8.0,
-org-remember.el has been completely replaced by org-capture.el. 
-
-[[http://members.optusnet.com.au/~charles57/GTD/datetree.html][Capture mode and Date Trees in org-mode]] 
-
-**** Setup capture
-
-The following customization sets a default target file for notes, and defines a
-global key for capturing new material. 
+Fast todo selection allows changing from any task todo state to any other state
+directly by selecting the appropriate key from the fast todo selection key
+menu. This is a great feature!
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq org-default-notes-file (concat org-directory "/notes.org"))
-  (define-key global-map "\C-cc" 'org-capture)
+  (setq org-use-fast-todo-selection t)
 #+END_SRC
-**** Using capture
 
-[[http://orgmode.org/manual/Using-capture.html#Using-capture][More details]]
+Changing a task state is done with =C-c C-t KEY=, where =KEY= is the
+appropriate fast todo state selection key as defined in org-todo-keywords.
 
-**** Capture templates
-
-You can use [[http://orgmode.org/manual/Capture-templates.html#Capture-templates][templates]] for different types of capture items, and for different
-target locations.
+And this setting:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; (setq org-capture-templates
-  ;;      '(("t" "Todo" entry (file+headline "~/org/gtd.org" "Tasks")
-  ;;             "* TODO %?\n  %i\n  %a")
-  ;;        ("j" "Journal" entry (file+datetree "~/org/journal.org")
-  ;;         "* %?\nEntered on %U\n  %i\n  %a")))
+  (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+#+END_SRC
 
+allows changing todo states with =S-left= and =S-right= skipping all of the normal
+processing when entering or leaving a todo state. This cycles through the todo
+states but skips setting timestamps and entering notes which is very convenient
+when all you want to do is fix up the status of an entry.
+
+*** Todo State triggers
+
+I have a few triggers that automatically assign tags to tasks based on state
+changes. If a task moves to =CANCELLED= state then it gets a =CANCELLED= tag.
+Moving a =CANCELLED= task back to =TODO= removes the =CANCELLED= tag. These are
+used for filtering tasks in agenda views which I'll talk about later.
+
+The triggers break down to the following rules:
+
++ Moving a task to =CANCELLED= adds a =CANCELLED= tag
++ Moving a task to =WAITING= adds a =WAITING= tag
++ Moving a task to =HOLD= adds =WAITING= and =HOLD= tags
++ Moving a task to a done state removes WAITING and HOLD tags
++ Moving a task to =TODO= removes =WAITING=, =CANCELLED=, and =HOLD= tags
++ Moving a task to =NEXT= removes =WAITING=, =CANCELLED=, and =HOLD= tags
++ Moving a task to =DONE= removes =WAITING=, =CANCELLED=, and =HOLD= tags
+
+The tags are used to filter tasks in the agenda views conveniently.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq org-todo-state-tags-triggers
+        (quote (("CANCELLED" ("CANCELLED" . t))
+                ("WAITING" ("WAITING" . t))
+                ("HOLD" ("WAITING") ("HOLD" . t))
+                (done ("WAITING") ("HOLD"))
+                ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))))
+#+END_SRC
+** Adding New Tasks Quickly with Org Capture
+*** Capture Templates
+
+When a new task needs to be added I categorize it into one of a few things:
+
++ A phone call (p)
++ A meeting (m)
++ An email I need to respond to (r)
++ A new task (t)
++ A new note (n)
++ An interruption (j)
++ A new habit (h)
+
+and pick the appropriate capture task.
+
+Here is my setup for org-capture
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-directory "~/org")
+  (setq org-default-notes-file "~/org/refile.org")
+
+  ;; I use C-c c to start capture mode
+  (global-set-key (kbd "C-c c") 'org-capture)
+
+  ;; Capture templates for: TODO tasks, Notes, appointments, phone calls,
+  ;; meetings, and org-protocol
   (setq org-capture-templates
-        '(("n" "iNterruption" entry (file+datetree "~/org/orgfile.org")
-           "* %?\n  %a\n  %K" ;; :clock-in t :clock-resume t
-           )
-          ("k" "breaK" entry (file+datetree "~/org/orgfile.org")
-           "* %?\n  %a\n  %K" ;; :clock-in t :clock-resume t
-           )
-          ("t" "Todo" entry (file "~/org/orgfile.org")
-           "* TODO %? \n  %a\n  %K" ;; :clock-in t :clock-resume t
-           )
-          ("1" "Todo by tomorrow" entry (file "~/org/orgfile.org")
-           "* TODO %? \n  :PROPERTIES:\n  :EXPIRY:   [%(gds/tomorrow)]\n  :END:\n  %a\n  %K"
-           )
-          ("2" "Todo within a week" entry (file "~/org/orgfile.org")
-           "* TODO %? \n  :PROPERTIES:\n  :EXPIRY:   [%(gds/next-week)]\n  :END:\n  %a\n  %K"
-           )
-          ("3" "Todo within a fortnight" entry (file "~/org/orgfile.org")
-           "* TODO %? \n  :PROPERTIES:\n  :EXPIRY:   [%(gds/in-a-fortnight)]\n  :END:\n  %a\n  %K"
-           )
-          ("4" "Todo within a month" entry (file "~/org/orgfile.org")
-           "* TODO %? \n  :PROPERTIES:\n  :EXPIRY:   [%(gds/next-month)]\n  :END:\n  %a\n  %K"
-           )
-          ("5" "Todo within two months" entry (file "~/org/orgfile.org")
-           "* TODO %? \n  :PROPERTIES:\n  :EXPIRY:   [%(gds/in-two-months)]\n  :END:\n  %a\n  %K"
-           )
-          ("i" "IT" entry (file+olp "~/org/orgfile.org" "HomeIT")
-           "* TODO %? \n  %a\n  %K" ;; :clock-in t :clock-resume t
-           )
-          ("s" "Spam" item (file+olp "~/org/orgfile.org" "HomeIT" "Spam")
-           "%a\n  %K" :immediate-finish t)
-          ("l" "Link" entry (file+olp "~/org/orgfile.org" "Random" "Links")
-           "* %a %? %K\n  :PROPERTIES:\n  :CREATED:   %U\n  :END:" :unnarrowed t ;; :clock-in t :clock-resume t
-           )
-          ("m" "Music" entry (file+olp "~/org/orgfile.org" "Random" "Music")
-           "* %? %a %K\n  :PROPERTIES:\n  :CREATED:   %U\n  :END:" :unnarrowed t ;; :clock-in t :clock-resume t
-           )
-          ("b" "Blog" entry (file+olp "~/org/website.org" "Blog ideas")
-           "* TODO %? \n  %a\n  %K" ;; :clock-in t :clock-resume t
-           )
-          ("c" "Current" entry (clock)
-           "* %?\n  %a\n  %K" ;; :clock-in t :clock-resume t
-           )))
+        (quote (("t" "todo" entry (file "~/org/refile.org")
+                 "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                ("r" "respond" entry (file "~/org/refile.org")
+                 "* NEXT Respond to %:from on %:subject\nSCHEDULED: %t\n%U\n%a\n"
+                 :clock-in t :clock-resume t :immediate-finish t)
+                ("n" "note" entry (file "~/org/refile.org")
+                 "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+                ("j" "Journal" entry (file+datetree "~/org/diary.org")
+                 "* %?\n%U\n" :clock-in t :clock-resume t)
+                ("w" "org-protocol" entry (file "~/org/refile.org")
+                 "* TODO Review %c\n%U\n" :immediate-finish t)
+                ("m" "Meeting" entry (file "~/org/refile.org")
+                 "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+                ("p" "Phone call" entry (file "~/org/refile.org")
+                 "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+                ("h" "Habit" entry (file "~/org/refile.org")
+                 "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string
+  \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE:
+  NEXT\n:END:\n"))))
 #+END_SRC
-*** Refile and copy
 
-[[http://orgmode.org/manual/Refile-and-copy.html#Refile-and-copy][More details]]
+Capture mode now handles automatically clocking in and out of a capture task.
+This all works out of the box now without special hooks. When I start a capture
+mode task the task is clocked in as specified by =:clock-in t= and when the
+task is filed with =C-c C-c= the clock resumes on the original clocking task.
 
-*** Archiving
+*** Capture Tasks is all about being FAST
 
-When a project represented by a (sub)tree is finished, you may want to move the
-tree out of the way and to stop it from contributing to the agenda. Archiving
-is important to keep your working files compact and global searches like the
-construction of agenda views fast.
+Okay I'm in the middle of something and oh yeah - I have to remember to do
+that. I don't stop what I'm doing. I'm probably clocking a project I'm working
+on and I don't want to lose my focus on that but I can't afford to forget this
+little thing that just came up.
 
-| Keybinding  | Command                       | Description                                                                                        |   |   |
-|-------------+-------------------------------+----------------------------------------------------------------------------------------------------+---+---|
-| C-c C-x C-a | (org-archive-subtree-default) | Archive the current entry using the command specified in the variable org-archive-default-command. |   |   |
-  
-** Agenda views
+So what do I do? Hit =C-c c= to start capture mode and select =t= since it's a
+new task and I get a buffer like this:
 
-Due to the way Org works, TODO items, time-stamped items, and tagged headlines
-can be scattered throughout a file or even a number of files. To get an
-overview of open action items, or of events that are important for a particular
-date, this information must be collected, sorted and displayed in an organized
-way. 
+#+BEGIN_SRC org
+  ,* TODO 
+    [2010-08-05 Thu 21:06]
 
-The extracted information is displayed in a special agenda buffer. This buffer
-is read-only, but provides commands to visit the corresponding locations in the
-original Org files, and even to edit these files remotely. 
+    Capture Tasks is all about being FAST
+#+END_SRC
 
-*** Agenda files
+Enter the details of the TODO item and =C-c C-c= to file it away in
+=refile.org= and go right back to what I'm really working on secure in the
+knowledge that that item isn't going to get lost and I don't have to think
+about it anymore at all now.
 
-The information to be shown is normally collected from all [[http://orgmode.org/manual/Agenda-files.html#Agenda-files][agenda files]], the
-files listed in the variable =org-agenda-files=. If a directory is part of this
-list, all files with the extension .org in this directory will be part of the
-list. 
+The amount of time I spend entering the captured note is clocked. The capture
+templates are set to automatically clock in and out of the capture task. This
+is great for interruptions and telephone calls too.
+** Refile Tasks
 
-| Keybinding | Command                    | Description                                                                                                                                                                                                |
-|------------+----------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-c [      | (org-agenda-file-to-front) | Add current file to the list of agenda files. The file is added to the front of the list. If it was already in the list, it is moved to the front. With a prefix argument, file is added/moved to the end. |
-| C-c ]      | (org-remove-file)          | Remove current file from the list of agenda files.                                                                                                                                                         |
-| C-'        | (org-cycle-agenda-files)   |                                                                                                                                                                                                            |
+Refiling tasks is easy. After collecting a bunch of new tasks in my
+=refile.org= file using capture mode I need to move these to the correct org
+file and topic. All of my active =org-files= are in my =org-agenda-files=
+variable and contribute to the agenda.
+
+I collect capture tasks in =refile.org= for up to a week. These now stand out
+daily on my block agenda and I usually refile them during the day. I like to
+keep my refile task list empty.
+
+*** Refile Setup
+
+To refile tasks in org you need to tell it where you want to refile things.
+
+In my setup I let any file in =org-agenda-files= and the current file
+contribute to the list of valid refile targets.
+
+Now when I want to refile something I do =C-c C-w= to start the refile process,
+then type something to get some matching targets, then =C-SPC= to restrict the
+matches to the current list, then continue searching with some other text to
+find the target I need. =C-j= also selects the current completion as the final
+target. I like this a lot. I show full outline paths in the targets so I can
+have the same heading in multiple subtrees or projects and still tell them
+apart while refiling.
+
+I now exclude =DONE= state tasks as valid refile targets. This helps to keep the
+refile target list to a reasonable size.
+
+Here is my refile configuration:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ; Targets include this file and any file contributing to the agenda - up to 9
+  ; levels deep
+  (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                   (org-agenda-files :maxlevel . 9))))
+
+  ; Use full outline paths for refile targets - we file directly with IDO
+  (setq org-refile-use-outline-path t)
+
+  ; Targets complete directly with IDO
+  (setq org-outline-path-complete-in-steps nil)
+
+  ; Allow refile to create parent tasks with confirmation
+  (setq org-refile-allow-creating-parent-nodes (quote confirm))
+
+  ; Use IDO for both buffer and file completion and ido-everywhere to t
+  (setq org-completion-use-ido t)
+  (setq ido-everywhere t)
+  (setq ido-max-directory-size 100000)
+  (ido-mode (quote both))
+  ; Use the current window when visiting files and buffers with ido
+  (setq ido-default-file-method 'selected-window)
+  (setq ido-default-buffer-method 'selected-window)
+  ; Use the current window for indirect buffer display
+  (setq org-indirect-buffer-display 'current-window)
+
+  ;;;; Refile settings
+  ; Exclude DONE state tasks from refile targets
+  (defun bh/verify-refile-target ()
+    "Exclude todo keywords with a done state from refile targets"
+    (not (member (nth 2 (org-heading-components)) org-done-keywords)))
+
+  (setq org-refile-target-verify-function 'bh/verify-refile-target)
+#+END_SRC
+
+** Custom agenda views
+*** Agenda file
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq org-agenda-files (list "~/org/work.org"
@@ -2314,69 +2395,573 @@ list.
                                "~/org/learning.org"
                                "~/org/projects.org"))
 #+END_SRC
-*** Proper syntax highlighting
-
-To make org mode syntax color embeded source code:
+*** Setup
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq org-src-fontify-natively t)
+  ;; Do not dim blocked tasks
+  (setq org-agenda-dim-blocked-tasks nil)
+
+  ;; Compact the block agenda view
+  (setq org-agenda-compact-blocks t)
+
+  ;; Custom agenda command definitions
+  (setq org-agenda-custom-commands
+        (quote (("N" "Notes" tags "NOTE"
+                 ((org-agenda-overriding-header "Notes")
+                  (org-tags-match-list-sublevels t)))
+                ("h" "Habits" tags-todo "STYLE=\"habit\""
+                 ((org-agenda-overriding-header "Habits")
+                  (org-agenda-sorting-strategy
+                   '(todo-state-down effort-up category-keep))))
+                (" " "Agenda"
+                 ((agenda "" nil)
+                  (tags "REFILE"
+                        ((org-agenda-overriding-header "Tasks to Refile")
+                         (org-tags-match-list-sublevels nil)))
+                  (tags-todo "-CANCELLED/!"
+                             ((org-agenda-overriding-header "Stuck Projects")
+                              (org-agenda-skip-function 'bh/skip-non-stuck-projects)
+                              (org-agenda-sorting-strategy
+                               '(category-keep))))
+                  (tags-todo "-HOLD-CANCELLED/!"
+                             ((org-agenda-overriding-header "Projects")
+                              (org-agenda-skip-function 'bh/skip-non-projects)
+                              (org-tags-match-list-sublevels 'indented)
+                              (org-agenda-sorting-strategy
+                               '(category-keep))))
+                  (tags-todo "-CANCELLED/!NEXT"
+                             ((org-agenda-overriding-header (concat "Project Next Tasks"
+                                                                    (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                        ""
+                                                                      " (including WAITING and SCHEDULED tasks)")))
+                              (org-agenda-skip-function 'bh/skip-projects-and-habits-and-single-tasks)
+                              (org-tags-match-list-sublevels t)
+                              (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-sorting-strategy
+                               '(todo-state-down effort-up category-keep))))
+                  (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                             ((org-agenda-overriding-header (concat "Project Subtasks"
+                                                                    (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                        ""
+                                                                      " (including WAITING and SCHEDULED tasks)")))
+                              (org-agenda-skip-function 'bh/skip-non-project-tasks)
+                              (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-sorting-strategy
+                               '(category-keep))))
+                  (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+                             ((org-agenda-overriding-header (concat "Standalone Tasks"
+                                                                    (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                        ""
+                                                                      " (including WAITING and SCHEDULED tasks)")))
+                              (org-agenda-skip-function 'bh/skip-project-tasks)
+                              (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-sorting-strategy
+                               '(category-keep))))
+                  (tags-todo "-CANCELLED+WAITING|HOLD/!"
+                             ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
+                                                                    (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                        ""
+                                                                      " (including WAITING and SCHEDULED tasks)")))
+                              (org-agenda-skip-function 'bh/skip-non-tasks)
+                              (org-tags-match-list-sublevels nil)
+                              (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                              (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
+                  (tags "-REFILE/"
+                        ((org-agenda-overriding-header "Tasks to Archive")
+                         (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
+                         (org-tags-match-list-sublevels nil))))
+                 nil))))
 #+END_SRC
 
-The following displays the contents of code blocks in Org-mode files using the
-major-mode of the code. It also changes the behavior of TAB to as if it were
-used in the appropriate major mode. 
+** Tags
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
+  ; Tags with fast selection keys
+  (setq org-tag-alist (quote ((:startgroup)
+                              ("@errand" . ?e)
+                              ("@office" . ?o)
+                              ("@home" . ?H)
+                              ("@farm" . ?f)
+                              (:endgroup)
+                              ("WAITING" . ?w)
+                              ("HOLD" . ?h)
+                              ("PERSONAL" . ?P)
+                              ("WORK" . ?W)
+                              ("FARM" . ?F)
+                              ("ORG" . ?O)
+                              ("NORANG" . ?N)
+                              ("crypt" . ?E)
+                              ("NOTE" . ?n)
+                              ("CANCELLED" . ?c)
+                              ("FLAGGED" . ??))))
+
+  ; Allow setting single tags without the menu
+  (setq org-fast-tag-selection-single-key (quote expert))
+
+  ; For tag searches ignore tasks with scheduled and deadline dates
+  (setq org-agenda-tags-todo-honor-ignore-options t)
 #+END_SRC
-** Babel
 
-[[http://orgmode.org/manual/Working-With-Source-Code.html#Working-With-Source-Code][Babel]] makes it possible to embed source code of any language into your
-org-files. You can then pretty-print that code, or run it as you wish. This
-makes org a great platform for [[https://en.wikipedia.org/wiki/Literate_programming][Literate Programming]] as championed by [[https://en.wikipedia.org/wiki/Donald_Knuth][Don Knuth]].
-These config files are written this way, and these web pages are generated
-automatically by org. 
+** TODO Publishing and Exporting
 
-*** What languages?
+I don't do a lot of publishing for other people but I do keep a set of private
+client system documentation online. Most of this documentation is a collection
+of notes exported to HTML.
 
-By default, only emacs lisp code is allowed to eval. If you need other
-languages, you need to add this to your emacs init:
+Org-mode can export to a variety of publishing formats including (but not
+limited to)
+
++ ASCII (plain text - but not the original org-mode file)
++ HTML
++ LaTeX
++ Docbook which enables getting to lots of other formats like ODF, XML, etc
++ PDF via LaTeX or Docbook
++ iCal
+
+I haven't begun the scratch the surface of what org-mode is capable of doing.
+My main use case for org-mode publishing is just to create HTML documents for
+viewing online conveniently. Someday I'll get time to try out the other formats
+when I need them for something.
+
+*** New Exporter Setup
+
+The new exporter created by /Nicolas Goaziou/ was introduced in /org 8.0/.
+
+I have the following setup for the exporters I use.
+
+Alphabetical listing options need to be set before the exporters are loaded for
+filling to work correctly.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-alphabetical-lists t)
+
+  ;; Explicitly load required exporters
+  (require 'ox-html)
+  (require 'ox-latex)
+  (require 'ox-ascii)
+#+END_SRC
+*** Org-Babel Setup
+
+Org-babel makes it easy to generate decent graphics using external packages
+like =ditaa=, =graphviz=, =PlantUML=, and others.
+
+The setup is really easy. =ditaa= is provided with the org-mode source. You'll
+have to install the =graphviz= and =PlantUML= packages on your system.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-ditaa-jar-path "~/git/org-mode/contrib/scripts/ditaa.jar")
+  (setq org-plantuml-jar-path "~/java/plantuml.jar")
+
+  (add-hook 'org-babel-after-execute-hook 'bh/display-inline-images 'append)
+
+  ; Make babel results blocks lowercase
+  (setq org-babel-results-keyword "results")
+
+  (defun bh/display-inline-images ()
+    (condition-case nil
+        (org-display-inline-images)
+      (error nil)))
+
   (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (python . t)
-     (haskell . t)
-     (clojure . t)
-     (ruby . t)
-     (dot . t)
-     (sh . t)
-     (latex . t)
-     (ledger . t)))
-#+END_SRC
-*** Proper syntax highlighting
+   (quote org-babel-load-languages)
+   (quote ((emacs-lisp . t)
+           (dot . t)
+           (ditaa . t)
+           (R . t)
+           (python . t)
+           (ruby . t)
+           (gnuplot . t)
+           (clojure . t)
+           (sh . t)
+           (ledger . t)
+           (org . t)
+           (plantuml . t)
+           (latex . t))))
 
-To make org mode syntax color embeded source code:
+  ; Do not prompt to confirm evaluation
+  ; This may be dangerous - make sure you understand the consequences
+  ; of setting this -- see the docstring for details
+  (setq org-confirm-babel-evaluate nil)
+
+  ; Use fundamental mode when editing plantuml blocks with C-c '
+  (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
+#+END_SRC
+
+Now you just create a =begin-src= block for the appropriate tool, edit the
+text, and build the pictures with =C-c C-c=. After evaluating the block results
+are displayed. You can toggle display of inline images with =C-c C-x C-v=
+
+*** TODO Playing with ditaa
+
+[[http://ditaa.sourceforge.net][Ditaa]] is a great tool for quickly generating graphics to convey ideas and
+=ditaa= is distributed with org-mode!
+
+Artist mode makes it easy to create boxes and lines for ditaa graphics.
+*** TODO Playing with
+
+[[http://www.graphviz.org][Graphviz]]  is another great tool for creating graphics in your documents.
+
+*** TODO  Playing with PlantUML
+
+[[http://plantuml.com][PlantUML]]
+*** Publishing Single Files
+
+Org-mode exports the current file to one of the standard formats by invoking an
+export function. The standard key binding for this is =C-c C-e= followed by the
+key for the type of export you want.
+
+This works great for single files or parts of files – if you narrow the buffer
+to only part of the org-mode file then you only get the narrowed detail in the
+export.
+
+*** TODO Publishing Projects
+
+I mainly use publishing for publishing multiple files or projects. I don't want
+to remember where the created export file needs to move to and org-mode
+projects are a great solution to this.
+
+The http://doc.norang.ca website (and a bunch of other files that are not
+publicly available) are all created by editing org-mode files and publishing
+the project the file is contained in. This is great for people like me who want
+to figure out the details once and forget about it. I love stuff that Just
+Works(tm).
+
+I have 5 main projects I use org-mode publishing for currently:
+
++ norang (website)
++ doc.norang.ca (website, published documents)
++ doc.norang.ca/private (website, non-published documents)
++ www.norang.ca/tmp (temporary publishing site for testing org-mode stuff)
++ org files (which are selectively included by other websites)
+
+Here's my publishing setup:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ; experimenting with docbook exports - not finished
+  (setq org-export-docbook-xsl-fo-proc-command "fop %s %s")
+  (setq org-export-docbook-xslt-proc-command "xsltproc --output %s /usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl %s")
+  ;
+  ; Inline images in HTML instead of producting links to the image
+  (setq org-html-inline-images t)
+  ; Do not use sub or superscripts - I currently don't need this functionality in my documents
+  (setq org-export-with-sub-superscripts nil)
+  ; Use org.css from the norang website for export document stylesheets
+  (setq org-html-head-extra "<link rel=\"stylesheet\" href=\"http://doc.norang.ca/org.css\" type=\"text/css\" />")
+  (setq org-html-head-include-default-style nil)
+  ; Do not generate internal css formatting for HTML exports
+  (setq org-export-htmlize-output-type (quote css))
+  ; Export with LaTeX fragments
+  (setq org-export-with-LaTeX-fragments t)
+  ; Increase default number of headings to export
+  (setq org-export-headline-levels 6)
+
+  ; List of projects
+  ; norang       - http://www.norang.ca/
+  ; doc          - http://doc.norang.ca/
+  ; org-mode-doc - http://doc.norang.ca/org-mode.html and associated files
+  ; org          - miscellaneous todo lists for publishing
+  (setq org-publish-project-alist
+        ;
+        ; http://www.norang.ca/  (norang website)
+        ; norang-org are the org-files that generate the content
+        ; norang-extra are images and css files that need to be included
+        ; norang is the top-level project that gets published
+        (quote (("norang-org"
+                 :base-directory "~/git/www.norang.ca"
+                 :publishing-directory "/ssh:www-data@www:~/www.norang.ca/htdocs"
+                 :recursive t
+                 :table-of-contents nil
+                 :base-extension "org"
+                 :publishing-function org-html-publish-to-html
+                 :style-include-default nil
+                 :section-numbers nil
+                 :table-of-contents nil
+                 :html-head "<link rel=\"stylesheet\" href=\"norang.css\" type=\"text/css\" />"
+                 :author-info nil
+                 :creator-info nil)
+                ("norang-extra"
+                 :base-directory "~/git/www.norang.ca/"
+                 :publishing-directory "/ssh:www-data@www:~/www.norang.ca/htdocs"
+                 :base-extension "css\\|pdf\\|png\\|jpg\\|gif"
+                 :publishing-function org-publish-attachment
+                 :recursive t
+                 :author nil)
+                ("norang"
+                 :components ("norang-org" "norang-extra"))
+                ;
+                ; http://doc.norang.ca/  (norang website)
+                ; doc-org are the org-files that generate the content
+                ; doc-extra are images and css files that need to be included
+                ; doc is the top-level project that gets published
+                ("doc-org"
+                 :base-directory "~/git/doc.norang.ca/"
+                 :publishing-directory "/ssh:www-data@www:~/doc.norang.ca/htdocs"
+                 :recursive nil
+                 :section-numbers nil
+                 :table-of-contents nil
+                 :base-extension "org"
+                 :publishing-function (org-html-publish-to-html org-org-publish-to-org)
+                 :style-include-default nil
+                 :html-head "<link rel=\"stylesheet\" href=\"/org.css\" type=\"text/css\" />"
+                 :author-info nil
+                 :creator-info nil)
+                ("doc-extra"
+                 :base-directory "~/git/doc.norang.ca/"
+                 :publishing-directory "/ssh:www-data@www:~/doc.norang.ca/htdocs"
+                 :base-extension "css\\|pdf\\|png\\|jpg\\|gif"
+                 :publishing-function org-publish-attachment
+                 :recursive nil
+                 :author nil)
+                ("doc"
+                 :components ("doc-org" "doc-extra"))
+                ("doc-private-org"
+                 :base-directory "~/git/doc.norang.ca/private"
+                 :publishing-directory "/ssh:www-data@www:~/doc.norang.ca/htdocs/private"
+                 :recursive nil
+                 :section-numbers nil
+                 :table-of-contents nil
+                 :base-extension "org"
+                 :publishing-function (org-html-publish-to-html org-org-publish-to-org)
+                 :style-include-default nil
+                 :html-head "<link rel=\"stylesheet\" href=\"/org.css\" type=\"text/css\" />"
+                 :auto-sitemap t
+                 :sitemap-filename "index.html"
+                 :sitemap-title "Norang Private Documents"
+                 :sitemap-style "tree"
+                 :author-info nil
+                 :creator-info nil)
+                ("doc-private-extra"
+                 :base-directory "~/git/doc.norang.ca/private"
+                 :publishing-directory "/ssh:www-data@www:~/doc.norang.ca/htdocs/private"
+                 :base-extension "css\\|pdf\\|png\\|jpg\\|gif"
+                 :publishing-function org-publish-attachment
+                 :recursive nil
+                 :author nil)
+                ("doc-private"
+                 :components ("doc-private-org" "doc-private-extra"))
+                ;
+                ; Miscellaneous pages for other websites
+                ; org are the org-files that generate the content
+                ("org-org"
+                 :base-directory "~/git/org/"
+                 :publishing-directory "/ssh:www-data@www:~/org"
+                 :recursive t
+                 :section-numbers nil
+                 :table-of-contents nil
+                 :base-extension "org"
+                 :publishing-function org-html-publish-to-html
+                 :style-include-default nil
+                 :html-head "<link rel=\"stylesheet\" href=\"/org.css\" type=\"text/css\" />"
+                 :author-info nil
+                 :creator-info nil)
+                ;
+                ; http://doc.norang.ca/  (norang website)
+                ; org-mode-doc-org this document
+                ; org-mode-doc-extra are images and css files that need to be included
+                ; org-mode-doc is the top-level project that gets published
+                ; This uses the same target directory as the 'doc' project
+                ("org-mode-doc-org"
+                 :base-directory "~/git/org-mode-doc/"
+                 :publishing-directory "/ssh:www-data@www:~/doc.norang.ca/htdocs"
+                 :recursive t
+                 :section-numbers nil
+                 :table-of-contents nil
+                 :base-extension "org"
+                 :publishing-function (org-html-publish-to-html)
+                 :plain-source t
+                 :htmlized-source t
+                 :style-include-default nil
+                 :html-head "<link rel=\"stylesheet\" href=\"/org.css\" type=\"text/css\" />"
+                 :author-info nil
+                 :creator-info nil)
+                ("org-mode-doc-extra"
+                 :base-directory "~/git/org-mode-doc/"
+                 :publishing-directory "/ssh:www-data@www:~/doc.norang.ca/htdocs"
+                 :base-extension "css\\|pdf\\|png\\|jpg\\|gif\\|org"
+                 :publishing-function org-publish-attachment
+                 :recursive t
+                 :author nil)
+                ("org-mode-doc"
+                 :components ("org-mode-doc-org" "org-mode-doc-extra"))
+                ;
+                ; http://doc.norang.ca/  (norang website)
+                ; org-mode-doc-org this document
+                ; org-mode-doc-extra are images and css files that need to be included
+                ; org-mode-doc is the top-level project that gets published
+                ; This uses the same target directory as the 'doc' project
+                ("tmp-org"
+                 :base-directory "/tmp/publish/"
+                 :publishing-directory "/ssh:www-data@www:~/www.norang.ca/htdocs/tmp"
+                 :recursive t
+                 :section-numbers nil
+                 :table-of-contents nil
+                 :base-extension "org"
+                 :publishing-function (org-html-publish-to-html org-org-publish-to-org)
+                 :html-head "<link rel=\"stylesheet\" href=\"http://doc.norang.ca/org.css\" type=\"text/css\" />"
+                 :plain-source t
+                 :htmlized-source t
+                 :style-include-default nil
+                 :auto-sitemap t
+                 :sitemap-filename "index.html"
+                 :sitemap-title "Test Publishing Area"
+                 :sitemap-style "tree"
+                 :author-info t
+                 :creator-info t)
+                ("tmp-extra"
+                 :base-directory "/tmp/publish/"
+                 :publishing-directory "/ssh:www-data@www:~/www.norang.ca/htdocs/tmp"
+                 :base-extension "css\\|pdf\\|png\\|jpg\\|gif"
+                 :publishing-function org-publish-attachment
+                 :recursive t
+                 :author nil)
+                ("tmp"
+                 :components ("tmp-org" "tmp-extra")))))
+
+  ; I'm lazy and don't want to remember the name of the project to publish when I modify
+  ; a file that is part of a project.  So this function saves the file, and publishes
+  ; the project that includes this file
+  ;
+  ; It's bound to C-S-F12 so I just edit and hit C-S-F12 when I'm done and move on to the next thing
+  (defun bh/save-then-publish (&optional force)
+    (interactive "P")
+    (save-buffer)
+    (org-save-all-org-buffers)
+    (let ((org-html-head-extra)
+          (org-html-validation-link "<a href=\"http://validator.w3.org/check?uri=referer\">Validate XHTML 1.0</a>"))
+      (org-publish-current-project force)))
+
+  (global-set-key (kbd "C-s-<f12>") 'bh/save-then-publish)
+#+END_SRC
+** Reminders
+
+I use appt for reminders. It's simple and unobtrusive – putting pending
+appointments in the status bar and beeping as 12, 9, 6, 3, and 0 minutes before
+the appointment is due.
+
+Everytime the agenda is displayed (and that's lots for me) the appointment list
+is erased and rebuilt from the current agenda details for today. This means
+everytime I reschedule something, add or remove tasks that are time related the
+appointment list is automatically updated the next time I look at the agenda.
+
+*** Reminder Setup
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ; Erase all reminders and rebuilt reminders for today from the agenda
+  (defun bh/org-agenda-to-appt ()
+    (interactive)
+    (setq appt-time-msg-list nil)
+    (org-agenda-to-appt))
+
+  ; Rebuild the reminders everytime the agenda is displayed
+  (add-hook 'org-finalize-agenda-hook 'bh/org-agenda-to-appt 'append)
+
+  ; This is at the end of my .emacs - so appointments are set up when Emacs starts
+  (bh/org-agenda-to-appt)
+
+  ; Activate appointments so we get notifications
+  (appt-activate t)
+
+  ; If we leave Emacs running overnight - reset the appointments one minute after midnight
+  (run-at-time "24:01" nil 'bh/org-agenda-to-appt)
+#+END_SRC
+
+** Productivity Tools
+
+This section is a miscellaneous collection of Emacs customizations that I use
+with org-mode so that it Works-For-Me.
+
+*** Handling blocked tasks
+
+Blocked tasks are tasks that have subtasks which are not in a done todo state.
+Blocked tasks show up in a grayed font by default in the agenda.
+
+To enable task blocking set the following variable:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-enforce-todo-dependencies t)
+#+END_SRC
+
+*** TODO Automatically change list bullets
+
+I take point-form notes during meetings. Having the same list bullet for every
+list level makes it hard to read the details when lists are indented more than
+3 levels.
+
+Org-mode has a way to automatically change the list bullets when you change
+list levels.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq org-list-demote-modify-bullet (quote (("+" . "-")
+                                              ("*" . "-")
+                                              ("1." . "-")
+                                              ("1)" . "-")
+                                              ("A)" . "-")
+                                              ("B)" . "-")
+                                              ("a)" . "-")
+                                              ("b)" . "-")
+                                              ("A." . "-")
+                                              ("B." . "-")
+                                              ("a." . "-")
+                                              ("b." . "-"))))
+#+END_SRC
+*** DONE Use the current window for the agenda
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ; Overwrite the current window with the agenda
+  (setq org-agenda-window-setup 'current-window)
+#+END_SRC
+*** DONE Showing source block syntax highlighting
+
+It is possible to display org-mode source blocks fontified in their native
+mode. This allows colourization of keywords for C and shell script source etc.
+If I edit the source I use C-c ' (control-c single quote) to bring up the
+source window which is then rendered with syntax highlighting in the native
+mode. This setting also shows the syntax highlighting when viewing in the
+org-mode buffer.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq org-src-fontify-natively t)
 #+END_SRC
+*** NEXT Inserting Structure Template Blocks
 
-The following displays the contents of code blocks in Org-mode files using the
-major-mode of the code. It also changes the behavior of TAB to as if it were
-used in the appropriate major mode. 
+There is a shortcut key sequence in org-mode to insert structure templates
+quickly into your org files.
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
+I use example =< e TAB= and source blocks =< s LANG TAB= often in my org files.
+
+The following lisp makes the blocks lowercase instead of the default upper case
+in org-mode.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq org-structure-template-alist
+        (quote (("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
+                ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
+                ("q" "#+begin_quote\n?\n#+end_quote" "<quote>\n?\n</quote>")
+                ("v" "#+begin_verse\n?\n#+end_verse" "<verse>\n?\n</verse>")
+                ("c" "#+begin_center\n?\n#+end_center" "<center>\n?\n</center>")
+                ("l" "#+begin_latex\n?\n#+end_latex" "<literal style=\"latex\">\n?\n</literal>")
+                ("L" "#+latex: " "<literal style=\"latex\">?</literal>")
+                ("h" "#+begin_html\n?\n#+end_html" "<literal style=\"html\">\n?\n</literal>")
+                ("H" "#+html: " "<literal style=\"html\">?</literal>")
+                ("a" "#+begin_ascii\n?\n#+end_ascii")
+                ("A" "#+ascii: ")
+                ("i" "#+index: ?" "#+index: ?")
+                ("I" "#+include %file ?" "<include file=%file markup=\"?\">"))))
 #+END_SRC
 
-It is possible to inhibit the evaluation of code blocks during export. Setting
-the =org-export-babel-evaluate= variable to nil will ensure that no code blocks
-are evaluated as part of the export process. 
+*** DONE Use utf-8 as default coding system
+
+I use =utf-8= as the default coding system for all of my org files.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq org-export-babel-evaluate nil)
-#+END_SRC  
+  (setq org-export-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (set-charset-priority 'unicode)
+  (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+#+END_SRC
