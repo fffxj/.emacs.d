@@ -74,8 +74,9 @@ first.
 * Guide for Newbie
   
 *Reference*: [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (PART 1)]]
+
 ** Concepts
-*** DONE (Basic) Command
+*** Command
 
 In Emacs, every user interaction is a function execution. You press a key to
 insert a character, Emacs runs =self-insert-command=. There are two types of
@@ -89,86 +90,95 @@ functions in Emacs:
 + /Commands/: Commands are like functions, but interactive. It means, commands
   are features provided to users and users directly use them. 
 
-By default, =execute-extended-command= is bound to =M-x=. I replace it with
-=helm-M-x=, which is much better.
+By default, =execute-extended-command= is bound to =M-x=.
 
-*** DONE (Basic) Emacs key notation
+*** Keys
+**** Key Notation
 
-| Prefix | Meaning                                       |
-|--------+-----------------------------------------------|
-| =C-=   | (press and hold) the Control key              |
-| =M-=   | the Meta key (the Alt key, on most keyboards) |
-| =S-=   | the Shift key (e.g. ‘S-TAB’ means Shift Tab)  |
-| =DEL=  | the Backspace key (not the Delete key)        |
-| =RET=  | the Return or Enter key                       |
-| =SPC=  | the Space bar                                 |
-| =ESC=  | the Escape key                                |
-| =TAB=  | the Tab key                                   |
+| Prefix | Meaning                                                                                    |
+|--------+--------------------------------------------------------------------------------------------|
+| =C-=   | (press and hold) the Control key                                                           |
+| =M-=   | the Meta key (the Alt key, on most keyboards)                                              |
+| =S-=   | the Shift key                                                                              |
+| =DEL=  | the Backspace key (*not* the Delete key). Inside Emacs, =DEL= is written as =<backspace>=. |
+| =RET=  | the Return or Enter key                                                                    |
+| =SPC=  | the Space bar                                                                              |
+| =ESC=  | the Escape key                                                                             |
+| =TAB=  | the Tab key                                                                                |
 
 A notation such as =C-M-x= (or, equivalently, =M-C-x=) means press and hold
-both Control and Meta (Alt) keys while hitting the ‘x’ key. 
+both Control and Meta keys while hitting the `x' key. 
 
 If you see =M-x command=, it means you need to =M-x= and type command.
 
-A prefix key is a part of a full key binding. For example, a full key binding
+*IMPORTANT*: =C-g= executes the command =keyboard-quit=, which cancels anything
+Emacs is executing. If you press any key sequence wrongly, =C-g= to cancel that
+incorrectly pressed key sequence and start again.
+
+**** Key Bindings are systematically organized
+
+A /prefix key/ is a part of a full key binding. For example, a full key binding
 is =C-x r l= to run the command =bookmark-bmenu-list=, then =C-x= and =C-x r=
 are its prefixes. Note that key sequence such as =C-x= and =M-x= are considered
-a single character. Knowing prefix key is handy: if you forget key bindings of
-some commands that use the same prefix key, and remember the prefix, you can
-press the prefix key and =C-h= to get a list of commands with that prefix. 
-
-*IMPORTANT*: =C-g= executes the command =keyboard-quit=, which cancels anything
-Emacs is executing. If you press any key sequence wrongly, C-g to cancel that
-incorrectly pressed key sequence and start again. 
-
-*TIP*: As you gradually learn Emacs, you will see the key bindings are
-really systematically organized and mnemonic. Whenever you see key bindings
-ending with =n= and =p=, it usually means *next* and *previous*; =o= means *open*;
-=h= means *help*; =C-h= is standard prefix for *help commands*; key bindings such
-as =o= and =C-o= are frequently used in many built-in tools such as /Dired/,
-/Ibuffer/, /Occur/ …  
-
-*** DONE (Basic) Emacs keys are easy to remember
-
-The key bindings have a few simple and easy to remember rules:
+a single character. Thanks to prefix key, the key bindings have a few simple
+and easy to remember rules:
 
 + =C-x= prefix is for default and global binding that come with Emacs.
 + =C-c= prefix is for users to define.
 + =C-u= is for altering behaviors of commands. That is, one command can behave
-  differently depending on how many C-u you pressed first before executing a
-  command. Mostly you just have to hit C-u once. 
-+ =C-<number>= like =C-1=, =C-2= … is similar to =C-u=, but passing a number to
-  a command. Usually, the number specifies how many times you want to repeat a
-  command. 
+  differently depending on how many =C-u= you pressed first before executing a
+  command. Mostly you just have to hit =C-u= once.
++ =C-<number>= like =C-1=, =C-2= ... is similar to =C-u=, but passing a number
+  to a command. Usually, the number specifies how many times you want to repeat
+  a command.
+
+By default, the prefix keys in Emacs are =C-c=, =C-h=, =C-x=, =C-x RET=, =C-x
+@=, =C-x a=, =C-x n=, =C-x r=, =C-x v=, =C-x 4=, =C-x 5=, =C-x 6=, =ESC=,
+=M-g=, and =M-o=. (=F1= and =F2= are aliases for =C-h= and =C-x 6=.) This list
+is not cast in stone; if you customize Emacs, you can make new prefix keys. You
+could even eliminate some of the standard ones, though this is not recommended
+for most users.
+
+Knowing prefix key is handy: if you forget key bindings of
+some commands that use the same prefix key, and remember the prefix, you can
+press the prefix key and =C-h= or =F1= to get a list of commands with that
+prefix.
+
+**** Key Bindings are mnemonic
 
 Most commands can be organized in an easy to remember way. For example, command
 like =helm-do-grep= (the command belongs to =Helm=) can have a key binding like
 =C-c h g=. The =h= stands for /Helm/ and =g= stands for /grep/. So, key
-bindings are not difficult to remember.  
+bindings are not difficult to remember.
 
-*** (Basic) Ask for help from Emacs
+As you gradually learn Emacs, you will see the key bindings are really
+systematically organized and mnemonic. Whenever you see key bindings ending
+with =n= and =p=, it usually means *next* and *previous*; =o= means *open*; =h=
+means *help*; =C-h= is standard prefix for *help commands*; key bindings such
+as =o= and =C-o= are frequently used in many built-in tools such as /Dired/,
+/Ibuffer/, /Occur/ ...
+
+*** Ask for Help from Emacs
 **** Build-in help system
 
-I will describe some most useful commands based on my experience. I will not
-list all, so you have to rely on Emacs to get your information: 
+Emacs provides a wide variety of help commands. I will describe some most
+useful commands based on my experience. I will not list all, so you have to
+rely on Emacs to get your information:
 
-| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                                    |
-|------------+-------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                                  |
-| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                                   |
-| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you =find-files=.                                                                                                                                                                                                                                     |
-| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                       |
-| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                         |
-| C-h v      | describe-variable       | asks you for a variable; you can *TAB* to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                                                                   |
-| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press =C-h=, Emacs will list available commands for that prefix. Prefix =C-h= is no exception. =C-h C-h= simply returns all key bindings and commands of prefix C-h. |
+=C-h C-h= to view a list of help commands. You can scroll the list with =SPC=
+and =DEL=, then type the help command you want. To cancel, type =C-g=.
 
-*IMPORTANT*: With Emacs amazing help system, if you want to know all key
-bindings to prefix =C-x 4=, just =C-x 4= and then =C-h=. If you enter a prefix
-key and enter =C-h= after it, it will list all of the key bindings and commands
-start with that prefix. This is really nice, compare to other editors that hide
-all this information deep within layers of menus.  
+| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                                      |
+|------------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                                    |
+| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                                     |
+| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you =find-files=.                                                                                                                                                                                                                                       |
+| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                         |
+| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                           |
+| C-h v      | describe-variable       | asks you for a variable; you can *TAB* to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                                                                     |
+| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press =C-h=, Emacs will list available commands for that prefix. Prefix =C-h= is no exception. =C-h C-h= simply returns all key bindings and commands of prefix =C-h=. |
 
-**** DONE Info
+**** Info
 
 + =M-x info= or =C-h i= to see all the Info manual in Emacs. If you want to
   learn more about Emacs, the official Emacs manual in Info. 
@@ -179,7 +189,7 @@ Use Info often whenever you need to learn something in Emacs. Use it early to
 create a good habit of reading documentation, and this is beneficial not only
 for Emacs. 
 
-**** DONE Man
+**** Man
 
 You can view man pages with two commands:
 
@@ -613,22 +623,37 @@ Here are some beginner-oriented tutorials written by users:
 + [[http://tuhdo.github.io/emacs-tutor.html][Tuhod's Emacs Mini Manual (PART 1)]]
 + [[http://ergoemacs.org/emacs/emacs.html][Xah's Emacs Tutorial]]
 
+GNU Emacs online sources:
+
++ [[https://www.gnu.org/software/emacs/emacs.html][Emacs Homepage]]
++ [[https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html][Emacs Manual]]
++ [[https://www.gnu.org/software/emacs/manual/html_node/elisp/index.html][Elisp Manual]]
+
 You can learn more from other people who use Emacs:
 
 + [[https://www.emacswiki.org/emacs/CategoryCommunity][EmacsWiki]]
 + [[http://orgmode.org][OrgWorg]]
 
-* Prerequisites
-** Extending emacs primer
+** Init-related packages and starter kits
 
-To let Emacs automatically load your configuration, save it to either of these
-three files:
++ [[https://github.com/technomancy/better-defaults][Better Defaults]]
 
-+ =~/.emacs= 
-+ =~/.emacs.d/init.el= 
-+ =~/.emacs.d/init=
+* Emacs Initialization
+** Debugging
 
-** Package initialization
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;;; Debugging
+  (setq message-log-max 10000)
+#+END_SRC
+** Personal Information
+
+Some personal information about me.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq user-full-name "Xiaojie Feng"
+        user-mail-address "fengxiaojie1997@gmail.com")
+#+END_SRC
+** Package management
 *** Install packages using =ELPA=
 
 Starting with emacs 24, it comes with a package system called [[https://www.emacswiki.org/emacs/ELPA][ELPA]] (Emacs Lisp
@@ -659,29 +684,44 @@ keybindings, and various mode configuration. The focus is on decreasing startup
 time by autoloading packages instead loading them on startup. 
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Bootstrap `use-package'
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package))
 
   (setq use-package-verbose t
-	use-package-always-ensure t)
+        use-package-always-ensure t)
 
   (eval-when-compile
     (require 'use-package))
 
+  ;; Please don't load outdated byte code
   (setq load-prefer-newer t)
 #+END_SRC
-* Basics configuration
-** General settings
-*** Personal Information
-
-Some personal information about me.
+** Prerequisites
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq user-full-name "Xiaojie Feng"
-        user-mail-address "fengxiaojie1997@gmail.com")
+  (use-package dash)
 #+END_SRC
-*** My Directory Location
+** Environment fixup
+
+Ever find that a command works in your shell, but not in Emacs?
+
+This happens a lot on OS X, where an Emacs instance started from the GUI
+inherits a default set of environment variables. 
+
+[[https://github.com/purcell/exec-path-from-shell][Exec-path-from-shell]] is a GNU Emacs library to ensure environment variables
+inside Emacs look the same as in the user's shell. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package exec-path-from-shell
+    :defer t
+    :init
+    (progn
+      (when (memq window-system '(mac ns))
+        (exec-path-from-shell-initialize))))
+#+END_SRC
+** My Directory Location
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defconst xj-cache-dir (expand-file-name "~/.emacs.d/cache/")
@@ -692,10 +732,30 @@ Some personal information about me.
   (unless (file-exists-p xj-cache-dir)
     (make-directory xj-cache-dir))
 #+END_SRC
-*** Library
+* Basics and settings used everywhere
+** TODO macOS-specific settings
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package dash)
+  ;; Set keys for Apple keyboard, for emacs in OS X
+  (when (eq window-system 'darwin)
+
+    (setq mac-command-modifier 'meta)     ; make command key do Meta
+    (setq mac-option-modifier 'super)     ; make option key do Super
+    (setq mac-control-modifier 'control)  ; make control key do Control
+    (setq ns-function-modifier 'hyper)    ; make fn key do Hyper
+    )
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; macOS window support
+  (when (eq window-system 'mac)
+
+    ;; Auto fullscreen after init
+    (defun my/max-fullscreen ()
+      (interactive)
+      (set-frame-parameter nil 'fullscreen 'fullboth))
+
+    (add-hook 'after-init-hook #'my/max-fullscreen))
 #+END_SRC
 ** Basics settings
 *** General user interface and appearance
@@ -800,25 +860,6 @@ Some personal information about me.
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Alias
   (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
-#+END_SRC
-** OS special setting
-*** Paths
-
-Ever find that a command works in your shell, but not in Emacs?
-
-This happens a lot on OS X, where an Emacs instance started from the GUI
-inherits a default set of environment variables. 
-
-[[https://github.com/purcell/exec-path-from-shell][Exec-path-from-shell]] is a GNU Emacs library to ensure environment variables
-inside Emacs look the same as in the user's shell. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package exec-path-from-shell
-    :defer t
-    :init
-    (progn
-      (when (memq window-system '(mac ns))
-        (exec-path-from-shell-initialize))))
 #+END_SRC
 ** Useful settings
 *** Uniquify
@@ -2004,6 +2045,11 @@ Configuration for [[https://www.coursera.org/learn/programming-languages/][Progr
   (use-package sml-mode)
   (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
   (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
+#+END_SRC
+** Racket
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package racket-mode)
 #+END_SRC
 * Applications and tools
 ** Utilities
