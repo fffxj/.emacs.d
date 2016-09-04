@@ -154,12 +154,12 @@ bindings are not difficult to remember.
 As you gradually learn Emacs, you will see the key bindings are really
 systematically organized and mnemonic. Whenever you see key bindings ending
 with =n= and =p=, it usually means *next* and *previous*; =o= means *open*; =h=
-means *help*; =C-h= is standard prefix for *help commands*; key bindings such
-as =o= and =C-o= are frequently used in many built-in tools such as /Dired/,
-/Ibuffer/, /Occur/ ...
+means *help*; =q= for *quit*; =C-h= is standard prefix for *help commands*; key
+bindings such as =o= and =C-o= are frequently used in many built-in tools such
+as /Dired/, /Ibuffer/, /Occur/ ...
 
 *** Ask for Help from Emacs
-**** Build-in help system
+**** Build-in Help System
 
 Emacs provides a wide variety of help commands. I will describe some most
 useful commands based on my experience. I will not list all, so you have to
@@ -199,12 +199,12 @@ You can view man pages with two commands:
   program). It means, you can view man page without having the /man/ program
   installed, while the =man= command above invokes external /man/ program. 
 
-*** DONE (Basic) Point
+*** Point
 
-Point is your current cursor position.
+/Point/ is your current cursor position.
 
-*** TODO (Basic) Opening files
-*** DONE (Basic) Buffer
+*** TODO Files Basic
+*** Buffers Basic
 
 Buffer is where you edit your file content. Buffer holds content of a file
 temporarily. Anything you write into the buffer won't make it into file until
@@ -226,23 +226,29 @@ Basic Keybinding:
 | C-x C-w    | write-file       | Save the buffer to a different file                 |
 | C-x b      | switch-to-buffer | Switch to a different buffer                        |
 | C-x k      | kill-buffer      | Kill a buffer. RET to kill the currently active one |
-*** DONE (Basic) Major mode
 
-Major modes provide specialized facilities for working on a particular file
+*** Modes
+
+Emacs contains many editing modes that alter its basic behavior in useful ways.
+These are divided into major modes and minor modes.
+
+**** Major mode
+
+/Major modes/ provide specialized facilities for working on a particular file
 type, such as syntax highlighting for a programming language. Major modes are
-mutually exclusive; each buffer has one and only one major mode at any time. 
+mutually exclusive; each buffer has one and only one major mode at any time.
 
 Emacs is bundled with many major modes for editing source code in different
 languages: C, C++, Java, Lisp, bash, asm… For example, when opening a file with
-=.c= extension, Emacs automatically recognizes it's a C file and selects the C 
-major mode to highlight the buffer properly. 
+=.c= extension, Emacs automatically recognizes it's a C file and selects the C
+major mode to highlight the buffer properly.
 
-*** DONE (Basic) Minor mode
+**** Minor mode
 
-Minor modes are optional features which you can turn on or off, not necessarily
-specific to a type of file or buffer. For example, /Auto Fill mode/ is a minor
-mode in which =SPC= breaks lines between words as you type. Minor modes are
-independent of one another, and of the selected major mode. 
+/Minor modes/ are optional features which you can turn on or off, not
+necessarily specific to a type of file or buffer. For example, /Auto Fill mode/
+is a minor mode in which =SPC= breaks lines between words as you type. Minor
+modes are independent of one another, and of the selected major mode.
 
 *** TODO (Basic) Basic buffer managements
 
@@ -277,7 +283,7 @@ will surely want to use /ibuffer/, but first let's replace =list-buffers= with
 
 Then =M-x eval-buffer= for the setup to take effect immediately. 
 
-*** DONE (Basic) Basic motion commands
+*** DONE Basic motion commands
 
 These key bindings are also used by popular shells such as /bash/ or /zsh/. I
 highly recommended you to master these key bindings. 
@@ -310,7 +316,7 @@ These key bindings are in Emacs only:
 + Move to the nth line: =M-g l= for Emacs < 23.2, =M-g g= for emacs >= 23.2) (l/g
   stands for line) 
 
-*** DONE (Basic) Useful built-in key bindings for navigating pairs
+*** DONE Useful built-in key bindings for navigating pairs
 
 + =C-M-f= binds to =forward-sexp=, move forward over a balanced expression.
 + =C-M-b= binds to =backward-sexp=, move backward over a balanced expression.
@@ -318,7 +324,7 @@ These key bindings are in Emacs only:
 + =C-M-t= binds to =transpose-sexps=, transpose expressions.
 + =C-M-<SPC>= or =C-M-@= binds to =mark-sexp=, put mark after following expression.
 
-*** DONE (Basic) Basic editing command
+*** DONE Basic editing command
 
 In Emacs, /kill/ means /cut/ in other editors. These key bindings also work under
 the terminal. 
@@ -340,7 +346,7 @@ with =M-;=
 + If you do not highlight a text region, =M-;= adds a comment to the end of line.
 + If you highlight a region (i.e. with a mouse), =M-;= comments out the region.
 
-*** DONE (Basic) Dynamic Abbreviations
+*** DONE Dynamic Abbreviations
 
 Dynamic Abbreviations are a completion feature in Emacs, but work for text and
 is context-independent. After you type a word once, if you type that word
@@ -348,7 +354,7 @@ again, you can type it partially and =M-/= to complete it. If you type a prefix
 that has many candidates, =M-/= cycles the candidates. This is a really cool
 feature and you ought to try it.
 
-*** TODO (Basic) Search and replace
+*** TODO Search and replace
 
 Content search is an essential feature in every editor. Emacs has many built-in
 tools for this problem.
@@ -394,17 +400,54 @@ ocurrences only *beneath* your current point).
 
 If you want to query and replace with regexp, =C-M-%=.
 
-*** TODO (Basic) Modeline
+*** Screen Organization
+**** Modeline
 
-The mode line is the empty area below the buffer. It has useful summary
-information about the buffer shown in the window. 
+The /Mode Line/ is the empty area below the buffer. It has useful summary
+information about the buffer shown in the window.
 
 The text displayed in the mode line has the following format:
 
 #+BEGIN_SRC org
   |cs:ch-fr | buf | pos line | (major minor)|
 #+END_SRC
-*** (Basic) Minibuffer
+
++ =cs= describes the character set of the text in the buffer. For example, if
+  the character is =U=, it means your text is represented by UTF-8 coding
+  system.
+
++ =ch= describes editing state of current buffer:
+
+  - This shows two dashes (‘--’) if the buffer displayed in the window has the
+    same contents as the corresponding file on the disk; i.e., if the buffer is
+    “unmodified”.
+
+  - If the buffer is modified, it shows two stars (‘**’). For a read-only
+    buffer, it shows ‘%*’ if the buffer is modified, and ‘%%’ otherwise.
+
++ =fr= gives the selected frame name. A frame is a Emacs window in your OS.
+
+  - If you are using the GUI version of Emacs, it will always be a dash.
+
+  - However, if you use Emacs in terminal, you cannot have multiple frame.
+    Instead, Emacs creates virtual frames with names like F1, F2 ..., Fn.
+
++ =buf= is buffer name. Buffer name is usually file name; but they can have
+  different names.
+
++ =pos= is display the current position of your viewing screen. If your viewing
+  screen starts from the first line, it displays as =Top=. If you viewing
+  screen contains the last line of your buffer, it displays as =Bottom=.
+  Otherwise, it displays =% position=, i.e. =20%= means you viewing screen is
+  20% away from the top.
+
++ =line= displays the current line number.
+
++ =major= displays the current major mode.
+
++ =minor= displays the current minor mode.
+
+**** Minibuffer
 
 /Minibuffer/ is the small area at the bottom of your Emacs screen.
 
@@ -423,15 +466,18 @@ Minibuffer has an input history. If you enter anything into the minibuffer and
 + =M-n= moves to the next input in minibuffer history.
 + =M-r= searches for an input that matches the supplied regexp.
 
-*** (Basic) Echo area
+It works on any command that get input from the minibuffer, for example, =M-p=
+and =M-n= to get old inputs in Isearch.
 
-/Minibuffer/ can be used for output as well. The /echo area/ is used for displaying
+**** Echo Area
+
+/Minibuffer/ can be used for output as well. The /Echo Area/ is used for displaying
 messages made with the message primitive, and for echoing keystrokes. 
 
-Both Minibuffer and Echo Area, although serve different purposes, share the
-same physical space. You should not be confused between the two. 
+Both =Minibuffer= and =Echo Area=, although serve different purposes, share the
+same physical space. You should not be confused between the two.
 
-*** (Basic) Frame
+*** Frame
 
 An application window in an operating system is called a /Frame/ in Emacs. So,
 you execute Emacs from the command line and open Emacs, that's a frame that
@@ -463,13 +509,14 @@ These are the key bindings for manipulating frames:
 | C-x 5 m    | compose-mail-other-frame        | Open another frame for composing email                |
 | C-x 5 o    | other-frame                     | Cycle through available frames                        |
 | C-x 5 r    | find-file-read-only-other-frame | Open file for read only in another frame              |
-*** (Basic) Window
+
+*** Window
 
 Unlike other editors, Emacs can split your frame area into multiple smaller
 areas. Each such area is called a /window/. You can divide a frame into as many
 windows as you want and each window can have anything in it, i.e. your current
-editing buffer, file management buffer, help buffer, a shell… Basically
-anything that Emacs can display. Let's try them out: 
+editing buffer, file management buffer, help buffer, a shell... Basically
+anything that Emacs can display. Let's try them out:
 
 | Keybinding | Command              | Description                                             |
 |------------+----------------------+---------------------------------------------------------|
@@ -503,31 +550,137 @@ files, shell, or a tree explorer. Here are standard =C-x 4= bindings:
 | C-x 4 f    | find-file-other-window             | Same as C-x 4 C-f                                                                                                                                                                                                                                  |
 | C-x 4 m    | compose-mail-other-window          | Write mail in other window. You can write email and send it directly from Emacs.                                                                                                                                                                   |
 | C-x 4 r    | find-file-read-only-other-window   | Similar to find-file-other-window, but open for read-only.                                                                                                                                                                                         |
-| M-<next>   | scroll-other-window                | Scroll other window forward.                                                                                                                                                                                                                       |
 | M-<prior>  | scroll-other-window-down           | Scroll the other window backward.                                                                                                                                                                                                                  |
+| M-<next>   | scroll-other-window                | Scroll other window forward.                                                                                                                                                                                                                       |
 
 In Emacs, =<next>= is the *PageDown* key, =<prior>= is the *PageUp* key.
 =M-<next>= runs =scroll-other-window= and scroll the other window forward;
 =M-<prior>= runs =scroll-other-window-down= and scroll the other window backward.
 
-*** TODO (Basic) Basic file management with =dired=
+*** Basic File Management with =Dired=
 
-Emacs has a built-in one called Dired, short for =(Dir)ectory (Ed)itor=.
+Emacs has a built-in file manager called Dired, short for =(Dir)ectory
+(Ed)itor=.
 
 This section is a shortened version of Dired in GNU Emacs Manual. After you
 read and practice these commands, read the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired Manual]] if possible. 
 
-*** TODO (Basic) Regisiter
+**** Entering Dired
 
-When I first heard about registers in Emacs, it scared me. I thought "Wow, what
-is this "register" thing? Am I going to work directly with CPU registers?" As
-it turned out, despite the name "Register", it's not something that complicated
-to understand. Although, an Emacs register is similar to a CPU register in the
-sense that it allows quick access to temporal data. 
+| Keybinding | Description                                                         |
+|------------+---------------------------------------------------------------------|
+| C-x d      | Select directory of your choice and start Dired in that directory   |
+| C-x 4 d    | Select directory of your choice and start Dired in another windows. |
+| C-x C-f    | Select a directory to enter Dired                                   |
+
+**** Navigation
+
+| Key | Description                                                    |
+|-----+----------------------------------------------------------------|
+| n   | Move to next entry below point.                                |
+| p   | Move to previous entry above point.                            |
+| C-s | Find text using Isearch; useful for searching entries in Dired |
+
+You can supply prefix arguments for these commands. i.e. =4 n= moves to the
+entry which is 4 lines below.
+
+**** Creating Files
+
+To create a new file in Dired, you use the same =C-x C-f= and =C-x 4 C-f=
+variant.
+
+| Keybinding | Description                                            |
+|------------+--------------------------------------------------------|
+| +          | Prompts for a directory name and create one after RET. |
+| C-x C-f    | Create a new file. This is your regular =find-file=.   |
+
+**** Visiting Files
+
+| Key | Description                                                               |
+|---------------+---------------------------------------------------------------------------|
+| f or e or RET | Open current file at point.                                               |
+| o             | Open file at point in another window.                                     |
+| C-o           | Open file at point in another window, but do not select that window.      |
+| v             | Open file for read only.                                                  |
+| ^             | Open parent directory and create another Dired buffer of parent directory |
+
+**** Deleting Files
+
+| Key  | Description                                                          |
+|------+----------------------------------------------------------------------|
+| d    | Flags file for deletion.                                             |
+| #    | Flag all auto-save files (files whose names start and end with ‘#’). |
+| ~    | Flag all backup files                                                |
+| % &  | Flag for deletion all files that match =dired-garbage-files-regexp=. |
+| % d  | Flag files which matches a regexp.                                   |
+| u    | Remove flagged files.                                                |
+| x    | Confirm and delete flagged files.                                    |
+
+**** File Marking
+
+You flag files for deletion. You mark files for everything else (i.e. copy,
+move, link files...). There are many marking commands for specialized file
+types. Except for =m=, =% m= and =% g=, all marking commands have prefix =*=. I
+will list the most useful one; you can look up the other marking commands in
+Dired Manual.
+
+| Key | Description                                                                                          |
+|-----+------------------------------------------------------------------------------------------------------|
+| m   | Mark the entry at point. You can mark more than one, either downward or upward with prefix argument. |
+| % m | Mark all files whose names match supplied regexp.                                                    |
+| % g | Match all files whose contents match the supplied regexp. This is the same as using Grep.            |
+
+**** Operating on Files
+
+| Key | Description                                                                                                                              |   |
+|-----+------------------------------------------------------------------------------------------------------------------------------------------+---|
+| C   | Prompt for a location to copy the file at point (if no file is marked) or marked files.                                                  |   |
+| R   | Prompt for a location to rename or move file at point (if no file is marked) or marked files. This is the same as =mv= command in shell. |   |
+| H   | Prompt for a location to create a hard link.                                                                                             |   |
+| S   | Prompt for a location to create a symbolic link.                                                                                         |   |
+| M   | Change permission bits of file at point or marked files.                                                                                 |   |
+
+**** Shell Commands in Dired
+
+Just like in a shell, you can execute commands in the current directory in
+Dired too.
+
+| Key | Description                                                 |
+|-----+-------------------------------------------------------------|
+| !   | Execute a command on selected file or files.                |
+| &   | Execute a command on selected file or files asynchronously. |
+
+**** Comparison
+
+| Key | Description                                                                                         |
+|-----+-----------------------------------------------------------------------------------------------------|
+| =   | Compares the file at point with another file supplied by user from a file prompt in the minibuffer. |
+  
+**** Subdirectories
+
+This is an exciting feature of Dired. In other file explorers, you get a tree
+to browse your directory. If you have a deep directory structure, it will
+quickly become a nuisance.
+
+Dired allows user to insert the content of a directory just below the current
+directory. You can search for file names with =C-s= easily in
+both directories. You can insert as many subdirectories as you want.
+
+| Key | Description                                                |
+|-----+------------------------------------------------------------+
+| i   | Insert the contents of a subdirectory later in the buffer. |
+
+*** Registers
+
+Emacs /Registers/ are compartments where you can save text, rectangles,
+positions, and other things for later use. Once you save text or a rectangle in
+a register, you can copy it into the buffer once, or many times; once you save
+a position in a register, you can jump back to that position once, or many
+times.
 
 Each register has a name that consists of a single character, which we will
 denote by r; r can be a letter (such as ‘a’) or a number (such as ‘1’); case
-matters, so register ‘a’ is not the same as register ‘A’. 
+matters, so register ‘a’ is not the same as register ‘A’.
 
 In Emacs, registers are for quick access to things. Things can be a position, a
 piece of text, a rectangle, a number, a file name, or a window configuration
@@ -540,14 +693,109 @@ choice.
 The prefix key for register commands is =C-x r=. If you forget the key bindings,
 =C-x r C-h= to get the list of key bindings. 
 
-**** Save window configuration
-**** Save frame configuration
-**** Save text
-**** Save rectangle
 **** Save Position
-**** Save number
-*** TODO (Advanced) Macro
-*** DONE (Basic) Version control
+
+| Keybinding      | Command           | Description                                                                                                                      |
+|-----------------+-------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| C-x r <SPC> REG | point-to-register | Record the position of point and the current buffer in register REG                                                              |
+| C-x r j REG     | jump-to-register  | Jump to the position and buffer saved in register REG. If the buffer is killed, revisit the file and open the buffer, then jump. |
+
+Saving positions are useful when it is used with Macro, which is discussed
+later.
+
+*IMPORTANT NOTE* When you jump to a position into a register, Emacs always
+jumps to that position, even if the content of the buffer is changed. That is,
+if you already saved a position into a register and when the buffer that holds
+that position changes, the saved position changes as well. For example, you
+save position 100 (it means the position of 100th character) and you add or
+remove a number of characters before the 100th character, then the position in
+the saving register also add or subtract according to that number.
+
+**** Save Window Configuration
+
+One of the best uses of registers. It simply saves your current window
+configuration and restores the layout later.
+
+For example, you are viewing four source code buffers, but want to open two
+Dired buffers side by side to for managing files, so you close two windows and
+switch the other two windows to Dired buffers. But this makes you lose the
+perfect layout you had, and later it would be tedious to restore the windows
+one by one to finally recreate the original layout you were working with. Then,
+later, you have to do something else, you have to break your window
+configuration, you have to manually restore your window configuration again,
+and have to remember exactly which buffers you were working with.
+
+To free yourself from this burden, register is the answer. You can save a
+window configuration with four windows displaying four buffers, and another one
+having two Dired buffers for your project. You can more easily switch between
+them.
+
+| Keybinding  | Command                          | Description                                                                |
+|-------------+----------------------------------+----------------------------------------------------------------------------|
+| C-x r w REG | window-configuration-to-register | Save the window configuration of current frame into register REG           |
+| C-x r f REG | frame-configuration-to-register  | Save the state of all frames, including all their windows, in register REG |
+| C-x r j REG | jump-to-register                 | Jump to a register REG.                                                    |
+
+**** Save Frame Configuration
+
+If you create multiple frames with frame commands (prefix =C-x 5=), then you may
+want to save your frames with different window configurations in it, for later
+use. For example, I can have a frame for reading documents and my main frame
+for writing and browsing code. When I finish working, I close the extra frame,
+leaving my main frame active. But later, when I need to have that exact frame
+setup, I can always restore with saved frameset in a register.
+
+| Keybinding  | Command                          | Description                                                                |
+|-------------+----------------------------------+----------------------------------------------------------------------------|
+| C-x r f REG | frame-configuration-to-register  | Save the state of all frames, including all their windows, in register REG |
+
+**** Save Text
+
+You can also save a region in registers, then insert it several times.
+
+| Keybinding  | Command          | Description                   |
+|-------------+------------------+-------------------------------|
+| C-x r s REG | copy-to-register | Copy region into register REG |
+| C-x r i REG | insert-register  | Insert text from register REG |
+
+**** Save Rectangle
+
+| Keybinding  | Command                    | Description                                                                    |
+|-------------+----------------------------+--------------------------------------------------------------------------------|
+| C-x r r REG | copy-rectangle-to-register | Copy the region-rectangle into register REG With C-u prefix, delete it as well |
+| C-x r i REG | insert-register            | Insert the rectangle stored in register REG                                    |
+
+**** Save Number
+
+There are commands to store a number in a register, to insert the number in the
+buffer in decimal, and to increment it. 
+
+| Keybinding             | Command            | Description                                                                |
+|------------------------+--------------------+----------------------------------------------------------------------------|
+| C-u number C-x r n REG | number-to-register | Store number into register REG                                             |
+| C-u number C-x r + REG | increment-register | If REG contains a number, increment the number in that register by number. |
+| C-x r i REG            | insert-register    | Insert the number stored in register REG                          |
+
+These commands can be useful in keyboard macros.
+
+*** TODO Keyboard Macros
+
+/Keyboard Macros/ record your actions in Emacs and play back later.
+
+**** TODO Macros Basic
+
+| Keybinding  | Command                    | Description           |
+|-------------+----------------------------+-----------------------|
+| F3 or C-x ( | (kmacro-start-macro)       | Start recording macro |
+| F4 or C-x ) | (kmacro-end-macro)         | Stop recording macro  |
+| F4 or C-x e | (kmacro-end-or-call-macro) | Playback macro        |
+
+Personally, I use =F3= and =F4= for recording/playback, so I don't have to
+press many keys. To repeat a macro many times, use prefix argument. For
+example, =C-u 10 <f4>= executes a macro =10= times. If you want to cancel
+recording, =C-g=.
+
+*** Version Control
 
 This section is taken directly from [[https://www.gnu.org/software/emacs/tour/][GNU Emacs Tour]], with improvements.
 
@@ -577,23 +825,25 @@ locking, this command also acquires a lock for you.)
 | C-x v l    | vc-print-log             | Displays a log of previous changes to the file. When point is on a particular log entry, you can press =d= to view the diff associated with that change or =f= to view that version of the file.                                   |
 | C-x v u    | vc-revert                | Revert working copies of the selected fileset to their repository contents. This asks for confirmation if the buffer contents are not identical to the working revision (except for keyword expansion).                            |
 
-If you use =git=, a more specialized package exists dedicated to Git only: =Magit=
-offers much better features than the general interface that Emacs provides,
-except for some features, such as =C-x v ==, =C-x v ~= and =C-x v u=. 
+You can list more operations with =C-x v C-h=.
+
+If you use =git=, a more specialized package exists dedicated to Git only:
+=Magit= offers much better features than the general interface that Emacs
+provides, except for some features, such as =C-x v ==, =C-x v ~= and =C-x v u=.
 
 The prefix key bindings for all VC related commands are =C-x v=. The above are
 just a few commands that I found most useful and used frequently, even when I
 use [[https://github.com/magit/magit][Magit]]. 
 
-*** TODO Shell
+*** Shell
 
 In Emacs, you have 3 types of shell commands: =shell=, =term= and =eshell=. 
 
-I will just quote a very good answer on [[http://unix.stackexchange.com/questions/104325/what-is-the-difference-between-shell-eshell-and-term-in-emacs][StackExchange: What is the difference
+I will just quote a very good answer on StackExchange: [[http://unix.stackexchange.com/questions/104325/what-is-the-difference-between-shell-eshell-and-term-in-emacs][What is the difference
 between shell, eshell, and term in Emacs?]] 
 
 #+BEGIN_QUOTE
-[[%5B%5Bhttps://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Mode.html%5D%5Bshell%5D%5D][shell]] is the oldest of these 3 choices. It uses Emacs's comint-mode to run a
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Mode.html][shell]] is the oldest of these 3 choices. It uses Emacs's comint-mode to run a
 subshell (e.g. bash). In this mode, you're using Emacs to edit a command line.
 The subprocess doesn't see any input until you press Enter. Emacs is acting
 like a dumb terminal. It does support color codes, but not things like moving
