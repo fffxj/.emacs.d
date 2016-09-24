@@ -4,7 +4,7 @@
 
 * About
 ** My Emacs Init File
-
+   
 This is my Emacs configuration file. Inspired by [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha]] and [[http://doc.norang.ca/org-mode.html][Bernt]], l written it
 using Org-babel in literate style, to make it easy to explain.
 
@@ -41,18 +41,22 @@ using Org-babel in literate style, to make it easy to explain.
   Emacs outshines all other editing software in approximately the same way that
   the noonday sun does the stars. It is not just bigger and brighter; it simply
   makes everything else vanish.
-                                                                 [Neal Stephenson]
+                                                               [Neal Stephenson]
+
+  People talk about getting used to a new editor, but over time, it is precisely
+  the opposite that should happen — the editor should get used to us.
+                                                                  [Vivek Haldar]
 
   "Show me your ~/.emacs and I will tell you who you are."
-                                                                 [Bogdan Maryniuk]
+                                                               [Bogdan Maryniuk]
 
-  "Emacs is like a laser guided missile. It only has to be slightly 
+  "Emacs is like a laser guided missile. It only has to be slightly
   mis-configured to ruin your whole day."
-                                                                    [Sean McGrath]
+                                                                  [Sean McGrath]
 
   "While any text editor can save your files, only Emacs can save your
   soul."
-                                                                  [Per Abrahamsen]
+                                                                [Per Abrahamsen]
 #+END_EXAMPLE
 ** How to Use This Document
 
@@ -60,7 +64,7 @@ This document is available as an org file which you can load in Emacs and
 tangle with =M-x org-babel-tangle (C-c C-v C-t)= which will create
 =org-mode.el= in the same directory as the =org-mode.org= file. This will
 extract all of the elisp examples in this document into a file you can include
-in your .emacs file.
+in your =~/.emacs.d/init.el= file.
 
 If you're new to Emacs Lisp, you probably don't want to copy and paste large
 chunks of this code. Instead, copy small parts of it (always making sure to
@@ -71,807 +75,14 @@ if you like the way that Emacs behaves.
 If you're a Emacs newbie, you should learn Emacs basic concepts and usage
 first.
 
-* Guide for Newbie
-  
-*Reference*: [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (PART 1)]]
-
-** Concepts
-*** Command
-
-In Emacs, every user interaction is a function execution. You press a key to
-insert a character, Emacs runs =self-insert-command=. There are two types of
-functions in Emacs: 
-
-+ /Normal functions/: These are like functions in other programming languages,
-  and are used for implementing features in Emacs. Users do not need to care
-  about these functions, unless they want to implement something or modify an
-  existing implementation. 
-
-+ /Commands/: Commands are like functions, but interactive. It means, commands
-  are features provided to users and users directly use them. 
-
-By default, =execute-extended-command= is bound to =M-x=.
-
-*** Keys
-**** Key Notation
-
-| Prefix | Meaning                                                                                    |
-|--------+--------------------------------------------------------------------------------------------|
-| =C-=   | (press and hold) the Control key                                                           |
-| =M-=   | the Meta key (the Alt key, on most keyboards)                                              |
-| =S-=   | the Shift key                                                                              |
-| =DEL=  | the Backspace key (*not* the Delete key). Inside Emacs, =DEL= is written as =<backspace>=. |
-| =RET=  | the Return or Enter key                                                                    |
-| =SPC=  | the Space bar                                                                              |
-| =ESC=  | the Escape key                                                                             |
-| =TAB=  | the Tab key                                                                                |
-
-A notation such as =C-M-x= (or, equivalently, =M-C-x=) means press and hold
-both Control and Meta keys while hitting the `x' key. 
-
-If you see =M-x command=, it means you need to =M-x= and type command.
-
-*IMPORTANT*: =C-g= executes the command =keyboard-quit=, which cancels anything
-Emacs is executing. If you press any key sequence wrongly, =C-g= to cancel that
-incorrectly pressed key sequence and start again.
-
-**** Key Bindings are systematically organized
-
-A /prefix key/ is a part of a full key binding. For example, a full key binding
-is =C-x r l= to run the command =bookmark-bmenu-list=, then =C-x= and =C-x r=
-are its prefixes. Note that key sequence such as =C-x= and =M-x= are considered
-a single character. Thanks to prefix key, the key bindings have a few simple
-and easy to remember rules:
-
-+ =C-x= prefix is for default and global binding that come with Emacs.
-+ =C-c= prefix is for users to define.
-+ =C-u= is for altering behaviors of commands. That is, one command can behave
-  differently depending on how many =C-u= you pressed first before executing a
-  command. Mostly you just have to hit =C-u= once.
-+ =C-<number>= like =C-1=, =C-2= ... is similar to =C-u=, but passing a number
-  to a command. Usually, the number specifies how many times you want to repeat
-  a command.
-
-By default, the prefix keys in Emacs are =C-c=, =C-h=, =C-x=, =C-x RET=, =C-x
-@=, =C-x a=, =C-x n=, =C-x r=, =C-x v=, =C-x 4=, =C-x 5=, =C-x 6=, =ESC=,
-=M-g=, and =M-o=. (=F1= and =F2= are aliases for =C-h= and =C-x 6=.) This list
-is not cast in stone; if you customize Emacs, you can make new prefix keys. You
-could even eliminate some of the standard ones, though this is not recommended
-for most users.
-
-Knowing prefix key is handy: if you forget key bindings of
-some commands that use the same prefix key, and remember the prefix, you can
-press the prefix key and =C-h= or =F1= to get a list of commands with that
-prefix.
-
-**** Key Bindings are mnemonic
-
-Most commands can be organized in an easy to remember way. For example, command
-like =helm-do-grep= (the command belongs to =Helm=) can have a key binding like
-=C-c h g=. The =h= stands for /Helm/ and =g= stands for /grep/. So, key
-bindings are not difficult to remember.
-
-As you gradually learn Emacs, you will see the key bindings are really
-systematically organized and mnemonic. Whenever you see key bindings ending
-with =n= and =p=, it usually means *next* and *previous*; =o= means *open*; =h=
-means *help*; =q= for *quit*; =C-h= is standard prefix for *help commands*; key
-bindings such as =o= and =C-o= are frequently used in many built-in tools such
-as /Dired/, /Ibuffer/, /Occur/ ...
-
-*** Ask for Help from Emacs
-**** Build-in Help System
-
-Emacs provides a wide variety of help commands. I will describe some most
-useful commands based on my experience. I will not list all, so you have to
-rely on Emacs to get your information:
-
-=C-h C-h= to view a list of help commands. You can scroll the list with =SPC=
-and =DEL=, then type the help command you want. To cancel, type =C-g=.
-
-| Keybinding | Command                 | Description                                                                                                                                                                                                                                                                                                                                      |
-|------------+-------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-h m      | describe-mode           | see all the key bindings and documentation of current major mode and minor modes of a buffer.                                                                                                                                                                                                                                                    |
-| C-h w      | where-is                | get which keystrokes invoke a given command.                                                                                                                                                                                                                                                                                                     |
-| C-h c      | describe-key-briefly    | find out what command is bound to a key. For example, after =C-h c=, run =C-x C-f= gives you =find-files=.                                                                                                                                                                                                                                       |
-| C-h k      | describe-key            | find out what command is bound to a key, along with the documentation of the command. Use this if you want to know how to use a command.                                                                                                                                                                                                         |
-| C-h e      | view-echo-area-messages | see the logging of echo area messages.                                                                                                                                                                                                                                                                                                           |
-| C-h v      | describe-variable       | asks you for a variable; you can *TAB* to complete a variable. This command is important, because aside from describing a variable, it allows you to customize the behavior of Emacs and 3rd party packages.                                                                                                                                     |
-| C-h C-h    | help-for-help           | Use this command if you want to see a list of available help commands. Remember, if you partially remember a key binding, just press as much as you can remember and then press =C-h=, Emacs will list available commands for that prefix. Prefix =C-h= is no exception. =C-h C-h= simply returns all key bindings and commands of prefix =C-h=. |
-
-**** Info
-
-+ =M-x info= or =C-h i= to see all the Info manual in Emacs. If you want to
-  learn more about Emacs, the official Emacs manual in Info. 
-
-+ =M-x info-emacs-manual= or, =C-h r=, to see manual section for Emacs.
-
-Use Info often whenever you need to learn something in Emacs. Use it early to
-create a good habit of reading documentation, and this is beneficial not only
-for Emacs. 
-
-**** Man
-
-You can view man pages with two commands:
-
-+ =M-x man=: Get a UNIX manual page and put it in a buffer.
-
-+ =M-x woman=: Browse UN*X man page for TOPIC (Without using external Man
-  program). It means, you can view man page without having the /man/ program
-  installed, while the =man= command above invokes external /man/ program. 
-
-*** Point
-
-/Point/ is your current cursor position.
-
-*** TODO Files Basic
-*** Buffers Basic
-
-Buffer is where you edit your file content. Buffer holds content of a file
-temporarily. Anything you write into the buffer won't make it into file until
-you explicitly save it with =save-buffer= command. =C-x C-s= executes the command
-save-buffer, so you can =C-x C-s= your files. You can also execute this from
-=M-x*=. 
-
-To save a buffer as other file ("Save As" in other editors), =C-x C-w=, which
-runs the commands =write-file=. 
-
-To kill a buffer, =C-x k=. If you want to kill the current buffer, *RET*
-immediately. Otherwise, type into the prompt the buffer name you want to kill. 
-
-Basic Keybinding:
-
-| Keybinding | Command          | Description                                         |
-|------------+------------------+-----------------------------------------------------|
-| C-x C-s    | save-buffer      | Save the buffer at point                            |
-| C-x C-w    | write-file       | Save the buffer to a different file                 |
-| C-x b      | switch-to-buffer | Switch to a different buffer                        |
-| C-x k      | kill-buffer      | Kill a buffer. RET to kill the currently active one |
-
-*** Modes
-
-Emacs contains many editing modes that alter its basic behavior in useful ways.
-These are divided into major modes and minor modes.
-
-**** Major mode
-
-/Major modes/ provide specialized facilities for working on a particular file
-type, such as syntax highlighting for a programming language. Major modes are
-mutually exclusive; each buffer has one and only one major mode at any time.
-
-Emacs is bundled with many major modes for editing source code in different
-languages: C, C++, Java, Lisp, bash, asm… For example, when opening a file with
-=.c= extension, Emacs automatically recognizes it's a C file and selects the C
-major mode to highlight the buffer properly.
-
-**** Minor mode
-
-/Minor modes/ are optional features which you can turn on or off, not
-necessarily specific to a type of file or buffer. For example, /Auto Fill mode/
-is a minor mode in which =SPC= breaks lines between words as you type. Minor
-modes are independent of one another, and of the selected major mode.
-
-*** TODO (Basic) Basic buffer managements
-
-So, you learn how to open file and create buffer of that file. In other
-editors, you got something called "tabs". Every time you open a file, you get a
-file tab for selecting an "opening file" (which is called buffer in Emacs). It
-quickly becomes a nuisance once you have lots of file tabs. If you use
-multi-row support for file tabs, it eats up your editing space. 
-
-How do you switch between opening buffers? =C-x b= opens a prompt to enter a
-buffer name. You can *TAB* to complete the buffer name similar to how you
-complete file names in =C-x C-f=. 
-
-After you open a file, and if point is in that buffer, =C-x C-f= prompts the
-current directory, so you can open another file within this directory. For
-example, buffer A is from =~/dir1/= and buffer B is in =~/dir2/=, if point is
-in 
-buffer A, =C-x C-f= starts in =~/dir1/=; if point is in buffer B, =C-x C-f=
-starts in =~/dir2/=. 
-
-In an Emacs session, you may have a lot of buffers, including non-file buffers
-such as shell buffers, email buffers… How do you manage buffers when it's
-getting large? =C-x C-b= executes =list-buffers=, provide you a list of buffer
-in which you can search. However, =list-buffers= is a simple command for buffer
-management. Emacs also provides /ibuffer/, which is a superior alternative. You
-will surely want to use /ibuffer/, but first let's replace =list-buffers= with
-=ibuffer= (by placing next directive to your emacs config file): 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-#+END_SRC
-
-Then =M-x eval-buffer= for the setup to take effect immediately. 
-
-*** DONE Basic motion commands
-
-These key bindings are also used by popular shells such as /bash/ or /zsh/. I
-highly recommended you to master these key bindings. 
-
-+ Move forward one char: =C-f= (f stands for *forward*)
-+ Move backward one char: =C-b= (b stands for *backward*)
-+ Move upward one line: =C-p= (p stands for *previous*)
-+ Move downward one line: =C-n= (n stands for *next*)
-
-The above operations can also be done with arrow keys. If you don't like the
-above key bindings, the arrow keys offer equivalent features. 
-
-+ Move to beginning of line: =C-a=
-+ Move to end of line: =C-e=
-+ Move forward one word: =M-f=
-+ Move backward one word: =M-b=
-
-These key bindings are in Emacs only:
-
-+ Scroll forward one screen: =C-v=, *page down*
-+ Scroll backward one screen: =M-v=, *page up*
-+ Move to the beginning of a sentence: =M-a=
-+ Move to the end of a sentence: =M-e=
-+ Recenter a screen, making the current line point the center of your screen:
-  =C-l=  
-+ Re-position point to the top, middle and bottom of the current screen: =M-r=
-+ Move to top of the buffer: =M-<=
-+ Move to end of the buffer: =M->=
-+ Move to the nth character: =M-g c= (c stands for character)
-+ Move to the nth line: =M-g l= for Emacs < 23.2, =M-g g= for emacs >= 23.2) (l/g
-  stands for line) 
-
-*** DONE Useful built-in key bindings for navigating pairs
-
-+ =C-M-f= binds to =forward-sexp=, move forward over a balanced expression.
-+ =C-M-b= binds to =backward-sexp=, move backward over a balanced expression.
-+ =C-M-k= binds to =kill-sexp=, kill balanced expression forward.
-+ =C-M-t= binds to =transpose-sexps=, transpose expressions.
-+ =C-M-<SPC>= or =C-M-@= binds to =mark-sexp=, put mark after following expression.
-
-*** DONE Basic editing command
-
-In Emacs, /kill/ means /cut/ in other editors. These key bindings also work under
-the terminal. 
-
-+ Kill a character at the point: =C-d=
-+ Kill entire line: =C-S-DEL= (remember, DEL is your =<backspace>= key)
-+ Kill forward to the end of a word from current point: =M-d=
-+ Kill backward to the beginning of a word from the current point: =M-DEL=
-+ Kill all spaces at point: =M-\=
-+ Kill all spaces except one at point: =M-SPC=
-+ Kill to the end of line: =C-k=
-+ Kill a sentence: =M-k=
-
-When you kill something, the killed content is put into the /Kill Ring/.
-
-If you write code, you can also quickly add comments or comment/uncomment code
-with =M-;=
-
-+ If you do not highlight a text region, =M-;= adds a comment to the end of line.
-+ If you highlight a region (i.e. with a mouse), =M-;= comments out the region.
-
-*** DONE Dynamic Abbreviations
-
-Dynamic Abbreviations are a completion feature in Emacs, but work for text and
-is context-independent. After you type a word once, if you type that word
-again, you can type it partially and =M-/= to complete it. If you type a prefix
-that has many candidates, =M-/= cycles the candidates. This is a really cool
-feature and you ought to try it.
-
-*** TODO Search and replace
-
-Content search is an essential feature in every editor. Emacs has many built-in
-tools for this problem.
-
-**** DONE Incremental search
-
-So, you want to look for something in the buffer? =C-s= invokes =isearch-forward=,
-allows you to look forward from the current point for something. After =C-s=, you
-are prompted to enter the content to search for. Enter the content, and press
-=C-s= repeatedly to travel through the matches forward. 
-
-Similarly, =C-r= invokes =isearch-backward=, allows you to look backward from the
-current point. Press =C-r= repeatedly to travel through the matches backward. 
-
-=isearch= can be invoked from any valid buffer. You can perform =isearch= on
-=ibuffer=.
-
-If you want to search with regexp, =C-u C-s=.
-
-Now you get the basics of Isearch, it has more useful commands that are bound
-to =M-s= prefix key: 
-
-| Keybinding | Command                         | Description                                      |
-|------------+---------------------------------+--------------------------------------------------|
-| M-s .      | isearch-forward-symbol-at-point | Feed the symbol at point to =C-s= perform search |
-| M-s o      | occur                           | Run occur                                        |
-| M-s h .    | highlight-symbol-at-point       | Highlight the symbol at point                    |
-| M-s h l    | highlight-lines-matching-regexp | Highlight lines that match input regexp          |
-| M-s h r    | highlight-regexp                | Highlight according to regexp                    |
-| M-s h u    | unhighlight-regexp              | Turn off highlighting strings that match regexp  |
-**** DONE Query replace
-
-To replace something, =M-%= to execute =query-replace=. =M-%= asks you two inputs: 
-
-+ A string to be replaced.
-+ A string to replace.
-
-Supply the inputs and *RET*.
-
-Emacs will ask your confirmation to replace a matched string. If you want to
-replace all, press *!* instead of answer yes or no (*Note*: it will replace
-ocurrences only *beneath* your current point). 
-
-If you want to query and replace with regexp, =C-M-%=.
-
-*** Screen Organization
-**** Modeline
-
-The /Mode Line/ is the empty area below the buffer. It has useful summary
-information about the buffer shown in the window.
-
-The text displayed in the mode line has the following format:
-
-#+BEGIN_SRC org
-  |cs:ch-fr | buf | pos line | (major minor)|
-#+END_SRC
-
-+ =cs= describes the character set of the text in the buffer. For example, if
-  the character is =U=, it means your text is represented by UTF-8 coding
-  system.
-
-+ =ch= describes editing state of current buffer:
-
-  - This shows two dashes (‘--’) if the buffer displayed in the window has the
-    same contents as the corresponding file on the disk; i.e., if the buffer is
-    “unmodified”.
-
-  - If the buffer is modified, it shows two stars (‘**’). For a read-only
-    buffer, it shows ‘%*’ if the buffer is modified, and ‘%%’ otherwise.
-
-+ =fr= gives the selected frame name. A frame is a Emacs window in your OS.
-
-  - If you are using the GUI version of Emacs, it will always be a dash.
-
-  - However, if you use Emacs in terminal, you cannot have multiple frame.
-    Instead, Emacs creates virtual frames with names like F1, F2 ..., Fn.
-
-+ =buf= is buffer name. Buffer name is usually file name; but they can have
-  different names.
-
-+ =pos= is display the current position of your viewing screen. If your viewing
-  screen starts from the first line, it displays as =Top=. If you viewing
-  screen contains the last line of your buffer, it displays as =Bottom=.
-  Otherwise, it displays =% position=, i.e. =20%= means you viewing screen is
-  20% away from the top.
-
-+ =line= displays the current line number.
-
-+ =major= displays the current major mode.
-
-+ =minor= displays the current minor mode.
-
-**** Minibuffer
-
-/Minibuffer/ is the small area at the bottom of your Emacs screen.
-
-The /Minibuffer/ is where Emacs commands read complicated arguments, such as
-file names, buffer names, Emacs command names, or Lisp expressions. When you
-execute =find-file=, it asks for your file from the Minibuffer, which is one of
-=find-file= required argument. Remember that in Emacs,everything is a function.
-=find-file= is a command, in other words, it's an interactive function. As a
-function, it also takes arguments. Minibuffer is where users can feed arguments
-to the interactive functions.
-
-Minibuffer has an input history. If you enter anything into the minibuffer and
-*RET*, minibuffer remembers the input and you can access the input again with:
-
-+ =M-p= moves to the previous input in minibuffer history.
-+ =M-n= moves to the next input in minibuffer history.
-+ =M-r= searches for an input that matches the supplied regexp.
-
-It works on any command that get input from the minibuffer, for example, =M-p=
-and =M-n= to get old inputs in Isearch.
-
-**** Echo Area
-
-/Minibuffer/ can be used for output as well. The /Echo Area/ is used for displaying
-messages made with the message primitive, and for echoing keystrokes. 
-
-Both =Minibuffer= and =Echo Area=, although serve different purposes, share the
-same physical space. You should not be confused between the two.
-
-*** Frame
-
-An application window in an operating system is called a /Frame/ in Emacs. So,
-you execute Emacs from the command line and open Emacs, that's a frame that
-contains your Emacs session. Emacs can have multiple frames to hold different
-parts of Emacs, such as a separate frame to hold the minibuffer. 
-
-Personally, I only use a single frame. However, frames can be useful if you
-want to organize buffers into different groups. For example, each frame can be
-a project: frame F1 holds buffers related to my C programming projects, frame
-F2 holds buffers related to customizing Emacs, frame F3 holds buffers related
-to emails and reading, newsgroups… 
-
-As stated earlier, multiple frames under the terminal have names F1, F2 …. Fn
-for each frame.
-
-These are the key bindings for manipulating frames:
-
-| Keybinding | Command                         | Description                                           |
-|------------+---------------------------------+-------------------------------------------------------|
-| C-x 5 C-f  | find-file-other-frame           | Open file in a different frame                        |
-| C-x 5 f    | find-file-other-frame           | Same as C-x 5 C-f                                     |
-| C-x 5 C-o  | display-buffer-other-frame      | Open buffer in a different frame and move point there |
-| C-x 5 .    | find-tag-other-frame            | Find tag at point in a different frame                |
-| C-x 5 0    | delete-frame                    | Delete the current frame point is in                  |
-| C-x 5 1    | delete-other-frames             | Delete other frames except the one at point           |
-| C-x 5 2    | make-frame-command              | Create a frame                                        |
-| C-x 5 b    | switch-to-buffer-other-frame    | Same as C-x 5 C-o                                     |
-| C-x 5 d    | dired-other-frame               | Open a Dired buffer in another frame                  |
-| C-x 5 m    | compose-mail-other-frame        | Open another frame for composing email                |
-| C-x 5 o    | other-frame                     | Cycle through available frames                        |
-| C-x 5 r    | find-file-read-only-other-frame | Open file for read only in another frame              |
-
-*** Window
-
-Unlike other editors, Emacs can split your frame area into multiple smaller
-areas. Each such area is called a /window/. You can divide a frame into as many
-windows as you want and each window can have anything in it, i.e. your current
-editing buffer, file management buffer, help buffer, a shell... Basically
-anything that Emacs can display. Let's try them out:
-
-| Keybinding | Command              | Description                                             |
-|------------+----------------------+---------------------------------------------------------|
-| C-x 2      | split-window-below   | Split the current window into two horizontal windows.   |
-| C-x 3      | split-window-right   | Split your current window into two vertical windows.    |
-| C-x 0      | delete-window        | Close the window at point.                              |
-| C-x 1      | delete-other-windows | Close all other windows except the current selected one |
-| C-x o      | switch-window        | Switch to other window                                  |
-
-After you execute two command =C-x 2= and =C-x 3=, you will have three windows: two
-above and one below. Each window can hold a buffer. With the above two commands
-,you can create arbitrary window layout. In Emacs, a window layout is called a
-window configuration. 
-
-To navigate through the windows, use =C-x o= which runs the command =other-window=.
-Try cycle around the windows a few times to get used to it. 
-
-=C-x 4= is a common prefix for opening things in other buffer. Things here can be
-files, shell, or a tree explorer. Here are standard =C-x 4= bindings: 
-
-| Keybinding | Command                            | Description                                                                                                                                                                                                                                        |
-|------------+------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-x 4 C-f  | find-file-other-window             | Just like find-file discussed earlier, except open file in new window. If the current frame only has one window, a new window is created.                                                                                                          |
-| C-x 4 C-o  | display-buffer                     | Select a buffer from buffer list and display it in another window but not move point to that window.                                                                                                                                               |
-| C-x 4 .    | find-tag-other-window              | Open the tag at point in another window (more on this later)                                                                                                                                                                                       |
-| C-x 4 0    | kill-buffer-and-window             | Just like C-x 0 but kill the buffer in that window as well.                                                                                                                                                                                        |
-| C-x 4 a    | add-change-log-entry-other-window  | Open another buffer and allow you to record the change of the current editing file. These days, you use version control system to manage file changes,and Emacs does this better. Probably this feature exists when thing like Git does not exist. |
-| C-x 4 b    | switch-to-buffer-other-window      | Open a selected buffer in another window and move point to that window.                                                                                                                                                                            |
-| C-x 4 c    | clone-indirect-buffer-other-window | Clone the current buffer in another window and give it a different buffer name.                                                                                                                                                                    |
-| C-x 4 d    | dired-other-window                 | Open a dired buffer in another window. Dired is a built-int file manager in Emacs. We will discuss later.                                                                                                                                          |
-| C-x 4 f    | find-file-other-window             | Same as C-x 4 C-f                                                                                                                                                                                                                                  |
-| C-x 4 m    | compose-mail-other-window          | Write mail in other window. You can write email and send it directly from Emacs.                                                                                                                                                                   |
-| C-x 4 r    | find-file-read-only-other-window   | Similar to find-file-other-window, but open for read-only.                                                                                                                                                                                         |
-| M-<prior>  | scroll-other-window-down           | Scroll the other window backward.                                                                                                                                                                                                                  |
-| M-<next>   | scroll-other-window                | Scroll other window forward.                                                                                                                                                                                                                       |
-
-In Emacs, =<next>= is the *PageDown* key, =<prior>= is the *PageUp* key.
-=M-<next>= runs =scroll-other-window= and scroll the other window forward;
-=M-<prior>= runs =scroll-other-window-down= and scroll the other window backward.
-
-*** Basic File Management with =Dired=
-
-Emacs has a built-in file manager called Dired, short for =(Dir)ectory
-(Ed)itor=.
-
-This section is a shortened version of Dired in GNU Emacs Manual. After you
-read and practice these commands, read the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Dired.html][Dired Manual]] if possible. 
-
-**** Entering Dired
-
-| Keybinding | Description                                                         |
-|------------+---------------------------------------------------------------------|
-| C-x d      | Select directory of your choice and start Dired in that directory   |
-| C-x 4 d    | Select directory of your choice and start Dired in another windows. |
-| C-x C-f    | Select a directory to enter Dired                                   |
-
-**** Navigation
-
-| Key | Description                                                    |
-|-----+----------------------------------------------------------------|
-| n   | Move to next entry below point.                                |
-| p   | Move to previous entry above point.                            |
-| C-s | Find text using Isearch; useful for searching entries in Dired |
-
-You can supply prefix arguments for these commands. i.e. =4 n= moves to the
-entry which is 4 lines below.
-
-**** Creating Files
-
-To create a new file in Dired, you use the same =C-x C-f= and =C-x 4 C-f=
-variant.
-
-| Keybinding | Description                                            |
-|------------+--------------------------------------------------------|
-| +          | Prompts for a directory name and create one after RET. |
-| C-x C-f    | Create a new file. This is your regular =find-file=.   |
-
-**** Visiting Files
-
-| Key | Description                                                               |
-|---------------+---------------------------------------------------------------------------|
-| f or e or RET | Open current file at point.                                               |
-| o             | Open file at point in another window.                                     |
-| C-o           | Open file at point in another window, but do not select that window.      |
-| v             | Open file for read only.                                                  |
-| ^             | Open parent directory and create another Dired buffer of parent directory |
-
-**** Deleting Files
-
-| Key  | Description                                                          |
-|------+----------------------------------------------------------------------|
-| d    | Flags file for deletion.                                             |
-| #    | Flag all auto-save files (files whose names start and end with ‘#’). |
-| ~    | Flag all backup files                                                |
-| % &  | Flag for deletion all files that match =dired-garbage-files-regexp=. |
-| % d  | Flag files which matches a regexp.                                   |
-| u    | Remove flagged files.                                                |
-| x    | Confirm and delete flagged files.                                    |
-
-**** File Marking
-
-You flag files for deletion. You mark files for everything else (i.e. copy,
-move, link files...). There are many marking commands for specialized file
-types. Except for =m=, =% m= and =% g=, all marking commands have prefix =*=. I
-will list the most useful one; you can look up the other marking commands in
-Dired Manual.
-
-| Key | Description                                                                                          |
-|-----+------------------------------------------------------------------------------------------------------|
-| m   | Mark the entry at point. You can mark more than one, either downward or upward with prefix argument. |
-| % m | Mark all files whose names match supplied regexp.                                                    |
-| % g | Match all files whose contents match the supplied regexp. This is the same as using Grep.            |
-
-**** Operating on Files
-
-| Key | Description                                                                                                                              |   |
-|-----+------------------------------------------------------------------------------------------------------------------------------------------+---|
-| C   | Prompt for a location to copy the file at point (if no file is marked) or marked files.                                                  |   |
-| R   | Prompt for a location to rename or move file at point (if no file is marked) or marked files. This is the same as =mv= command in shell. |   |
-| H   | Prompt for a location to create a hard link.                                                                                             |   |
-| S   | Prompt for a location to create a symbolic link.                                                                                         |   |
-| M   | Change permission bits of file at point or marked files.                                                                                 |   |
-
-**** Shell Commands in Dired
-
-Just like in a shell, you can execute commands in the current directory in
-Dired too.
-
-| Key | Description                                                 |
-|-----+-------------------------------------------------------------|
-| !   | Execute a command on selected file or files.                |
-| &   | Execute a command on selected file or files asynchronously. |
-
-**** Comparison
-
-| Key | Description                                                                                         |
-|-----+-----------------------------------------------------------------------------------------------------|
-| =   | Compares the file at point with another file supplied by user from a file prompt in the minibuffer. |
-  
-**** Subdirectories
-
-This is an exciting feature of Dired. In other file explorers, you get a tree
-to browse your directory. If you have a deep directory structure, it will
-quickly become a nuisance.
-
-Dired allows user to insert the content of a directory just below the current
-directory. You can search for file names with =C-s= easily in
-both directories. You can insert as many subdirectories as you want.
-
-| Key | Description                                                |
-|-----+------------------------------------------------------------+
-| i   | Insert the contents of a subdirectory later in the buffer. |
-
-*** Registers
-
-Emacs /Registers/ are compartments where you can save text, rectangles,
-positions, and other things for later use. Once you save text or a rectangle in
-a register, you can copy it into the buffer once, or many times; once you save
-a position in a register, you can jump back to that position once, or many
-times.
-
-Each register has a name that consists of a single character, which we will
-denote by r; r can be a letter (such as ‘a’) or a number (such as ‘1’); case
-matters, so register ‘a’ is not the same as register ‘A’.
-
-In Emacs, registers are for quick access to things. Things can be a position, a
-piece of text, a rectangle, a number, a file name, or a window configuration
-(yes, you can save how Emacs organizes its screens and restore it later!). 
-
-Saving different types of objects has different key bindings, but to jump to a
-register, you use a single command =C-x r j REG=; =REG= is a register of your
-choice. 
-
-The prefix key for register commands is =C-x r=. If you forget the key bindings,
-=C-x r C-h= to get the list of key bindings. 
-
-**** Save Position
-
-| Keybinding      | Command           | Description                                                                                                                      |
-|-----------------+-------------------+----------------------------------------------------------------------------------------------------------------------------------+
-| C-x r <SPC> REG | point-to-register | Record the position of point and the current buffer in register REG                                                              |
-| C-x r j REG     | jump-to-register  | Jump to the position and buffer saved in register REG. If the buffer is killed, revisit the file and open the buffer, then jump. |
-
-Saving positions are useful when it is used with Macro, which is discussed
-later.
-
-*IMPORTANT NOTE* When you jump to a position into a register, Emacs always
-jumps to that position, even if the content of the buffer is changed. That is,
-if you already saved a position into a register and when the buffer that holds
-that position changes, the saved position changes as well. For example, you
-save position 100 (it means the position of 100th character) and you add or
-remove a number of characters before the 100th character, then the position in
-the saving register also add or subtract according to that number.
-
-**** Save Window Configuration
-
-One of the best uses of registers. It simply saves your current window
-configuration and restores the layout later.
-
-For example, you are viewing four source code buffers, but want to open two
-Dired buffers side by side to for managing files, so you close two windows and
-switch the other two windows to Dired buffers. But this makes you lose the
-perfect layout you had, and later it would be tedious to restore the windows
-one by one to finally recreate the original layout you were working with. Then,
-later, you have to do something else, you have to break your window
-configuration, you have to manually restore your window configuration again,
-and have to remember exactly which buffers you were working with.
-
-To free yourself from this burden, register is the answer. You can save a
-window configuration with four windows displaying four buffers, and another one
-having two Dired buffers for your project. You can more easily switch between
-them.
-
-| Keybinding  | Command                          | Description                                                                |
-|-------------+----------------------------------+----------------------------------------------------------------------------|
-| C-x r w REG | window-configuration-to-register | Save the window configuration of current frame into register REG           |
-| C-x r f REG | frame-configuration-to-register  | Save the state of all frames, including all their windows, in register REG |
-| C-x r j REG | jump-to-register                 | Jump to a register REG.                                                    |
-
-**** Save Frame Configuration
-
-If you create multiple frames with frame commands (prefix =C-x 5=), then you may
-want to save your frames with different window configurations in it, for later
-use. For example, I can have a frame for reading documents and my main frame
-for writing and browsing code. When I finish working, I close the extra frame,
-leaving my main frame active. But later, when I need to have that exact frame
-setup, I can always restore with saved frameset in a register.
-
-| Keybinding  | Command                          | Description                                                                |
-|-------------+----------------------------------+----------------------------------------------------------------------------|
-| C-x r f REG | frame-configuration-to-register  | Save the state of all frames, including all their windows, in register REG |
-
-**** Save Text
-
-You can also save a region in registers, then insert it several times.
-
-| Keybinding  | Command          | Description                   |
-|-------------+------------------+-------------------------------|
-| C-x r s REG | copy-to-register | Copy region into register REG |
-| C-x r i REG | insert-register  | Insert text from register REG |
-
-**** Save Rectangle
-
-| Keybinding  | Command                    | Description                                                                    |
-|-------------+----------------------------+--------------------------------------------------------------------------------|
-| C-x r r REG | copy-rectangle-to-register | Copy the region-rectangle into register REG With C-u prefix, delete it as well |
-| C-x r i REG | insert-register            | Insert the rectangle stored in register REG                                    |
-
-**** Save Number
-
-There are commands to store a number in a register, to insert the number in the
-buffer in decimal, and to increment it. 
-
-| Keybinding             | Command            | Description                                                                |
-|------------------------+--------------------+----------------------------------------------------------------------------|
-| C-u number C-x r n REG | number-to-register | Store number into register REG                                             |
-| C-u number C-x r + REG | increment-register | If REG contains a number, increment the number in that register by number. |
-| C-x r i REG            | insert-register    | Insert the number stored in register REG                          |
-
-These commands can be useful in keyboard macros.
-
-*** TODO Keyboard Macros
-
-/Keyboard Macros/ record your actions in Emacs and play back later.
-
-**** TODO Macros Basic
-
-| Keybinding  | Command                    | Description           |
-|-------------+----------------------------+-----------------------|
-| F3 or C-x ( | (kmacro-start-macro)       | Start recording macro |
-| F4 or C-x ) | (kmacro-end-macro)         | Stop recording macro  |
-| F4 or C-x e | (kmacro-end-or-call-macro) | Playback macro        |
-
-Personally, I use =F3= and =F4= for recording/playback, so I don't have to
-press many keys. To repeat a macro many times, use prefix argument. For
-example, =C-u 10 <f4>= executes a macro =10= times. If you want to cancel
-recording, =C-g=.
-
-*** Version Control
-
-This section is taken directly from [[https://www.gnu.org/software/emacs/tour/][GNU Emacs Tour]], with improvements.
-
-Emacs helps you manipulate and edit files stored in version control. Emacs
-supports CVS, Subversion, bzr, git, hg, and other systems, but it offers a
-uniform interface, called /VC/, regardless of the version control system you
-are using. The benefit of a unified interface is that even if you aren't
-familiar with some version control system (VCS), you can still work with that
-VCS quickly, without the burden of learning all the little details of a
-particular VCS. 
-
-Emacs automatically detects when a file you're editing is under version
-control, and displays something like this in the mode line: CVS-1.14 to
-indicate the version control system in use, and the current version. 
-
-=M-x vc-next-action= or =C-x v v= commits the current file (prompting you for a
-log message) if you've modified it. (Under version control systems that require 
-locking, this command also acquires a lock for you.) 
-
-/VC/ provides other commands for version control-related tasks:
-
-| Keybinding | Command                  | Description                                                                                                                                                                                                                        |
-|------------+--------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| C-x v =    | vc-diff                  | Displays a diff showing the changes you've made to the current files.                                                                                                                                                              |
-| C-x v ~    | vc-revision-other-window | Prompts you for a version number and shows you that version of the current file in another window.                                                                                                                                 |
-| C-x v g    | vc-annotate              | Displays an annotated version of the file showing, for each line, the commit where that line was last changed and by whom. On any line you can press =l= to view the log message for that commit or d to view the associated diff. |
-| C-x v l    | vc-print-log             | Displays a log of previous changes to the file. When point is on a particular log entry, you can press =d= to view the diff associated with that change or =f= to view that version of the file.                                   |
-| C-x v u    | vc-revert                | Revert working copies of the selected fileset to their repository contents. This asks for confirmation if the buffer contents are not identical to the working revision (except for keyword expansion).                            |
-
-You can list more operations with =C-x v C-h=.
-
-If you use =git=, a more specialized package exists dedicated to Git only:
-=Magit= offers much better features than the general interface that Emacs
-provides, except for some features, such as =C-x v ==, =C-x v ~= and =C-x v u=.
-
-The prefix key bindings for all VC related commands are =C-x v=. The above are
-just a few commands that I found most useful and used frequently, even when I
-use [[https://github.com/magit/magit][Magit]]. 
-
-*** Shell
-
-In Emacs, you have 3 types of shell commands: =shell=, =term= and =eshell=. 
-
-I will just quote a very good answer on StackExchange: [[http://unix.stackexchange.com/questions/104325/what-is-the-difference-between-shell-eshell-and-term-in-emacs][What is the difference
-between shell, eshell, and term in Emacs?]] 
-
-#+BEGIN_QUOTE
-[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Shell-Mode.html][shell]] is the oldest of these 3 choices. It uses Emacs's comint-mode to run a
-subshell (e.g. bash). In this mode, you're using Emacs to edit a command line.
-The subprocess doesn't see any input until you press Enter. Emacs is acting
-like a dumb terminal. It does support color codes, but not things like moving
-the cursor around, so you can't run curses-based applications. 
-
-[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Term-Mode.html][term]] is a terminal emulator written in Emacs Lisp. In this mode, the keys you
-press are sent directly to the subprocess; you're using whatever line editing
-capabilities the shell presents, not Emacs's. It also allows you to run
-programs that use advanced terminal capabilities like cursor movement (e.g. you
-could run nano or less inside Emacs). 
-
-[[https://www.gnu.org/software/emacs/manual/html_node/eshell/index.html][eshll]] is a shell implemented directly in Emacs Lisp. You're not running bash
-or any other shell as a subprocess. As a result, the syntax is not quite the
-same as bash or sh. It allows things like redirecting the output of a process
-directly to an Emacs buffer (try echo hello >#<buffer results>). 
-#+END_QUOTE
-
-I suggest you to use eshell, since you can use any Emacs commands within Eshell
-as well. However, in Eshell, to send an interrupt signal, instead of =Ctrl+C=,
-you need to press twice: =Ctrl+C Ctrl+C=. 
-
-** More Emacs Learning Sources
+** Emacs Guide and Manual
 
 Here are some beginner-oriented tutorials written by users:
 
 + [[https://www.gnu.org/software/emacs/tour/][GNU Guide Tour of Emacs]]
-+ [[http://tuhdo.github.io/emacs-tutor.html][Tuhod's Emacs Mini Manual (PART 1)]]
++ [[http://tuhdo.github.io/emacs-tutor.html][Emacs Mini Manual (Part I)]]
 + [[http://ergoemacs.org/emacs/emacs.html][Xah's Emacs Tutorial]]
++ [[https://www.masteringemacs.org/book][Mastering Emacs]]
 
 GNU Emacs online sources:
 
@@ -884,54 +95,45 @@ You can learn more from other people who use Emacs:
 + [[https://www.emacswiki.org/emacs/CategoryCommunity][EmacsWiki]]
 + [[http://orgmode.org][OrgWorg]]
 
-** Init-related packages and starter kits
-
-+ [[https://github.com/technomancy/better-defaults][Better Defaults]]
-
-* Emacs Initialization
+* Bootstraping
 ** Debugging
 
+Turn on debugging, it will be turned off at the end. In case something happens
+during loading that breaks something, it's nice to have a debug information.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;;; Debugging
+  ;; Turn on debugging
+  (setq debug-on-error t)
+  (setq debug-on-quit t)
   (setq message-log-max 10000)
 #+END_SRC
-** Personal Information
-
-Some personal information about me.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq user-full-name "Xiaojie Feng"
-        user-mail-address "fengxiaojie1997@gmail.com")
-#+END_SRC
-** Package management
-*** Install packages using =ELPA=
+** Package Management
+*** =ELPA= : Packages Installer and Manager
 
 Starting with emacs 24, it comes with a package system called [[https://www.emacswiki.org/emacs/ELPA][ELPA]] (Emacs Lisp
-Package Archive). It make the task of installing, update and removing easier,
-as well as inform users new packages created by the community.  
+Package Archive). It make the task of [[http://ergoemacs.org/emacs/emacs_package_system.html][installing, update and removing]] easier,
+as well as inform users new packages created by the community.
 
 Emacs gets a list of packages from sources, called package archive. Package
 archive is the same as repository in Linux. =package.el= supports multiple ELPA
 repositories. we need to add more repositories to get all the sweet goodness.
 
-Learn More About =ELPA=: [[http://ergoemacs.org/emacs/emacs_package_system.html][here]] 
-
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'package)
 
   (setq package-archives
-	'(("gnu" . "https://elpa.gnu.org/packages/")
-	  ("org" . "http://orgmode.org/elpa/")
-	  ("melpa" . "https://melpa.org/packages/")))
+  '(("gnu" . "https://elpa.gnu.org/packages/")
+    ("org" . "http://orgmode.org/elpa/")
+    ("melpa" . "https://melpa.org/packages/")))
 
   (package-initialize)
   (setq package-enable-at-startup nil)
 #+END_SRC
-*** =Use-package= macro
+*** =Use-package= : Package Configuration Macro
 
 This [[https://github.com/jwiegley/use-package][use-package]] macro provides more concise ways to setup package autoloads,
 keybindings, and various mode configuration. The focus is on decreasing startup
-time by autoloading packages instead loading them on startup. 
+time by autoloading packages instead loading them on startup.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; Bootstrap `use-package'
@@ -948,30 +150,15 @@ time by autoloading packages instead loading them on startup.
   ;; Please don't load outdated byte code
   (setq load-prefer-newer t)
 #+END_SRC
-** Prerequisites
+** Library Prerequisites
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package dash)
+  ;; Turn on Common Lisp support
+  (require 'cl)         ; provides useful things like `loop' and `setf'
+  (use-package dash)    ; a modern list library
 #+END_SRC
-** Environment fixup
-
-Ever find that a command works in your shell, but not in Emacs?
-
-This happens a lot on OS X, where an Emacs instance started from the GUI
-inherits a default set of environment variables. 
-
-[[https://github.com/purcell/exec-path-from-shell][Exec-path-from-shell]] is a GNU Emacs library to ensure environment variables
-inside Emacs look the same as in the user's shell. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package exec-path-from-shell
-    :defer t
-    :init
-    (progn
-      (when (memq window-system '(mac ns))
-        (exec-path-from-shell-initialize))))
-#+END_SRC
-** My Directory Location
+** Load Multiple Emacs Files
+*** My Directory Location
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defconst xj-cache-dir (expand-file-name "~/.emacs.d/cache/")
@@ -982,262 +169,72 @@ inside Emacs look the same as in the user's shell.
   (unless (file-exists-p xj-cache-dir)
     (make-directory xj-cache-dir))
 #+END_SRC
-* Basics and settings used everywhere
-** TODO macOS-specific settings
+*** Add My Personal Elisp Files
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Set keys for Apple keyboard, for emacs in OS X
-  (when (eq window-system 'darwin)
+  ;; keep my secrets secret (and not in my `~/.emacs.d/init.el' file)
+    (unless (file-exists-p "~/.emacs.d/secrets.el")
+      (load "~/.emacs.d/secrets.el" t))
 
-    (setq mac-command-modifier 'meta)     ; make command key do Meta
-    (setq mac-option-modifier 'super)     ; make option key do Super
-    (setq mac-control-modifier 'control)  ; make control key do Control
-    (setq ns-function-modifier 'hyper)    ; make fn key do Hyper
-    )
+  ;; separate my customization settings
+  (unless (file-exists-p "~/.emacs.d/custom.el")
+    (load "~/.emacs.d/custom.el" t))
 #+END_SRC
+** Environment fixup
+
+Ever find that a command works in your shell, but not in Emacs?
+
+This happens a lot on OS X, where an Emacs instance started from the GUI
+inherits a default set of environment variables.
+
+[[https://github.com/purcell/exec-path-from-shell][Exec-path-from-shell]] is a GNU Emacs library to ensure environment variables
+inside Emacs look the same as in the user's shell.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; macOS window support
-  (when (eq window-system 'mac)
-
-    ;; Auto fullscreen after init
-    (defun my/max-fullscreen ()
-      (interactive)
-      (set-frame-parameter nil 'fullscreen 'fullboth))
-
-    (add-hook 'after-init-hook #'my/max-fullscreen))
-#+END_SRC
-** Basics settings
-*** General user interface and appearance
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Messages
-  (setq inhibit-startup-message t)        ; No message at startup
-  (setq ring-bell-function (lambda ()))   ; No beep when reporting errors
-
-  ;; Frames
-  (setq frame-title-format "%b - emacs")  ; Use buffer name as frame title
-
-  ;; Bars
-  (tool-bar-mode -1)                      ; No toolbar
-  (menu-bar-mode -1)                      ; No menubar
-  (scroll-bar-mode -1)                    ; No scrollbar
-
-  ;; Modeline
-  (line-number-mode 1)                    ; Display the current line number
-  (column-number-mode 1)                  ; Display the current column number
-
-  ;; Highlight
-  (global-font-lock-mode 1)               ; Syntax highlight
-  (global-hl-line-mode 1)                 ; Highlight cursor line
-
-  ;; Scrolling
-  (setq scroll-margin 0                   ; Nice scrolling
-        scroll-conservatively 100000
-        scroll-preserve-screen-position 1)
-#+END_SRC
-*** Files and sessions
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Files
-  (setq auto-save-timeout 60)             ; Autosave every minute
-  (setq make-backup-files nil)            ; No backup files ~
-
-  ;; Sessions
-  (setq confirm-kill-emacs 'yes-or-no-p)  ; Confirm quit
-#+END_SRC
-*** Cursor and mouse
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Cursor
-  (blink-cursor-mode -1)                  ; No blinking cursor
-
-  ;; Mouse
-  (setq make-pointer-invisible t)         ; Hide the mouse while typing
-#+END_SRC
-*** Buffers and windows
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Windows
-  (windmove-default-keybindings)          ; Shift arrows switch windows
-#+END_SRC
-*** Tabs, spaces, lines and parenthesis
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Tabs
-  (setq-default indent-tabs-mode nil)     ; Use spaces instead of tabs
-  (setq tab-width 2)                      ; Length of tab is 2 SPC
-
-  ;; Spaces
-  (setq sentence-end-double-space nil)    ; Sentences end with one space
-
-  ;; Lines
-  (setq require-final-newline 't)                  ; Always newline at end of file
-  (global-set-key (kbd "RET") 'newline-and-indent) ; New lines are always indented
-
-  ;; Parenthesis
-  (show-paren-mode 1)                      ; Highlight parenthesis pairs
-  (setq blink-matching-paren-distance nil) ; Blinking parenthesis
-  (setq show-paren-style 'expression)      ; Highlight text between parenthesis
-#+END_SRC
-*** Global key bindings
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Align your code in a pretty way.
-  (global-set-key (kbd "C-x \\") 'align-regexp)
-
-  ;; Font size
-  (global-set-key (kbd "C-+") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
-
-  ;; Start eshell or switch to it if it's active.
-  (global-set-key (kbd "C-x m") 'eshell)
-
-  ;; Start a new eshell even if one is active.
-  (global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
-
-  ;; Start a regular shell if you prefer that.
-  (global-set-key (kbd "C-x M-m") 'shell)
-
-  ;; use hippie-expand instead of dabbrev
-  (global-set-key (kbd "M-/") 'hippie-expand)
-
-  ;; replace buffer-menu with ibuffer
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-#+END_SRC
-*** Miscellaneous
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Alias
-  (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
-#+END_SRC
-** Useful settings
-*** Uniquify
-
-With [[https://www.emacswiki.org/emacs/uniquify][uniquify]], buffers visiting "/u/mernst/tmp/Makefile" and
-"/usr/projects/zaphod/Makefile" would be named "Makefile|tmp" and
-"Makefile|zaphod" or other style, respectively (instead of “Makefile” and
-“Makefile<2>”). 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'uniquify)
-  (setq uniquify-buffer-name-style 'forward)
-  (setq uniquify-separator "/")
-  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
-  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
-#+END_SRC
-** Helm
-*** Helm core
-
-[[https://github.com/emacs-helm/helm][Helm]] makes it easy to complete various things. I find it to be easier to
-configure than ido in order to get completion in as many places as possible,
-although I prefer ido's way of switching buffers.
-
-l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm
-    :ensure t
-    :diminish ""
+  (use-package exec-path-from-shell
+    :defer t
     :init
-    (require 'helm)
-    (require 'helm-config)
+    (progn
+      (when (memq window-system '(mac ns))
+        (exec-path-from-shell-initialize))))
+#+END_SRC
+* Global Emacs Behaviors
+** Keys
+*** Caps Lock as Control
+*** =M-x= : Execute Extended Command
+*** Universal Arguments
+*** Discovering and Remembering Keys
+** Help
+*** The Info Manual
+*** Apropos
+*** The Describe System
+*** =Guide key= : Prefix Key Pop Tips
 
-    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
-    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
-    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
-    (global-set-key (kbd "C-c h") 'helm-command-prefix)
-    (global-unset-key (kbd "C-x c"))
+It's hard to remember keyboard shortcuts. The =guide-key= package pops up help
+after a short delay.
 
-    ;; rebind tab to run persistent action
-    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-    ;; make TAB works in terminal
-    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-    ;; list actions using C-z
-    (define-key helm-map (kbd "C-z")  'helm-select-action)
-
-    (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))
-
-    (setq helm-split-window-in-side-p           t
-          helm-move-to-line-cycle-in-source     t
-          helm-ff-search-library-in-sexp        t
-          helm-scroll-amount                    8
-          helm-ff-file-name-history-use-recentf t)
-
-    (helm-mode 1)
-
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package guide-key
+    :defer t
+    :diminish guide-key-mode
     :config
-    ;; fuzzy matching
-    (setq helm-recentf-fuzzy-match t
-          helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
-          helm-M-x-fuzzy-match t
-          helm-buffers-fuzzy-matching t
-          helm-semantic-fuzzy-match t
-          helm-apropos-fuzzy-match t
-          helm-imenu-fuzzy-match t
-          helm-lisp-fuzzy-completion t
-          helm-completion-in-region-fuzzy-match t)
-
-    :bind (("M-x" . helm-M-x)
-           ("M-y" . helm-show-kill-ring)
-
-           ("C-x b" . helm-mini)
-           ("C-x C-b" . helm-buffers-list)
-           ("C-x C-f" . helm-find-files)
-           ("C-x C-r" . helm-recentf)
-
-           ("C-c s" . helm-swoop)
-           ("C-c o" . helm-occur)
-           
-           ("C-c h a" . helm-apropos)
-           ("C-c h y" . helm-yas-complete)
-           ("C-c h SPC" . helm-all-mark-rings)
-           ("C-c h i" . helm-semantic-or-imenu)
-           ("C-c h m" . helm-man-woman)
-           ))
+    (progn
+      (setq guide-key/guide-key-sequence '("C-x r" "C-x 4" "C-c"))
+      (guide-key-mode 1)))
 #+END_SRC
-*** Helm-swoop
+** Appearance and Interface
+*** Entering
 
-This promises to be a fast way to find things.
+We also want to get rid of the splash screen.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm-swoop
-    :bind (("M-i" . helm-swoop)
-           ("M-I" . helm-swoop-back-to-last-point)
-           ("C-c M-i" . helm-multi-swoop))
-    :config
-    ;; When doing isearch, hand the word over to helm-swoop
-    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-    ;; From helm-swoop to helm-multi-swoop-all
-    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
-    ;; Save buffer when helm-multi-swoop-edit complete
-    (setq helm-multi-swoop-edit-save t
-          ;; If this value is t, split window inside the current window
-          helm-swoop-split-with-multiple-windows t
-          ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
-          helm-swoop-split-direction 'split-window-vertically
-          ;; If nil, you can slightly boost invoke speed in exchange for text color
-          helm-swoop-speed-or-color nil))
+  (setq inhibit-startup-message t)
+  (setq inhibit-splash-screen t)
 #+END_SRC
-
-*** Helm-describe
-
-Helm Descbinds provides an interface to emacs’ describe-bindings making the
-currently active key bindings interactively searchable with helm. 
+*** Exiting
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package helm-descbinds
-    :bind ("C-h b" . helm-descbinds)
-    :init (fset 'describe-bindings 'helm-descbinds)
-    :config (require 'helm-config))
-#+END_SRC
-* Modules
-** Display
-*** Full Screen
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-;;  (global-set-key (kbd "C-M-f") 'toggle-frame-fullscreen)
+  (setq confirm-kill-emacs 'yes-or-no-p)  ; Confirm quit
 #+END_SRC
 *** Color Theme
 
@@ -1257,7 +254,7 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
                    'solarized-dark
                    'sanityinc-solarized-light
                    'sanityinc-solarized-dark))
-                   
+
   (setq curr-theme my-themes)
 
   (defun my-theme-cycle ()
@@ -1272,7 +269,126 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
   (setq curr-theme my-themes)
   (load-theme (car curr-theme) t)
 #+END_SRC
+*** Fonts
+
+Choosing a good and comfortable font is quite important in your whole coding
+life.
+
+I prefer Monaco. And, as a Chinese, l choose WenQuanYi for Chinese charset.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (when (eq system-type 'darwin)
+
+    ;; default Latin font (e.g. Consolas)
+    (set-face-attribute 'default nil :family "Monaco")
+
+    ;; default font size (point * 10)
+    (set-face-attribute 'default nil :height 150)
+
+    ;; use specific font for Chinese charset.
+    ;; if you want to use different font size for specific charset,
+    ;; add :size POINT-SIZE in the font-spec.
+    (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
+    )
+#+END_SRC
+*** Symbols
+   
+=Prettify-symbols-mode= can prettify symbols display. For example, it can
+displays /lambda/ with the symbol /λ/.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (when (boundp 'global-prettify-symbols-mode)
+    (add-hook 'emacs-lisp-mode-hook
+              (lambda ()
+                (push '("lambda" . ?λ) prettify-symbols-alist)))
+    (add-hook 'clojure-mode-hook
+              (lambda ()
+                (push '("fn" . ?ƒ) prettify-symbols-alist)))
+    (global-prettify-symbols-mode +1))
+#+END_SRC
+*** Bars
+
+Get rid of all those fancy UI elements that we don't need.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (menu-bar-mode -1)
+  (when (display-graphic-p)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1))
+#+END_SRC
+*** Scrolling
+
+This setting was probably what made me switch. I HATE the normal way emacs
+scrolls. This lets it scroll like in vim.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (setq scroll-margin 0                   ; Nice scrolling
+          scroll-step            1
+          scroll-conservatively  10000)
+#+END_SRC
+*** Cursors
+
+The cursor should not blink.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (blink-cursor-mode -1)                  ; No blinking cursor
+  (setq make-pointer-invisible t)         ; Hide the mouse while typing
+#+END_SRC
+*** Windows
+
+Activate syntax highlighting everywhere.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-font-lock-mode 1)
+#+END_SRC
+
+Visualize parentheses a certain way. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq blink-matching-paren nil)
+  (show-paren-mode t)
+  (setq show-paren-style 'expression)
+#+END_SRC
+
+Don't use audible bells, use visual bells.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq ring-bell-function 'ignore)
+  (setq visible-bell t)
+#+END_SRC
+*** Frames
+
+Make the title frame something special.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq frame-title-format "%b - emacs")  ; Use buffer name as frame title
+#+END_SRC
+*** Buffers
+
+Make two buffers with the same file name open distinguishable. 
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+#+END_SRC
 *** Modeline
+**** Column and Line Number
+
+It is nice to see the column number, if you are counting columns.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (column-number-mode 1)
+#+END_SRC
+
+It is a pain to look at the clock in the GUI bar.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (display-time-mode 1)
+  (setq display-time-format "%l:%M%p")
+#+END_SRC
 **** Amit's mode line
 
 #+BEGIN_SRC emacs-lisp :tangle no
@@ -1393,51 +509,215 @@ From: [[http://stackoverflow.com/questions/23793288/cycle-custom-themes-w-emacs-
 Let [[https://en.wikipedia.org/wiki/Nyan_Cat][Nyan Cat]] show you your buffer position in mode line.
 
 Now with the ability to scroll the buffer by clicking on the Nyan Cat’s rainbow
-and the space in front of it. 
+and the space in front of it.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
     (use-package nyan-mode
       :init
       (nyan-mode))
 #+END_SRC
-*** Fonts
+*** Minibuffer
 
-Choosing a good and comfortable font is quite important in your whole coding
-life.
-
-I prefer Monaco. And, as a Chinese, l choose WenQuanYi for Chinese charset.
+Make it easier to answer questions.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
+#+END_SRC
+*** Parentheses
+**** Show parens
+
+This mode highlights the mathing parenthesis on point.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (show-paren-mode 1)                      ; Highlight parenthesis pairs
+  (setq show-paren-delay 0)
+  (setq blink-matching-paren-distance nil) ; Blinking parenthesis
+  (setq show-paren-style 'expression)      ; Highlight text between parenthesis
+#+END_SRC
+**** Rainbow delimiters for LISP
+
+But for lisp like languages, I want to witness the full power of colorful
+[[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]]! I will even set them to pastel versions of the rainbow
+colors.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package rainbow-delimiters
+    :init (rainbow-delimiters-mode 1))
+
+  (set-face-attribute 'rainbow-delimiters-depth-1-face nil
+                      :foreground "#78c5d6")
+  (set-face-attribute 'rainbow-delimiters-depth-2-face nil
+                      :foreground "#bf62a6")
+  (set-face-attribute 'rainbow-delimiters-depth-3-face nil
+                      :foreground "#459ba8")
+  (set-face-attribute 'rainbow-delimiters-depth-4-face nil
+                      :foreground "#e868a2")
+  (set-face-attribute 'rainbow-delimiters-depth-5-face nil
+                      :foreground "#79c267")
+  (set-face-attribute 'rainbow-delimiters-depth-6-face nil
+                      :foreground "#f28c33")
+  (set-face-attribute 'rainbow-delimiters-depth-7-face nil
+                      :foreground "#c5d647")
+  (set-face-attribute 'rainbow-delimiters-depth-8-face nil
+                      :foreground "#f5d63d")
+  (set-face-attribute 'rainbow-delimiters-depth-9-face nil
+                      :foreground "#78c5d6")
+#+END_SRC
+
+We also want to make unmatched parens stand out more:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (set-face-attribute 'rainbow-delimiters-unmatched-face nil
+                      :foreground 'unspecified
+                      :inherit 'show-paren-mismatch
+                      :strike-through t)
+#+END_SRC
+
+Now we just need to adjust the hook for lisp-like languages. Possibly have to
+add clojure, if I ever want to mess with that.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'lisp-mode-hook 'rainbow-delimiters-mode)
+#+END_SRC
+**** Insert closing parens automagically
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (electric-pair-mode 1)
+#+END_SRC
+*** Highlight
+
+Hightlight something.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-font-lock-mode 1)               ; Syntax highlight
+  (global-hl-line-mode 1)                 ; Highlight cursor line
+#+END_SRC
+
+Highlights things like undo, copy, paste, etc.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+   (defun my/turn-on-volatile-highlights ()
+       (interactive)
+       (volatile-highlights-mode t)
+       (diminish 'volatile-highlights-mode))
+
+     (use-package volatile-highlights
+       :defer t
+       :init
+       (progn
+         (require 'volatile-highlights) ;; vh has a problem with autoloads
+         (add-hook 'org-mode-hook #'my/turn-on-volatile-highlights)
+         (add-hook 'prog-mode-hook #'my/turn-on-volatile-highlights)))
+#+END_SRC
+*** Files
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq auto-save-default nil)            ; No #autosave# files
+  (setq make-backup-files nil)            ; No backup~ files
+#+END_SRC
+** Basics settings
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;;; Global User Interface
+  (setq inhibit-startup-message t)        ; No message at startup
+  (setq ring-bell-function (lambda ()))   ; No beep when reporting errors
+  (setq confirm-kill-emacs 'yes-or-no-p)  ; Confirm quit
+  (defalias 'yes-or-no-p 'y-or-n-p)       ; y/n instead of yes/no
+
+  (set-background-color "honeydew")       ; Background color
+  (setq frame-title-format "%b - emacs")  ; Use buffer name as frame title
+
+  (tool-bar-mode -1)                      ; No toolbar
+  (menu-bar-mode -1)                      ; No menubar
+  (scroll-bar-mode -1)                    ; No scrollbar
+
+  (line-number-mode 1)                    ; Display the current line number
+  (column-number-mode 1)                  ; Display the current column number
+
+  (global-font-lock-mode 1)               ; Syntax highlight
+  (global-hl-line-mode 1)                 ; Highlight cursor line
+
+  (blink-cursor-mode -1)                  ; No blinking cursor
+  (setq make-pointer-invisible t)         ; Hide the mouse while typing
+
+  (setq scroll-margin 0                   ; Nice scrolling
+        scroll-conservatively 100000)
+
+  ;;; Files
+  (setq auto-save-default nil)            ; No #autosave# files
+  (setq make-backup-files nil)            ; No backup~ files
+
+  ;;; Tabs, spaces, newline and parenthesis Behavior
+  (setq-default indent-tabs-mode nil)     ; Use spaces instead of tabs
+  (setq tab-width 2)                      ; Length of tab is 2 SPC
+
+  (setq sentence-end-double-space nil)    ; Sentences end with one space
+
+  (global-set-key (kbd "RET") 'newline-and-indent) ; New lines are always indented
+
+  (show-paren-mode 1)                      ; Highlight parenthesis pairs
+  (setq blink-matching-paren-distance nil) ; Blinking parenthesis
+  (setq show-paren-style 'expression)      ; Highlight text between parenthesis
+#+END_SRC
+** Global Key Bindings
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Set keys for Apple keyboard, for emacs in OS X
   (when (eq system-type 'darwin)
 
-    ;; default Latin font (e.g. Consolas)
-    (set-face-attribute 'default nil :family "Monaco")
-
-    ;; default font size (point * 10)
-    (set-face-attribute 'default nil :height 150)
-
-    ;; use specific font for Chinese charset.
-    ;; if you want to use different font size for specific charset,
-    ;; add :size POINT-SIZE in the font-spec.
-    (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
+    (setq mac-command-modifier 'meta)     ; make command key do Meta
+    (setq mac-option-modifier 'super)     ; make option key do Super
+    (setq mac-control-modifier 'control)  ; make control key do Control
+    (setq ns-function-modifier 'hyper)    ; make fn key do Hyper
     )
 #+END_SRC
-*** Symbols
 
-Prettify all the symbols.
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Align your code in a pretty way.
+  (global-set-key (kbd "C-x \\") 'align-regexp)
+
+  ;; Font size
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+
+  ;; Start eshell or switch to it if it's active.
+  (global-set-key (kbd "C-x m") 'eshell)
+
+  ;; Start a new eshell even if one is active.
+  (global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
+
+  ;; Start a regular shell if you prefer that.
+  (global-set-key (kbd "C-x M-m") 'shell)
+
+  ;; use hippie-expand instead of dabbrev
+  (global-set-key (kbd "M-/") 'hippie-expand)
+
+  ;; replace buffer-menu with ibuffer
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+END_SRC
+** Files
+*** Backup
+
+This is one of the things people usually want to change right away. By default,
+Emacs saves backup files in the current directory. These are the files ending
+in =~= that are cluttering up your directory lists. The following code stashes
+them all in =~/.emacs.d/backups=, where I can find them with =C-x C-f= if I
+really need to.
 
 #+BEGIN_SRC emacs-lisp :tangle no
-  (when (boundp 'global-prettify-symbols-mode)
-    (add-hook 'emacs-lisp-mode-hook
-              (lambda ()
-                (push '("lambda" . ?λ) prettify-symbols-alist)))
-    (add-hook 'clojure-mode-hook
-              (lambda ()
-                (push '("fn" . ?ƒ) prettify-symbols-alist)))
-    (global-prettify-symbols-mode +1))
+  (setq make-backup-files t)
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+
+  (setq backup-by-copying t)
+  (setq delete-old-versions t)
+  (setq version-control t)
+  (setq vc-make-backup-files t)
+  (setq kept-new-versions 6
+        kept-old-versions 2)
 #+END_SRC
-** Persistence
-*** Bookmarks
+*** Persistence
+**** Bookmarks
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   ;; `C-x r m' – set a bookmark at the current location (e.g. in a file)
@@ -1446,39 +726,42 @@ Prettify all the symbols.
   ;; `M-x bookmark-delete' – delete a bookmark by name
 
   (require 'bookmark)
-  (setq bookmark-default-file "~/.emacs.d/bookmarks")
-  (setq bookmark-save-flag 1)             ; autosave each change
+  (setq bookmark-default-file  (concat user-emacs-directory "bookmarks"))
+  (setq bookmark-save-flag 1) ; everytime bookmark is changed, auto save it
 #+END_SRC
-*** Recentf
+**** Recentf
 
-=Recentf= is a minor mode that builds a list of recently opened files. This
-list is automatically saved across sessions on exiting Emacs - you can then
-access this list through a command or the menu.
+=Recentf-mode= is a minor mode that builds a list of recently opened files.
+Turn it on, then call =recentf-open-files= to open recently opened files fast.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp :tangle yes
   (require 'recentf)
+  (recentf-mode 1) ; keep a list of recently opened files, for future sessions
+
   (setq recentf-max-saved-items 200
         recentf-max-menu-items 15)
-  (recentf-mode)
+
+  (global-set-key (kbd "<f7>") 'recentf-open-files)
 #+END_SRC
-*** Saveplace
+**** Saveplace
 
 When you visit a file, point goes to the last place where it was when you
-previously visited the same file.  
+previously visited the same file.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'saveplace)
   (setq-default save-place t)
   (setq save-place-file (concat user-emacs-directory ".saveplace"))
 #+END_SRC
-*** Savehist
+**** Savehist
 
 By default, =Savehist= mode saves only your minibuffer histories, but you can
 optionally save other histories and other variables as well.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq savehist-file "~/.emacs.d/savehist")
   (savehist-mode 1)
+  (setq savehist-file "~/.emacs.d/savehist")
+
   (setq history-length t)
   (setq history-delete-duplicates t)
   (setq savehist-save-minibuffer-history 1)
@@ -1487,19 +770,125 @@ optionally save other histories and other variables as well.
           search-ring
           regexp-search-ring))
 #+END_SRC
-** Navigation
-*** Switch-window
+**** Desktop
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;(desktop-save-mode 1)   ; save/restore opened files and windows config
+  (setq desktop-base-file-name (concat user-emacs-directory "desktop"))
+#+END_SRC
+** Dired
+*** General Settings
+
+The first two lines of this tell dired to stop asking me whether I want to
+recursively delete or copy, since I never respond to that question with "No".
+
+The last line enables "Do What I Mean" mode for dired: If I'm in a split frame
+with two dired buffers, the default target to copy (and rename) will be the
+other window.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq dired-dwim-target t)
+  (setq dired-listing-switches "-alh")
+#+END_SRC
+*** Automatically revert dired buffers
+
+I also want dired to automatically revert, but to be quiet about it. The first
+line actually enables auto-revert for any buffers.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-auto-revert-mode 1)
+  (setq global-auto-revert-non-file-buffers t)
+  (setq auto-revert-verbose nil)
+#+END_SRC
+*** Less verbosity
+
+With =dired-details=, we can show file details using the =(= and =)= keys.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package dired-details)
+  (setq dired-details-hidden-string "")
+  (dired-details-install)
+#+END_SRC
+
+We want to omit the =.= and =..= files, which are shown in dired by default.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default dired-omit-mode t)
+  (setq-default dired-omit-verbose nil)
+  (setq-default dired-omit-files "^\\.$\\|^\\.\\.$")
+#+END_SRC
+* Movement
+** The Basics
+*** =C-x C=f= : Find file
+*** =C-x C-s= : Save Buffer
+*** =C-x C-c= : Exits Emacs
+*** =C-x b= : Switch Buffer
+*** =C-x k= : Kill buffer
+*** =ESC ESC ESC= : Keyboard Escape
+*** =C-/= : Undo
+** Windows Management
+*** Splitting Windows
+
+Setting up easy keys for splitting windows.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; easy keys to split window. Key based on ErgoEmacs keybinding
+  (global-set-key (kbd "M-2") 'delete-window) ; close current pane
+  (global-set-key (kbd "M-3") 'delete-other-windows) ; expand current pane
+  (global-set-key (kbd "M-4") 'split-window-below) ; split pane top/bottom
+#+END_SRC
+*** =C-x o= : Moving to another window
 
 A visual replacement for =C-x o=.
 
 #+begin_src emacs-lisp :tangle yes
-(use-package switch-window
-  :bind (("C-x o" . switch-window)))
+  (use-package switch-window
+    :bind (("C-x o" . switch-window)))
 #+end_src
-*** Ace-jump
+** Frame Management
+** Elemental Movement
+*** Navigation Keys
+*** Moving by Character
+*** Moving by Line
+**** =C-a= : Smart beginning of line
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun my/smarter-move-beginning-of-line (arg)
+    "Move point back to indentation of beginning of line.
+
+  Move point to the first non-whitespace character on this line.
+  If point is already there, move to the beginning of the line.
+  Effectively toggle between the first non-whitespace character and
+  the beginning of the line.
+
+  If ARG is not nil or 1, move forward ARG - 1 lines first.  If
+  point reaches the beginning or end of the buffer, stop there."
+    (interactive "^p")
+    (setq arg (or arg 1))
+
+    ;; Move lines first
+    (when (/= arg 1)
+      (let ((line-move-visual nil))
+        (forward-line (1- arg))))
+
+    (let ((orig-point (point)))
+      (back-to-indentation)
+      (when (= orig-point (point))
+        (move-beginning-of-line 1))))
+
+  ;; remap C-a to `smarter-move-beginning-of-line'
+  (global-set-key [remap move-beginning-of-line]
+                  'my/smarter-move-beginning-of-line)
+#+END_SRC
+*** Moving by Word
+*** Moving by S-Expressions
+*** Other Movement Commands
+**** Ace-jump
 
 [[https://github.com/winterTTr/ace-jump-mode][Ace-jump-mode]] is a minor mode for Emacs, enabling fast/direct cursor movement
-in current view. 
+in current view.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package ace-jump-mode
@@ -1507,136 +896,139 @@ in current view.
     :bind (("C-c SPC" . ace-jump-word-mode)
            ("C-c M-SPC" . ace-jump-line-mode)))
 #+END_SRC
-** File manager
-*** Dired
+*** Scrolling
+** Bookmarks and Registers
+** Selections and Regions
+*** Selection Compatibility Modes
+*** Setting the Mark
+*** Select the Regions
+**** Expand-region
 
-Dired is sweet, I require =dired-x= also so I can hit =C-x C-j= and go directly
-to a dired buffer. 
-
-Setting =ls-lisp-dirs-first= means directories are always at the top. Always
-copy and delete recursively. Also enable hl-line-mode in dired, since it's
-easier to see the cursor then. 
-
-To start, a helper to use "open" to open files in dired-mode with =M-o=
-(similar to Finder in OSX). 
+[[https://github.com/magnars/expand-region.el][Expand-region]] is something I have to get the hang of too. It gradually expands the
+selection. Handy for Emacs Lisp. [[[http://emacsrocks.com/e09.html][Video]]]
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-(defun my/dired-open ()
-  "Use the OSX `open' command to open a file with the correct editor"
-  (interactive)
-  (save-window-excursion
-    (dired-do-async-shell-command
-     "~/bin/open" current-prefix-arg
-     (dired-get-marked-files t current-prefix-arg))))
-#+END_SRC
-
-And then some other things to setup when dired runs. =C-x C-q= to edit
-writable-dired mode is aawwweeeesssoooommee, it makes renames super easy.
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(defun my/dired-mode-hook ()
-  (my/turn-on-hl-line-mode)
-  (toggle-truncate-lines 1))
-
-(use-package dired
-  :bind ("C-x C-j" . dired-jump)
-  :config
-  (progn
-    (use-package dired-x
-      :init (setq-default dired-omit-files-p t)
-      :config
-      (add-to-list 'dired-omit-extensions ".DS_Store"))
-    (customize-set-variable 'diredp-hide-details-initially-flag nil)
-    (use-package dired+)
-    (use-package dired-aux
-      :init (use-package dired-async))
-    (put 'dired-find-alternate-file 'disabled nil)
-    (setq ls-lisp-dirs-first t
-          dired-recursive-copies 'always
-          dired-recursive-deletes 'always
-          dired-dwim-target t
-          ;; -F marks links with @
-          dired-ls-F-marks-symlinks t
-          delete-by-moving-to-trash t
-          ;; Auto refresh dired
-          global-auto-revert-non-file-buffers t
-          wdired-allow-to-change-permissions t)
-    (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
-    (define-key dired-mode-map (kbd "C-M-u") 'dired-up-directory)
-    (define-key dired-mode-map (kbd "M-o") #'my/dired-open)
-    (define-key dired-mode-map (kbd "C-x C-q") 'wdired-change-to-wdired-mode)
-    (add-hook 'dired-mode-hook #'my/dired-mode-hook)))
-#+END_SRC
-** Project manager
-*** Projectile
-
-Projectile guide: [[http://tuhdo.github.io/helm-projectile.html][Exploring large projects with Projectile and Helm Projectile]]
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package projectile
+  (use-package expand-region
     :defer t
-    :init (projectile-global-mode 1)
-    :config
-    (setq projectile-completion-system 'helm)
-    (helm-projectile-on)
-
-    ;; Helm-projectile-switch-project settings
-    (setq projectile-switch-project-action 'helm-projectile)
-    )
+    :bind (("C-=" . er/expand-region)
+           ("C--" . er/contract-region)))
 #+END_SRC
-** Completion
-*** Hippie-expand
+** Searching and Indexing
+*** Isearch : Incremental Search
+*** Occur : Print lines matching an expression
+*** Imenu : Jump to definitions
+*** Helm : Incremental Completion and Selection
+**** Helm core
 
-=Hippie-expand= looks at the word before point and tries to expand it in
-various ways including expanding from a fixed list (like =`expand-abbrev’=),
-expanding from matching text found in a buffer (like =`dabbrev-expand’=) or
-expanding in ways defined by your own functions. Which of these it tries and in
-what order is controlled by a configurable list of functions.  
+[[https://github.com/emacs-helm/helm][Helm]] makes it easy to complete various things. I find it to be easier to
+configure than ido in order to get completion in as many places as possible,
+although I prefer ido's way of switching buffers.
+
+l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]]
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (global-set-key (kbd "M-/") 'hippie-expand)
-
-  (setq hippie-expand-try-functions-list
-   '(try-expand-dabbrev
-     try-expand-dabbrev-all-buffers
-     try-expand-dabbrev-from-kill
-     try-complete-file-name-partially
-     try-complete-file-name
-     try-expand-all-abbrevs
-     try-expand-list
-     try-expand-line
-     try-complete-lisp-symbol-partially
-     try-complete-lisp-symbol))
-#+END_SRC
-*** Company
-
-[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete 
-anything". It uses pluggable back-ends and front-ends to retrieve and display
-completion candidates. 
-
-It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
-Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags, files, 
-keywords and a few others. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package company
+  (use-package helm
     :ensure t
-    :diminish company-mode
+    :diminish ""
     :init
-    (add-hook 'after-init-hook 'global-company-mode))
+    (require 'helm)
+    (require 'helm-config)
+
+    ;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+    ;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+    ;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+    (global-set-key (kbd "C-c h") 'helm-command-prefix)
+    (global-unset-key (kbd "C-x c"))
+
+    ;; rebind tab to run persistent action
+    (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+    ;; make TAB works in terminal
+    (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+    ;; list actions using C-z
+    (define-key helm-map (kbd "C-z")  'helm-select-action)
+
+    (when (executable-find "curl")
+      (setq helm-google-suggest-use-curl-p t))
+
+    (setq helm-split-window-in-side-p           t
+          helm-move-to-line-cycle-in-source     t
+          helm-ff-search-library-in-sexp        t
+          helm-scroll-amount                    8
+          helm-ff-file-name-history-use-recentf t)
+
+    (helm-mode 1)
+
+    :config
+    ;; fuzzy matching
+    (setq helm-recentf-fuzzy-match t
+          helm-locate-fuzzy-match nil ;; locate fuzzy is worthless
+          helm-M-x-fuzzy-match t
+          helm-buffers-fuzzy-matching t
+          helm-semantic-fuzzy-match t
+          helm-apropos-fuzzy-match t
+          helm-imenu-fuzzy-match t
+          helm-lisp-fuzzy-completion t
+          helm-completion-in-region-fuzzy-match t)
+
+    :bind (("M-x" . helm-M-x)
+           ("M-y" . helm-show-kill-ring)
+
+           ("C-x b" . helm-mini)
+           ("C-x C-b" . helm-buffers-list)
+           ("C-x C-f" . helm-find-files)
+           ("C-x C-r" . helm-recentf)
+
+           ("C-c s" . helm-swoop)
+           ("C-c o" . helm-occur)
+
+           ("C-c h a" . helm-apropos)
+           ("C-c h y" . helm-yas-complete)
+           ("C-c h SPC" . helm-all-mark-rings)
+           ("C-c h i" . helm-semantic-or-imenu)
+           ("C-c h m" . helm-man-woman)
+           ))
 #+END_SRC
+**** Helm-swoop
+
+This promises to be a fast way to find things.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package company-quickhelp
-    :ensure t
+  (use-package helm-swoop
+    :bind (("M-i" . helm-swoop)
+           ("M-I" . helm-swoop-back-to-last-point)
+           ("C-c M-i" . helm-multi-swoop))
     :config
-    (company-quickhelp-mode 1))
+    ;; When doing isearch, hand the word over to helm-swoop
+    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+    ;; From helm-swoop to helm-multi-swoop-all
+    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+    ;; Save buffer when helm-multi-swoop-edit complete
+    (setq helm-multi-swoop-edit-save t
+          ;; If this value is t, split window inside the current window
+          helm-swoop-split-with-multiple-windows t
+          ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
+          helm-swoop-split-direction 'split-window-vertically
+          ;; If nil, you can slightly boost invoke speed in exchange for text color
+          helm-swoop-speed-or-color nil))
 #+END_SRC
 
+**** Helm-describe
+
+Helm Descbinds provides an interface to emacs’ describe-bindings making the
+currently active key bindings interactively searchable with helm.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package helm-descbinds
+    :bind ("C-h b" . helm-descbinds)
+    :init (fset 'describe-bindings 'helm-descbinds)
+    :config (require 'helm-config))
+#+END_SRC
+*** IDO : Interactively DO Things
+*** Grep : Searching the filesystem
+** Other Movement Commands
+** Conclusion
 * Editing
-** Kill
-** Unicode
-*** UTF-8
+** Coding
 
 Always, always UTF-8.
 
@@ -1647,22 +1039,159 @@ Always, always UTF-8.
   (set-keyboard-coding-system 'utf-8)
   (setq default-buffer-file-coding-system 'utf-8)
 #+END_SRC
-** Alignment
-** Indentation
-** Whitespace
+** Killing and Yanking Text
+*** Killing versus Deleting
+**** =C-w= : Cut without Selection
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun xah-cut-line-or-region ()
+    "Cut current line, or text selection.
+  When `universal-argument' is called first, cut whole buffer (respects `narrow-to-region').
+
+  URL `http://ergoemacs.org/emacs/emacs_copy_cut_current_line.html'
+  Version 2015-06-10"
+    (interactive)
+    (if current-prefix-arg
+        (progn ; not using kill-region because we don't want to include previous kill
+          (kill-new (buffer-string))
+          (delete-region (point-min) (point-max)))
+      (progn (if (use-region-p)
+                 (kill-region (region-beginning) (region-end) t)
+               (kill-region (line-beginning-position) (line-beginning-position 2))))))
+
+  (global-set-key (kbd "C-w") 'xah-cut-line-or-region)
+#+END_SRC
+**** =M-w= : Copy without Selection
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun xah-copy-line-or-region ()
+    "Copy current line, or text selection.
+  When called repeatedly, append copy subsequent lines.
+  When `universal-argument' is called first, copy whole buffer (respects `narrow-to-region').
+
+  URL `http://ergoemacs.org/emacs/emacs_copy_cut_current_line.html'
+  Version 2016-06-18"
+    (interactive)
+    (let (-p1 -p2)
+      (if current-prefix-arg
+          (setq -p1 (point-min) -p2 (point-max))
+        (if (use-region-p)
+            (setq -p1 (region-beginning) -p2 (region-end))
+          (setq -p1 (line-beginning-position) -p2 (line-end-position))))
+      (if (eq last-command this-command)
+          (progn
+            (progn ; hack. exit if there's no more next line
+              (end-of-line)
+              (forward-char)
+              (backward-char))
+            ;; (push-mark (point) "NOMSG" "ACTIVATE")
+            (kill-append "\n" nil)
+            (kill-append (buffer-substring-no-properties (line-beginning-position) (line-end-position)) nil)
+            (message "Line copy appended"))
+        (progn
+          (kill-ring-save -p1 -p2)
+          (if current-prefix-arg
+              (message "Buffer text copied")
+            (message "Text copied"))))
+      (end-of-line)
+      (forward-char)
+      ))
+
+  (global-set-key (kbd "M-w") 'xah-copy-line-or-region)
+#+END_SRC
+*** Yanking Text
+** Fixit Text
+*** Undo-tree
+
+[[http://www.dr-qubit.org/undo-tree/undo-tree.el][undo-tree-mode]] treats undo history as a branching tree of changes, similar to
+the way Vim handles it. This makes it substantially easier to undo and redo any
+change, while preserving the entire history of past states.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package undo-tree
+      :diminish undo-tree-mode
+      :init (global-undo-tree-mode)
+      :config
+      (progn
+        (setq undo-tree-visualizer-timestamps t)
+        (setq undo-tree-visualizer-diff t)))
+#+END_SRC
+** Transpositioning Text
+*** =C-t= : Transpose Characters
+*** =M-t= : Transpose Words
+*** =C-M-t= : Transpose S-expressions
+*** Other Transpose Commands
+** Filling and Commenting
+*** Filling
+**** Auto Fill
+
+Turn on [[https://www.emacswiki.org/emacs/AutoFillMode][auto-fill-mode]] to fill my paragraphs automatically, instead of =M-q=
+altogether.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default fill-column 79)
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  (add-hook 'prog-mode-hook 'turn-on-auto-fill)
+
+  (global-set-key (kbd "C-c q") 'auto-fill-mode)
+#+END_SRC
+
+**** Unfill
+
+Sometimes, l want to join all the lines in a paragraph into a single line,
+Emacs does not have a “unfill-paragraph” command to do the inverse of “fill”.
+
+Here's the solution:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun xah-unfill-paragraph ()
+    "Replace newline chars in current paragraph by single spaces.
+  This command does the inverse of `fill-paragraph'.
+
+  URL `http://ergoemacs.org/emacs/emacs_unfill-paragraph.html'
+  Version 2016-07-13"
+    (interactive)
+    (let ((fill-column most-positive-fixnum))
+      (fill-paragraph)))
+
+  (defun xah-unfill-region (start end)
+    "Replace newline chars in region by single spaces.
+  This command does the inverse of `fill-region'.
+
+  URL `http://ergoemacs.org/emacs/emacs_unfill-paragraph.html'
+  Version 2016-07-13"
+    (interactive "r")
+    (let ((fill-column most-positive-fixnum))
+      (fill-region start end)))
+#+END_SRC
+*** Commenting
+** Search & Replace
+*** Case Folding
+*** Regular Expression
+** Changing Case
+** Counting Things
+** Text Manipulation
+*** Editable Occur
+*** Deleting Duplicates
+*** Flushing and Keeping Lines
+*** Joining and Splitting Lines
+*** Whitespace Commands
+**** Whitespace Visual
+
+We want to show trailing whitespace. Trailing whitespace is the devil.
 
 #+BEGIN_SRC emacs-lisp :tagnle yes
   (require 'whitespace)
-  ;; Always turn on whitespace mode
-  ;; (global-whitespace-mode 1)
-  ;; (diminish 'global-whitespace-mode "")
+  ;; ;; Always turn on whitespace mode
+  ;; (global-whitespace-mode -1)
+  ;; (diminish 'global-whitespace-mode "ᗣ")
 
   ;; Indicate trailing empty lines in the GUI
   (set-default 'indicate-empty-lines t)
   (setq show-trailing-whitespace t)
 
   ;; limit line length
-  (setq whitespace-line-column 80) 
+  (setq whitespace-line-column 80)
   ;; Here are the things that whitespace-mode should highlight
   (setq whitespace-style '(face tabs empty trailing lines-tail))
 
@@ -1687,89 +1216,204 @@ Always, always UTF-8.
                                       emacs-lisp-mode
                                       clojure-mode
                                       lisp-mode))
+
+  ;; activate whitespace-mode to view all whitespace characters
+  (global-set-key (kbd "C-c w") 'whitespace-mode)
 #+END_SRC
-** Comments
-** Filling
-*** Auto-fill
-
-[[https://www.emacswiki.org/emacs/AutoFillMode][Auto-fill-mode]] 是一个将过长的行截断并换行的 minor mode，当你输入 =<SPC>= 或
-=<RET>= 会自动换行。
-
-你可能疑惑为什么要保证行数小于 80。虽然在这里我不做解释，但是你可以参考
-stackoverflow 上的 [[http://stackoverflow.com/questions/110928/is-there-a-valid-reason-for-enforcing-a-maximum-width-of-80-characters-in-a-code][提问]] ，来感受一下。
-
-我尽量使得代码行宽小于 80，事实上有些项目强制如此。
-
-我为 text-mode 和 prog-mode 和它们所有的 [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Derived-Modes.html][derived modes]] 开启 auto-fill-mode。
-你可以参看 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fill-Commands.html][Explicit Fill Commands]] 来快速截断 paragraph 和 region。
-				       
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (setq-default fill-column 79)
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  (add-hook 'prog-mode-hook 'turn-on-auto-fill)
-
-  (global-set-key (kbd "C-c q") 'auto-fill-mode)
-#+END_SRC
-*** Unfilling Paragraph
-
-Unfilling a paragraph joins all the lines in a paragraph into a single line. 
-Taken from [[https://www.emacswiki.org/emacs/UnfillParagraph][here]].
-
-It works where a line ends with a newline character (”\n”) and paragraphs are
-separated by blank lines. To make a paragraph end in a single newline then use
-the function below:
+**** Whitespace Shrink
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defun unfill-paragraph (&optional region)
-    "Takes a multi-line paragraph and makes it into a single line of text."
-    (interactive (progn (barf-if-buffer-read-only) '(t)))
-    (let ((fill-column (point-max))
-          ;; This would override `fill-column' if it's an integer.
-          (emacs-lisp-docstring-fill-column t))
-      (fill-paragraph nil region)))
+  (defun xah-shrink-whitespaces ()
+    "Remove whitespaces around cursor to just one or none.
+  Call this command again to shrink more. 3 calls will remove all whitespaces.
+  URL `http://ergoemacs.org/emacs/emacs_shrink_whitespace.html'
+  Version 2015-11-04"
+    (interactive)
+    (let ((pos0 (point))
+          -line-has-char-p ; current line contains non-white space chars
+          -has-space-tab-neighbor-p
+          -whitespace-begin -whitespace-end
+          -space-or-tab-begin -space-or-tab-end
+          )
+      (save-excursion
+        (setq -has-space-tab-neighbor-p (if (or (looking-at " \\|\t") (looking-back " \\|\t")) t nil))
+        (beginning-of-line)
+        (setq -line-has-char-p (search-forward-regexp "[[:graph:]]" (line-end-position) t))
 
-  (define-key global-map "\M-Q" 'unfill-paragraph)
+        (goto-char pos0)
+        (skip-chars-backward "\t ")
+        (setq -space-or-tab-begin (point))
+
+        (skip-chars-backward "\t \n")
+        (setq -whitespace-begin (point))
+
+        (goto-char pos0)
+        (skip-chars-forward "\t ")
+        (setq -space-or-tab-end (point))
+        (skip-chars-forward "\t \n")
+        (setq -whitespace-end (point)))
+
+      (if -line-has-char-p
+          (if -has-space-tab-neighbor-p
+              (let (-deleted-text)
+                ;; remove all whitespaces in the range
+                (setq -deleted-text
+                      (delete-and-extract-region -space-or-tab-begin -space-or-tab-end))
+                ;; insert a whitespace only if we have removed something different than a simple whitespace
+                (when (not (string= -deleted-text " "))
+                  (insert " ")))
+
+            (progn
+              (when (equal (char-before) 10) (delete-char -1))
+              (when (equal (char-after) 10) (delete-char 1))))
+        (progn (delete-blank-lines)))))
+
+  (global-set-key (kbd "M-\\") 'xah-shrink-whitespaces)
 #+END_SRC
-** Cursors
-*** Multiple-cursors
+** Keyboard Macros
+*** Basic Commands
+*** Advanced Commands
+** Text Expansion
+*** Abbrev
+*** DAbbrev and Hippie Expand
 
-[[https://github.com/magnars/multiple-cursors.el][Multiple-cursors]] 一个相当惊艳的多点编辑插件。可以看一下作者的[[http://emacsrocks.com/e13.html][视频介绍]]。
+=Hippie-expand= looks at the word before point and tries to expand it in
+various ways including expanding from a fixed list (like =`expand-abbrev’=),
+expanding from matching text found in a buffer (like =`dabbrev-expand’=) or
+expanding in ways defined by your own functions. Which of these it tries and in
+what order is controlled by a configurable list of functions.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package multiple-cursors
-    :bind (("C->" . mc/mark-next-like-this)
-           ("C-<" . mc/mark-previous-like-this)
-           ("C-c C-<" . mc/mark-all-like-this)
+  (global-set-key (kbd "M-/") 'hippie-expand)
 
-           ("C-c c r" . set-rectangular-region-anchor)
-           ("C-c c c" . mc/edit-lines)
-           ("C-c c e" . mc/edit-ends-of-lines)
-           ("C-c c a" . mc/edit-beginnings-of-lines)))
+  (setq hippie-expand-try-functions-list
+   '(try-expand-dabbrev
+     try-expand-dabbrev-all-buffers
+     try-expand-dabbrev-from-kill
+     try-complete-file-name-partially
+     try-complete-file-name
+     try-expand-all-abbrevs
+     try-expand-list
+     try-expand-line
+     try-complete-lisp-symbol-partially
+     try-complete-lisp-symbol))
 #+END_SRC
-** Parentheses
-*** Rainbow-delimiters
+** Completion and Template
+*** =Company= : Completion for Anything
+
+[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete
+anything". It uses pluggable back-ends and front-ends to retrieve and display
+completion candidates.
+
+It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
+Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags, files,
+keywords and a few others.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package rainbow-delimiters
-    :init (rainbow-delimiters-mode 1))
+  (use-package company
+    :ensure t
+    :diminish company-mode
+    :init
+    (add-hook 'after-init-hook 'global-company-mode))
 #+END_SRC
-** Region
-*** Expand-region
-
-[[https://github.com/magnars/expand-region.el][Expand-region]] is something I have to get the hang of too. It gradually expands the
-selection. Handy for Emacs Lisp. [[[http://emacsrocks.com/e09.html][Video]]]
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package expand-region
-    :defer t
-    :bind (("C-=" . er/expand-region)
-           ("C--" . er/contract-region)))
+  (use-package company-quickhelp
+    :ensure t
+    :config
+    (company-quickhelp-mode 1))
 #+END_SRC
-** Spelling
-*** Flyspell
+
+*** =YAsnippet= : Code Templates
+
+[[https://github.com/joaotavora/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an abbreviation
+and automatically expand it into function templates.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package yasnippet
+    :diminish t
+    :init
+    (yas-global-mode 1))
+#+END_SRC
+
+You can view a bunch of predefined snippet [[https://github.com/AndreaCrotti/yasnippet-snippets/tree/master][here]].
+
+** Indenting Text and Code
+*** Tabs vs. Space
+
+Tabs are evil! I want spaces instead of tabs, and want exactly 2 spaces instead
+of a tab. Note to self: Apparently emacs is smart enough to not do this in
+Python, which is a good thing.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; make indentation commands use space only (never tab character)
+  (setq-default indent-tabs-mode nil)
+
+  ;; set current buffer's tab char's display width to 2 spaces
+  (setq tab-width 2)
+#+END_SRC
+
+Makefiles are not so friendly when it comes to spaces.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun my-tabs-makefile-hook ()
+    (setq indent-tabs-mode t))
+  (add-hook 'makefile-mode-hook 'my-tabs-makefile-hook)
+#+END_SRC
+*** =RET= : Indenting new lines
+
+By default, Emacs won't indent when press RET because the command bound to RET
+is newline. You can enable automatic indentation by binding =RET= to
+=newline-and-indent=.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; automatically indent when press RET
+  (global-set-key (kbd "RET") 'newline-and-indent)
+#+END_SRC
+*** =TAB= : Indenting the current line
+
+Make tab key do indent first then completion.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq-default tab-always-indent 'complete)
+#+END_SRC
+*** Indenting Regions
+*** =Clean-aindent-mode=
+
+When you press =RET= to create a newline and got indented by
+=eletric-indent-mode=, you have appropriate whitespace for indenting. But, if
+you leave the line blank and move to the next line, the whitespace becomes
+useless. =Clean-aindent-mode= helps [[https://www.emacswiki.org/emacs/CleanAutoIndent][clean up unused whitespace]].
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package clean-aindent-mode
+    :init
+    (add-hook 'prog-mode-hook 'clean-aindent-mode))
+#+END_SRC
+** Sorting and Aligning
+*** Sorting
+*** Aligning
+** Text Visual
+*** Color
+
+=Rainbow-mode= makes "colour words" in my programs appear in the colours they
+describe. Particularly good for CSS and the like.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package rainbow-mode
+    :diminish rainbow-mode
+    :config
+    (add-hook 'emacs-lisp-mode-hook 'rainbow-mode)
+    (add-hook 'css-mode-hook 'rainbow-mode)
+    (add-hook 'html-mode-hook 'rainbow-mode)
+    (add-hook 'js2-mode-hook 'rainbow-mode))
+#+END_SRC
+** Other Editing Commands
+*** Zapping Characters
+*** =Flyspell= : Spelling Checking
 
 I like spell checking with [[https://www.emacswiki.org/emacs/FlySpell][Flyspell]], which uses the built-in spell-check
-settings of ispell. 
+settings of ispell.
 
 The ASpell project is better supported than ispell.
 
@@ -1778,7 +1422,7 @@ The ASpell project is better supported than ispell.
 #+END_SRC
 
 ASpell automatically configures a personal dictionary at =~/.aspell.en.pws=, so
-no need to configure that. 
+no need to configure that.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package flyspell
@@ -1792,7 +1436,7 @@ no need to configure that.
 
     (dolist (hook '(change-log-mode-hook log-edit-mode-hook org-agenda-mode-hook))
       (add-hook hook (lambda () (flyspell-mode -1))))
-    
+
     :config
     (setq ispell-program-name "/usr/local/bin/aspell"
           ispell-dictionary "american"
@@ -1800,364 +1444,54 @@ no need to configure that.
                               "--lang=en_US"
                               "--ignore=3")
           ispell-list-command "--list")
-    
+
     (use-package helm-flyspell
       :init
       (define-key flyspell-mode-map (kbd "M-S") 'helm-flyspell-correct)))
 #+END_SRC
-** Templates
-*** Abbrev
+
+*** Quoted Insert
+
+* Development Environment
+** Typesetting Languages
+*** Markdown
+
+[[https://github.com/defunkt/markdown-mode][Markdown-mode]] is a major mode for editing Markdown-formatted text.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; sample use of emacs abbreviation feature
-
-  (define-abbrev-table 'global-abbrev-table '(
-
-      ;; math/unicode symbols
-      ("8in" "∈")
-      ("8nin" "∉")
-      ("8inf" "∞")
-      ("8luv" "♥")
-      ("8smly" "☺")
-
-      ;; email
-      ("8me" "fengxiaojie1997@gmail.com")
-
-      ;; computing tech
-      ("8wp" "Wikipedia")
-      ("8ms" "Microsoft")
-      ("8g" "Google")
-      ("8win" "Windows")
-
-      ;; normal english words
-      ("8alt" "alternative")
-      ("8char" "character")
-      ("8def" "definition")
-      ("8bg" "background")
-      ("8kb" "keyboard")
-      ("8ex" "example")
-      ("8kbd" "keybinding")
-      ("8env" "environment")
-      ("8var" "variable")
-      ("8ev" "environment variable")
-      ("8cp" "computer")
-
-      ;; signature
-      ("8xj" "Xiaojie Feng")
-
-      ;; url
-
-      ;; emacs regex
-      ("8d" "\\([0-9]+?\\)")
-      ("8str" "\\([^\"]+?\\)\"")
-
-      ;; shell commands
-      ("8ditto" "ditto -ck --sequesterRsrc --keepParent src dest")
-      ("8im" "convert -quality 85% ")
-
-      ("8f0" "find . -type f -size 0 -exec rm {} ';'")
-      ("8rsync" "rsync -z -r -v -t --exclude=\"*~\" --exclude=\".DS_Store\" --exclude=\".bash_history\" --exclude=\"**/xx_xahlee_info/*\"  --exclude=\"*/_curves_robert_yates/*.png\" --exclude=\"logs/*\"  --exclude=\"xlogs/*\" --delete --rsh=\"ssh -l xah\" ~/web/ xah@example.com:~/")
-      ))
-
-  ;; stop asking whether to save newly added abbrev when quitting emacs
-  (setq save-abbrevs nil)
-
-  ;; turn on abbrev mode globally
-  (setq-default abbrev-mode t)
-#+END_SRC
-** Undo
-*** Undo-tree
-
-[[http://www.dr-qubit.org/undo-tree/undo-tree.el][undo-tree-mode]] treats undo history as a branching tree of changes, similar to
-the way Vim handles it. This makes it substantially easier to undo and redo any
-change, while preserving the entire history of past states.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-    (use-package undo-tree
-      :diminish undo-tree-mode
-      :init (global-undo-tree-mode)
-      :config
-      (progn
-        (setq undo-tree-visualizer-timestamps t)
-        (setq undo-tree-visualizer-diff t)))
-#+END_SRC
-** Search and replace
-
-Anzu-mode enhances isearch & query-replace by showing total matches and current match position
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package anzu
-    :diminish anzu-mode
-    :init (global-anzu-mode 1))
-
-  (global-set-key (kbd "M-%") 'anzu-query-replace)
-  (global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
-#+END_SRC
-** Highlight
-
-Highlights things like undo, copy, paste, etc.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-   (defun my/turn-on-volatile-highlights ()
-       (interactive)
-       (volatile-highlights-mode t)
-       (diminish 'volatile-highlights-mode))
-
-     (use-package volatile-highlights
-       :defer t
-       :init
-       (progn
-         (require 'volatile-highlights) ;; vh has a problem with autoloads
-         (add-hook 'org-mode-hook #'my/turn-on-volatile-highlights)
-         (add-hook 'prog-mode-hook #'my/turn-on-volatile-highlights)))
-#+END_SRC
-* Development environment
-
-Reference: [[http://tuhdo.github.io/c-ide.html][C/C++ Development Environment for Emacs]] 
-
-** General completion with =company= 
-
-[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete 
-anything". It uses pluggable back-ends and front-ends to retrieve and display
-completion candidates. 
-
-It comes with several back-ends such as Elisp, Clang, Semantic, Eclim,
-Ropemacs, Ispell, CMake, BBDB, Yasnippet, dabbrev, etags, gtags, files, 
-keywords and a few others. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package company
+  (use-package markdown-mode
     :ensure t
-    :diminish company-mode
-    :init
-    (add-hook 'after-init-hook 'global-company-mode))
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
 #+END_SRC
+** Programming Languages
+*** SML
 
-General Usage: Completion will start automatically after you type a few
-letters. Use *M-n* and *M-p* to select, *<RET>* to complete or *<TAB>* to
-complete the common part. Search through the completions with *C-s*, *C-r* and
-*C-o*. Press *M-(digit)* to quickly complete with one of the first 10
-candidates. When the completion candidates are shown, press *<f1>* to display the
-documentation for the selected candidate, or *C-w* to see its source. Not all
-back-ends support this. 
+SML Installation Guide: [[https://courses.cs.washington.edu/courses/cse341/16sp/sml_emacs.pdf][Programming Languages Using SML and Emacs]].
 
-** Source code documentation
-*** Command: =man=
-
-To read the documentation for symbol at point or a man entry of your choice,
-invoke =M-x man=. 
-
-*** Command: =helm-man-woman=
-
-As I use Helm, I use the command =helm-man-woman=.
-
-** Sources code navigation
-*** Ggtags
-
-[[https://github.com/leoliu/ggtags][Ggtags]] is emacs frontend to GNU Global source code tagging system.
+Configuration for [[https://www.coursera.org/learn/programming-languages/][Programming Language]] in Coursera taught by Dan Grossman.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'ggtags)
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-                (ggtags-mode 1))))
-
-  (define-key ggtags-mode-map (kbd "C-c g s") 'ggtags-find-other-symbol)
-  (define-key ggtags-mode-map (kbd "C-c g h") 'ggtags-view-tag-history)
-  (define-key ggtags-mode-map (kbd "C-c g r") 'ggtags-find-reference)
-  (define-key ggtags-mode-map (kbd "C-c g f") 'ggtags-find-file)
-  (define-key ggtags-mode-map (kbd "C-c g c") 'ggtags-create-tags)
-  (define-key ggtags-mode-map (kbd "C-c g u") 'ggtags-update-tags)
-
-  (define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
+  (use-package sml-mode)
+  (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
+  (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
 #+END_SRC
+*** Racket
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq helm-gtags-prefix-key "\C-cg")
-  (setq helm-gtags-ignore-case t
-        helm-gtags-auto-update t
-        helm-gtags-use-input-at-cursor t
-        helm-gtags-pulse-at-cursor t
-        helm-gtags-suggested-key-mapping t)
-
-  (use-package helm-gtags
-    :diminish ""
-    :init (helm-gtags-mode t))
-
-  (add-hook 'dired-mode-hook 'helm-gtags-mode)
-  (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-  (add-hook 'c-mode-hook 'helm-gtags-mode)
-  (add-hook 'c++-mode-hook 'helm-gtags-mode)
-  (add-hook 'asm-mode-hook 'helm-gtags-mode)
-
-  (define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
-  (define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
-  (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
-  (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
-  (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
-  (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
+  (use-package racket-mode)
 #+END_SRC
-*** Basic movement
-
-#+BEGIN_SRC org
-  | Key binding     | Command            | Description                                                            |
-  |-----------------+--------------------+------------------------------------------------------------------------|
-  | C-M-f           | forward-sexp       | move forward over a balanced expression that can be a pair or a symbol |
-  | C-M-b           | backward-sexp      | ..                                                                     |
-  | C-M-k           | kill-sexp          | kill balanced expression forward that can be a pair or a symbol        |
-  | C-M-<SPC>/C-M-@ | mark-sexp          | put mark after following expression that can be a pair or a symbol     |
-  | C-M-a           | beginning-of-defun | moves point to beginning of a function                                 |
-  |                 |                    |                                                                        |
-#+END_SRC
-** CEDET
-*** What is GEDET?
-
-CEDET is a (C)ollection of (E)macs (D)evelopment (E)nvironment (T)ools written
-with the end goal of creating an advanced development environment in Emacs.
-CEDET includes common features such as intelligent completion, source code
-navigation, project management, code generation with templates . CEDET also
-provides a framework for working with programming languages; support for new
-programming languages can be added and use CEDET to provide IDE-like features. 
-
-CEDET can give you code completion, but this process takes time and can block
-your Emacs while it is doing so. If you have large project, you may not want to
-use CEDET for code completion. But, you can use CEDET perfectly for utilities
-that work at file scope i.e. refactoring local variables in a function in a
-file. 
-
-*** Semantic minor modes
-
-To enable code completion using Semantic, add the following code: 
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (require 'cc-mode)
-  (require 'semantic)
-
-  (global-semanticdb-minor-mode 1)
-  (global-semantic-idle-scheduler-mode 1)
-
-  (semantic-mode 1)
-#+END_SRC
-
-** Sources code editing
-*** Space and Tabs
-
-To convert between TAB and space, you also have two commands: =tabify= to turn an
-active region to use TAB for indentation, and =untabify= to turn an active region
-to use space for indentation. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; use space to indent by default
-  (setq-default indent-tabs-mode nil)
-
-  ;; set appearance of a tab that is represented by 2 spaces
-  (setq-default tab-width 2)
-#+END_SRC
-*** Folding
-
-Emacs has a minor mode called =hs-minor-mode= that allows users to fold and
-hide blocks of text. Blocks are defined by regular expressions which match the
-start and end of a text region. For example, anything in between ={= and =}= is
-a block. The regular expressions are defined in =hs-special-modes-alist=.
-
-Setup for C/C++:
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (add-hook 'c-mode-common-hook   'hs-minor-mode)
-#+END_SRC
-
-Default Keybinding:
-
-| Keybinding  | Command          | Description                                                     |
-|-------------+------------------+-----------------------------------------------------------------|
-| C-c @ C-c   | hs-toggle-hiding | Toggle hiding/showing of a block                                |
-| C-c @ C-h   | hs-hide-block    | Select current block at point and hide it                       |
-| C-c @ C-l   | hs-hide-level    | Hide all block with indentation levels below this block         |
-| C-c @ C-s   | hs-show-block    | Select current block at point and show it                       |
-| C-c @ C-M-h | hs-hide-all      | Hide all top level blocks, displaying only first and last lines |
-| C-c @ C-M-s | hs-show-all      | Show everything                                                 |
-*** Narrowing
-
-Narrowing means making only a text portion in current buffer visible. Narrowing
-is useful when you want to perform text editing on a small part of the buffer
-without affecting the others. For example, you want to delete all =printf=
-statements in current functions, using =flush-lines= command. But if you do so,
-you will also delete =printf= outside the current function, which is undesirable.
-By narrowing, you can safely remove all those printf and be certain that
-nothing else is changed accidentally. 
-
-Default Keybinding:
-
-| Keybinding | Command          | Description                                |
-|------------+------------------+--------------------------------------------|
-| C-x n n    | narrow-to-region | Narrow buffer to active region             |
-| C-x n d    | narrow-to-defun  | Narrow buffer to current function at point |
-| C-x n w    | widen            | Widen buffer                               |
-*** Whitespace
-
-When working with source code, we must pay attention to trailng whitespace. It
-is always useful to view whitespace in current buffer before committing your
-code.  
-
-To clean up trailing whitespace, you can also run =whitespace-cleanup= command. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; activate whitespace-mode to view all whitespace characters
-  (global-set-key (kbd "C-c w") 'whitespace-mode)
-
-  ;; show unncessary whitespace that can mess up your diff
-  (add-hook 'prog-mode-hook (lambda () (interactive) (setq show-trailing-whitespace 1)))
-#+END_SRC
-*** Identation
-**** Code style
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; Available C style:
-  ;; “gnu”: The default style for GNU projects
-  ;; “k&r”: What Kernighan and Ritchie, the authors of C used in their book
-  ;; “bsd”: What BSD developers use, aka “Allman style” after Eric Allman.
-  ;; “whitesmith”: Popularized by the examples that came with Whitesmiths C, an early commercial C compiler.
-  ;; “stroustrup”: What Stroustrup, the author of C++ used in his book
-  ;; “ellemtel”: Popular C++ coding standards as defined by “Programming in C++, Rules and Recommendations,” Erik Nyquist and Mats Henricson, Ellemtel
-  ;; “linux”: What the Linux developers use for kernel development
-  ;; “python”: What Python developers use for extension modules
-  ;; “java”: The default style for java-mode (see below)
-  ;; “user”: When you want to define your own style
-  ;; (setq
-  ;;  c-default-style "linux" ;; set style to "linux"
-  ;;  )
-#+END_SRC
-**** Setup identation
-
-By default, Emacs won't indent when press RET because the command bound to RET 
-is newline. You can enable automatic indentation by binding =RET= to
-=newline-and-indent=. 
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ; automatically indent when press RET
-  (global-set-key (kbd "RET") 'newline-and-indent)
-#+END_SRC
-**** Package: =clean-aindent-mode=
-
-When you press RET to create a newline and got indented by eletric-indent-mode,
-you have appropriate whitespace for indenting. But, if you leave the line blank
-and move to the next line, the whitespace becomes useless. This package helps
-clean up unused whitespace. 
-
-More Detail: [[https://www.emacswiki.org/emacs/CleanAutoIndent][Emacswiki: Clean Auto Indent]]
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package clean-aindent-mode
-    :init
-    (add-hook 'prog-mode-hook 'clean-aindent-mode))
-#+END_SRC
-*** =Smartparens= for manipulating pairs
+** Programs
+*** =Smartparens= : Manipulating Pairs
 
 =smartparens= is a minor mode that provides many features for manipulating
 pairs. Pair can be simple as parentheses or brackets, or can be programming
 tokens such as =if= … =fi= or =if= … end in many languages. The most basic and
 essential feature is automatic closing of a pair when user inserts an opening
-one. 
+one.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
     ;;(require 'smartparens-config)
@@ -2182,53 +1516,29 @@ one.
 
 For complete documentation, please refer to [[https://github.com/Fuco1/smartparens/wiki#information-for-new-users][Smartparens manual]].
 
-*** Code template using =yasnippet=
-
-[[https://github.com/joaotavora/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an abbreviation
-and automatically expand it into function templates. 
-
-Bundled language templates include: C, C++, C#, Perl, Python, Ruby, SQL, LaTeX,
-HTML, CSS and more. The snippet syntax is inspired from TextMate's syntax, you
-can even import most TextMate templates to YASnippet. 
+** Building
+*** =Flycheck= : Error Checking
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package yasnippet
-    :diminish t
-    :init
-    (yas-global-mode 1))
+  (use-package flycheck
+    :defer t
+    :bind (;;("C-c n" . flycheck-next-error)
+           ;;("C-c p" . flycheck-previous-error)
+           ("C-c =" . flycheck-list-errors))
+    :init (global-flycheck-mode)
+    :diminish ""
+    :config
+    (progn
+      (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+      (use-package flycheck-tip
+        :config (flycheck-tip-use-timer 'verbose))
+      (use-package helm-flycheck
+        :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
+      (use-package flycheck-haskell
+        :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
 #+END_SRC
 
-Basic Usage:
-
-In major modes where yasnippet has snippets available, typing a certain keyword
-and /TAB/ insert a predefined snippet. For example, in a C buffer, if you type
-=for= and *TAB* , it expands to: 
-
-#+BEGIN_SRC c
-  for (i = 0; i < N; i++) {
-      ...point will be here....
-  }
-#+END_SRC
-
-You can view a bunch of predefined snippet [[https://github.com/AndreaCrotti/yasnippet-snippets/tree/master][here]].
-
-** Compilation support
-
-Compilation mode turns each error message in the buffer into a hyperlink. You
-can click on each error, or execute a key binding like *RET* to jump to the
-location of that error. 
-
-Compilation-Mode Keybinding:
-
-| Keybinding | Description                                                         |
-|------------+---------------------------------------------------------------------|
-| C-o        | Display matched location, but do not switch point to matched buffer |
-| M-n        | Move to next error message, but do not visit error location         |
-| M-p        | Move to next previous message, but do not visit error location      |
-| M-g n      | Move to next error message, visit error location                    |
-| M-g p      | Move to previous error message, visit error location                |
-| RET        | Visit location of error at point                                    |
-| q          | Quit =*compilation*= buffer                                         |
+*** Compilation
 
 I usually execute the same compilation command many times. It's more convenient
 if Emacs doesn't ask us to confirm every time we re-execute a command. If you
@@ -2240,14 +1550,8 @@ want to enter a new command, add prefix argument =C-u= before pressing =<f5>=.
                                  (setq-local compilation-read-command nil)
                                  (call-interactively 'compile)))
 #+END_SRC
-
-TIP: It is useful to open a Dired buffer of the project root and store a window
-configuration that contains it into a register, so you can always jump back to
-project root any where, any time and run compilation command. If you do not use
-know how to use registers to store window configurations, read it [[http://tuhdo.github.io/emacs-tutor.html#orgheadline63][here]] 
-
-** Debugging
-*** GDB with many windows
+*** Debuggers
+**** GDB with many windows
 
 Emacs has built-in frontend support for GDB that provides IDE-like interface.
 Stock Emacs doesn't enable this layout by default. You have to tell Emacs to
@@ -2284,83 +1588,26 @@ visible on your screen:
   |----------------------------+--------------------------------------|
 #+END_SRC
 
-* Language-specific configuration
-** SML
+**** GUD
 
-SML Installation Guide: [[https://courses.cs.washington.edu/courses/cse341/16sp/sml_emacs.pdf][Programming Languages Using SML and Emacs]]. 
-
-Configuration for [[https://www.coursera.org/learn/programming-languages/][Programming Language]] in Coursera taught by Dan Grossman.
+Set some keys to make debugging in GUD easier
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package sml-mode)
-  (setenv "PATH" (concat "/usr/local/smlnj/bin:" (getenv "PATH")))
-  (setq exec-path (cons "/usr/local/smlnj/bin" exec-path))
+  (global-set-key (kbd "<f7>") 'gud-cont)
+  (global-set-key (kbd "<f6>") 'gud-step)
+  (global-set-key (kbd "<f5>") 'gud-next)
+  (global-set-key (kbd "<f8>") 'gud-finish)
 #+END_SRC
-** Racket
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package racket-mode)
-#+END_SRC
-* Applications and tools
-** Utilities
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; make a shell script executable automatically on save
-  (add-hook 'after-save-hook
-            'executable-make-buffer-file-executable-if-script-p)
-
-  ;; .zsh file is shell script too
-  (add-to-list 'auto-mode-alist '("\\.zsh\\'" . shell-script-mode))
-#+END_SRC
-** Shell
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'eshell)
-  (setq eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
-#+END_SRC
-** Projectile
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package projectile
-    :init
-    (setq projectile-cache-file (expand-file-name  "projectile.cache" user-emacs-directory))
-    (projectile-global-mode t))
-#+END_SRC
-** Flycheck
-
-[[https://github.com/flycheck/flycheck][Flycheck]] 非常重要的插件，支持大多数动态语言的语法检查。
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package flycheck
-    :defer t
-    :bind (;;("C-c n" . flycheck-next-error)
-           ;;("C-c p" . flycheck-previous-error)
-           ("C-c =" . flycheck-list-errors))
-    :init (global-flycheck-mode)
-    :diminish ""
-    :config
-    (progn
-      (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-      (use-package flycheck-tip
-        :config (flycheck-tip-use-timer 'verbose))
-      (use-package helm-flycheck
-        :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
-      (use-package flycheck-haskell
-        :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
-#+END_SRC
-** Version control
-*** Ediff
+** Maintaining
+*** Version control
+**** Ediff
 
 #+BEGIN_SRC emacs-lisp :tangle yes
 ;; ediff - don't start another frame
 (require 'ediff)
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 #+END_SRC
-*** Magit
-
-[[https://github.com/magit/magit][Magit]] 是版本控制系统 [[https://git-scm.com][Git]] 常用命令的接口封装，好用，美观，sweet。
-如果你没听说过 Git，那我推荐你阅读 [[http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000][Git 教程]]，
-来学习一下这个优秀的版本控制系统。当然别忘记安装 Git：
+**** Magit
 
 #+BEGIN_SRC shell
   brew install git
@@ -2376,7 +1623,7 @@ Configuration for [[https://www.coursera.org/learn/programming-languages/][Progr
       (window-configuration-to-register :magit-fullscreen)
       ad-do-it
       (delete-other-windows))
-    
+
     :config
     (setq magit-branch-arguments nil
           ;; use ido to look for branches
@@ -2394,12 +1641,52 @@ Configuration for [[https://www.coursera.org/learn/programming-languages/][Progr
 
 [[https://www.youtube.com/watch?v%3Dzobx3T7hGNA][Magit Basics]] 将带你初识 Magit，这个视频也很甜。
 
-*** Git-messenger
+**** Git-messenger
 
 #+begin_src emacs-lisp :tangle no
 (use-package git-messenger
   :bind (("C-x v m" . git-messenger:popup-message)))
 #+end_src
+*** Projectile
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package projectile
+    :init
+    (setq projectile-cache-file (expand-file-name  "projectile.cache" user-emacs-directory))
+    (projectile-global-mode t))
+#+END_SRC
+* Applications and Utilities
+** Shell
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (require 'eshell)
+  (setq eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
+#+END_SRC
+** Utilities
+*** Shell tools
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; make a shell script executable automatically on save
+  (add-hook 'after-save-hook
+            'executable-make-buffer-file-executable-if-script-p)
+
+  ;; .zsh file is shell script too
+  (add-to-list 'auto-mode-alist '("\\.zsh\\'" . shell-script-mode))
+#+END_SRC
+*** Copy filename to clipboard
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; http://emacsredux.com/blog/2013/03/27/copy-filename-to-the-clipboard/
+  (defun copy-file-name-to-clipboard ()
+    "Copy the current buffer file name to the clipboard."
+    (interactive)
+    (let ((filename (if (equal major-mode 'dired-mode)
+                        default-directory
+                      (buffer-file-name))))
+      (when filename
+        (kill-new filename)
+        (message "Copied buffer file name '%s' to the clipboard." filename))))
+#+END_SRC
 * Org
 
 Reference: [[http://doc.norang.ca/org-mode.html][Org Mode - Organize Your Life In Plain Text!]]
@@ -2407,16 +1694,16 @@ Reference: [[http://doc.norang.ca/org-mode.html][Org Mode - Organize Your Life I
 ** Introduction
 
 [[http://orgmode.org][Org-mode]] is for keeping notes, maintaining ToDo lists, doing project planning,
-and authoring with a fast and effective plain-text system. 
+and authoring with a fast and effective plain-text system.
 
 Org Mode can be used as a very simple folding outliner or as a complex GTD
-system or tool for reproducible research and literate programming. 
+system or tool for reproducible research and literate programming.
 
 If you are a org-mode newbie, please take a look at [[http://orgmode.org/worg/org-tutorials/orgtutorial_dto.html][David O'Toole Org tutorial]]
 first, then try to learn more about org-mode.
 
 [[http://orgmode.org/guide/][The compact guide]] and [[http://orgmode.org/manual/index.html][the complete manual]] is the best manual. [[http://orgmode.org/worg/][Org Worg]], the
-most large org-mode wiki is really helpful. 
+most large org-mode wiki is really helpful.
 
 ** Activation
 
@@ -2444,7 +1731,7 @@ The last four lines define global keys for some most important commands.
 
 The parentheses indicate keyboard shortcuts that I can use to set the task
 state. =@= and =!= toggle logging. =@= prompts you for a note, and =!=
-automatically logs the timestamp of the state change. 
+automatically logs the timestamp of the state change.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq org-todo-keywords
@@ -2601,7 +1888,7 @@ So what do I do? Hit =C-c c= to start capture mode and select =t= since it's a
 new task and I get a buffer like this:
 
 #+BEGIN_SRC org
-  ,* TODO 
+  ,* TODO
     [2010-08-05 Thu 21:06]
 
     Capture Tasks is all about being FAST
@@ -2689,6 +1976,7 @@ Here is my refile configuration:
                                "~/org/school.org"
                                "~/org/home.org"
                                "~/org/learning.org"
+                               "~/org/life.org"
                                "~/org/projects.org"))
 #+END_SRC
 *** Setup
@@ -3261,3 +2549,15 @@ I use =utf-8= as the default coding system for all of my org files.
   (set-charset-priority 'unicode)
   (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
 #+END_SRC
+* Finalizers
+
+Turn off debugging, now that initialization has ended
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; Debugging turn off
+  (setq debug-on-error nil)
+  (setq debug-on-quit nil)
+#+END_SRC
+
+
+
