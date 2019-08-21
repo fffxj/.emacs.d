@@ -1,17 +1,24 @@
-TODO.org
+.DS_Store
+*~
+*.elc
 
-*.el
-*.html
+init.el
+custom.org
+custom.el
+secret.org
+secret.el
 
 auto-save-list/
+savefile/
+backup/
 elpa/
 url/
 eshell/
 games/
 
-.saveplace
 projectile-bookmarks.eld
+saveplace
 recentf
 savehist
+saveplace
 bookmarks
-
