@@ -13,7 +13,7 @@
 ** My Emacs Init File
    
 This is my Emacs configuration file. Inspired by [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha]] and [[http://doc.norang.ca/org-mode.html][Bernt]], l written it
-using Org-babel in literate style, to make it easy to explain.
+using [[https://orgmode.org/worg/org-contrib/babel/intro.html][Org-babel]] in literate style, to make it easy to explain.
 
 #+BEGIN_SRC org
   Author: Xiaojie Feng
@@ -385,8 +385,16 @@ Hightlight something sweet.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package volatile-highlights
-    :init (volatile-highlights-mode)
-    :diminish "")
+    :diminish ""
+    :init (volatile-highlights-mode))
+#+END_SRC
+
+=Font-lock= annotations like TODO in source code.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package hl-todo
+    :diminish ""
+    :init (global-hl-todo-mode))
 #+END_SRC
 *** Nice scrolling
 
@@ -489,18 +497,24 @@ A visual replacement for =C-x o=.
   (global-set-key [remap move-beginning-of-line]
                   'my/smarter-move-beginning-of-line)
 #+END_SRC
-*** =Ace-jump= : fast cursor movement
+*** =Avy= : fast cursor movement
 
-[[https://github.com/winterTTr/ace-jump-mode][Ace-jump-mode]] is a minor mode for Emacs, enabling fast/direct cursor movement
-in current view.
+[[https://github.com/abo-abo/avy][Avy]] enable fast cursor movement to visible text using a char-based decision
+tree.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package ace-jump-mode
-    :defer t
-    :bind (("C-c j" . ace-jump-word-mode)
-           ("C-c l" . ace-jump-line-mode)
-           ("C-c SPC" . ace-jump-line-mode)))
+  (use-package avy
+    :ensure t
+    :init (setq avy-background t)
+    :config
+    (global-set-key (kbd "s-;") 'avy-goto-line)
+    (global-set-key (kbd "s-l") 'avy-goto-line)
+    (global-set-key (kbd "s-.") 'avy-goto-char-timer)
+    (global-set-key (kbd "s-j") 'avy-goto-char-timer)
+    (global-set-key (kbd "s-,") 'avy-pop-mark)
+    (global-set-key (kbd "s-J") 'avy-pop-mark))
 #+END_SRC
+
 *** =Expand-region= : region selection
 
 [[https://github.com/magnars/expand-region.el][Expand-region]] is something I have to get the hang of too. It gradually expands the
@@ -721,7 +735,16 @@ candidates.
     :ensure t
     :diminish company-mode
     :init
-    (add-hook 'after-init-hook 'global-company-mode))
+    (add-hook 'after-init-hook 'global-company-mode)
+    :config
+    (setq company-idle-delay 0.5)
+    (setq company-show-numbers t)
+    (setq company-tooltip-limit 10)
+    (setq company-minimum-prefix-length 2)
+    (setq company-tooltip-align-annotations t)
+    ;; invert the navigation direction if the the completion popup-isearch-match
+    ;; is displayed on top (happens near the bottom of windows)
+    (setq company-tooltip-flip-when-above t))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -993,6 +1016,15 @@ optionally save other histories and other variables as well.
   ;(desktop-save-mode 1)
   (setq desktop-base-file-name (expand-file-name "desktop" user-emacs-savefile-dir))
 #+END_SRC
+*** Projectile
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package projectile
+    :diminish ""
+    :init
+    (setq projectile-cache-file (expand-file-name  "projectile.cache" user-emacs-savefile-dir))
+    (projectile-global-mode t))
+#+END_SRC
 *** Eshell
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -1024,18 +1056,6 @@ line actually enables auto-revert for any buffers.
   (global-auto-revert-mode 1)
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
-#+END_SRC
-** Shell
-
-Make a shell script executable automatically on save.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; make a shell script executable automatically on save
-  (add-hook 'after-save-hook
-            'executable-make-buffer-file-executable-if-script-p)
-
-  ;; .zsh file is shell script too
-  (add-to-list 'auto-mode-alist '("\\.zsh\\'" . shell-script-mode))
 #+END_SRC
 ** Global Key Bindings
 
@@ -1078,6 +1098,10 @@ Bind shortcuts to some mode toggle functions.
   (global-set-key (kbd "C-c t w") 'whitespace-mode)
 #+END_SRC
 ** Help - =which-key=
+
+Many command sequences may be logical, but who can remember them all? Don't
+worry. [[https://github.com/justbur/emacs-which-key][Which-key]] can display the key bindings following your currently entered
+incomplete command (a prefix) in a popup.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package which-key
@@ -1211,4 +1235,89 @@ describe. Particularly good for CSS and the like.
     (add-hook 'css-mode-hook 'rainbow-mode)
     (add-hook 'html-mode-hook 'rainbow-mode)
     (add-hook 'js2-mode-hook 'rainbow-mode))
+#+END_SRC
+* Languages
+** Markdown
+
+[[https://github.com/defunkt/markdown-mode][Markdown-mode]] is a major mode for editing Markdown-formatted text.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package markdown-mode
+    :ensure t
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+** Shell
+
+Make a shell script executable automatically on save.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-hook 'after-save-hook
+            'executable-make-buffer-file-executable-if-script-p)
+#+END_SRC
+
+=.zsh= file is shell script too.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-to-list 'auto-mode-alist '("\\.zsh\\'" . shell-script-mode))
+#+END_SRC
+* Org
+* Git - version control
+** Git basic settings
+
+I like [[https://github.com/dgutov/diff-hl][diff-hl]]. This mode can highlight uncommitted changes on the left side of
+the window, allows you to jump between and revert them selectively.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package diff-hl
+    :ensure t
+    :init (global-diff-hl-mode)
+    :config
+    (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+    (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+#+END_SRC
+
+I want to have special mode for Git's =gitconfig= and =gitignore= file:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package gitconfig-mode
+    :ensure t)
+
+  (use-package gitignore-mode
+    :ensure t)
+#+END_SRC
+
+Finally, I want to play with [[https://gitlab.com/pidu/git-timemachine/blob/master/README.md][Git Time Machine]] project for stepping backward
+through the version history of a file:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package git-timemachine)
+#+END_SRC
+** Magit
+
+Git is [[http://emacswiki.org/emacs/Git][already part of Emacs]]. However, *[[https://magit.vc][Magit]] is sweet!*
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package magit
+    :ensure t
+    :commands magit-status magit-blame
+    :init
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
+    :config
+    (setq magit-branch-arguments nil
+          ;; use ido to look for branches
+          magit-completing-read-function 'magit-ido-completing-read
+          ;; don't put "origin-" in front of new branch names by default
+          magit-default-tracking-name-function 'magit-default-tracking-name-branch-only
+          magit-push-always-verify nil
+          ;; Get rid of the previous advice to go into fullscreen
+          magit-restore-window-configuration t)
+
+    :bind ("C-x g" . magit-status))
 #+END_SRC
