@@ -9,6 +9,7 @@
 #+EXPORT_SELECT_TAGS: export
 #+EXPORT_EXCLUDE_TAGS: noexport
 
+
 * About
 ** My Emacs Init File
    
@@ -97,14 +98,68 @@ right information is always present.
         user-mail-address "fengxiaojie1997@gmail.com")
 #+END_SRC
 * Bootstraping
+** Load Multiple Emacs Files
+*** My Directory Location
+
+Conventionally, additional per-user Emacs-specific files are placed in
+=.emacs.d= directory in the =HOME= directory. The variable
+=user-emacs-directory= holds that.
+
+I structure the =.emacs.d= directory by putting some sub-directories in it with
+the following function:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun user-emacs-subdirectory (d) (expand-file-name d user-emacs-directory))
+#+END_SRC
+*** Directory Structure
+
+In case this is the first time running this on a computer, we need to make sure
+the following directories have been created.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defconst user-emacs-savefile-dir
+    (expand-file-name "savefile" user-emacs-directory)
+    "This folder stores all the history and cache files")
+  (defconst user-emacs-backup-dir
+    (expand-file-name "backup" user-emacs-directory)
+    "This folder stores all the backup~ files")
+  (defconst user-emacs-autosave-dir
+    (expand-file-name "autosave" user-emacs-directory)
+    "This folder stores all the #autosave# files")
+
+  (unless (file-exists-p user-emacs-savefile-dir)
+    (make-directory user-emacs-savefile-dir))
+  (unless (file-exists-p user-emacs-backup-dir)
+    (make-directory user-emacs-backup-dir))
+  (unless (file-exists-p user-emacs-autosave-dir)
+    (make-directory user-emacs-autosave-dir))
+#+END_SRC
+*** Customization
+
+While I would rather program my configurations, sometimes the Emacs
+menu system is "good enough", but I want it in its own file:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+#+END_SRC
+*** Setting up the Load Path
+
+Extra packages not available via the package manager go in my personal stash
+at: =$HOME/.emacs.d/elisp=. As long as they're in a directory in my
+=load-path=, Emacs can find them.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-to-list 'load-path (user-emacs-subdirectory "elisp"))
+#+END_SRC
 ** Package Management
-*** =ELPA= : Packages Installer and Manager
+*** =ELPA= - Packages Installer and Manager
 
-Since Emacs 24, Emacs includes the Emacs Lisp Package Archive ([[https://www.emacswiki.org/emacs/ELPA][ELPA]]) by
-default. This provides a nice way to [[http://ergoemacs.org/emacs/emacs_package_system.html][install additional packages]].
-
-Since the default package archive doesn't include everything necessary, we need
-to add more package sources.
+Emacs has become like every other operating system, and now has a package
+manager called [[http://tromey.com/elpa/][Emacs Lisp Package Archive (ELPA)]] with its own collection
+repository. This provides a nice way to [[http://ergoemacs.org/emacs/emacs_package_system.html][install additional packages]]. But since
+it is so conservative, we need to add more package source.
 
 #+BEGIN_SRC emacs-lisp :tangle no
   (require 'package)
@@ -119,7 +174,8 @@ to add more package sources.
 
 *Note:* As a Chinese user, I use the following mirrors instead. If you want to
 use my emacs init file directly, you should replace the value =yes= with =no=
-after variable =:tangle= in the org file.
+after variable =:tangle= in the org file, then tangle the org file with
+=org-babel=.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'package)
@@ -131,11 +187,11 @@ after variable =:tangle= in the org file.
   (package-initialize)
   (setq package-enable-at-startup nil)
 #+END_SRC
-*** =Use-package= : Package Configuration Macro
+*** =Use-Package= - Package Configuration Macro
 
 This [[https://github.com/jwiegley/use-package][use-package]] macro provides more concise ways to setup package autoloads,
 keybindings, and various mode configuration. The focus is on decreasing startup
-time by autoloading packages instead loading them on startup.
+time by /autoloading/ packages instead loading them on startup.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (unless (package-installed-p 'use-package)
@@ -151,39 +207,17 @@ time by autoloading packages instead loading them on startup.
   ;; Please don't load outdated byte code
   (setq load-prefer-newer t)
 #+END_SRC
-** Load Multiple Emacs Files
-*** My Directory Location
+** Library Dependency 
+
+Load up a collection of enhancements to Emacs Lisp, to make the configuration
+and its dependencies work properly.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (defconst user-emacs-savefile-dir
-    (expand-file-name "savefile" user-emacs-directory)
-    "This folder stores all the history and cache files")
-  (defconst user-emacs-backup-dir
-    (expand-file-name "backup" user-emacs-directory)
-    "This folder stores all the backup files")
-
-  (unless (file-exists-p user-emacs-savefile-dir)
-    (make-directory user-emacs-savefile-dir))
-  (unless (file-exists-p user-emacs-backup-dir)
-    (make-directory user-emacs-backup-dir))
+  (require 'cl)                           ; provides useful things like `loop' and `setf'
+  (use-package dash :ensure t)            ; a modern list library
+  (use-package diminish :ensure t)        ; diminish keeps the modeline tidy
 #+END_SRC
-*** Add My Personal Elisp Files
-
-I keep slightly more sensitive information and custom-made settings in two
-different separate files so that I can easily publish my main configuration.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defconst user-emacs-custom-file
-    (expand-file-name "custom.el" user-emacs-directory))
-  (defconst user-emacs-secret-file
-    (expand-file-name "secret.el" user-emacs-directory))
-
-  (when (file-exists-p user-emacs-custom-file)
-    (load-file user-emacs-custom-file))
-  (when (file-exists-p user-emacs-secret-file)
-    (load-file user-emacs-secret-file))
-#+END_SRC
-**  =Exec-PATH= : Environment fixup
+**  =Exec-PATH= - Environment fixup
 
 On macOS, Emacs doesn't use the shell PATH if it's not started from the shell
 (started from the GUI). Let's fix that.
@@ -212,18 +246,8 @@ Set keys for Apple keyboard, for Emacs in macOS.
     (setq ns-function-modifier 'hyper)    ; make fn key do Hyper
     )
 #+END_SRC
-** Library Prerequisites
-
-Libraries provide additional Common Lisp functions and macros to make the
-configuration and its dependencies work properly.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'cl)                           ; provides useful things like `loop' and `setf'
-  (use-package dash :ensure t)            ; a modern list library
-  (use-package diminish :ensure t)        ; diminish keeps the modeline tidy
-#+END_SRC
 * Basic settings used everywhere
-** Utilities
+** Useful interactive functions
 *** Reload emacs initialization file
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -363,7 +387,7 @@ Hide the mouse while typing.
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq make-pointer-invisible t)         ; Hide the mouse while typing
 #+END_SRC
-*** Sweet hightlight
+*** Sweet highlight
 
 Hightlight something sweet.
 
@@ -389,7 +413,7 @@ Hightlight something sweet.
     :init (volatile-highlights-mode))
 #+END_SRC
 
-=Font-lock= annotations like TODO in source code.
+=Hl-todo= highlight  annotations like /TODO/ in source code.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package hl-todo
@@ -424,17 +448,128 @@ Confirmation is required before exiting Emacs.
   (setq confirm-kill-emacs 'yes-or-no-p)
 #+END_SRC
 ** Navigation
-*** =Winner-mode= : undo and redo window configuration
+*** =Projectile= - project interaction
 
-winner-mode lets you use =C-c <left>= and =C-c <right>= to switch between
-window configurations. This is handy when something has popped up a buffer that
-you want to look at briefly before returning to whatever you were working on.
-When you're done, press =C-c <left>=.
+The [[https://github.com/bbatsov/projectile][Projectile]] project is a nifty way to run commands and search for files in a
+particular "project". All projectile keybindings is placed under =C-x p=. And,
+the most used commands by myself are =C-x p p= to switch-project, and =C-x p f=
+to find a file and =C-x p d= to find a directory.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package projectile
+    :ensure t
+    :diminish projectile-mode
+    :init (projectile-global-mode)
+    ;; caching can speedup file and directory listings
+    ;;(setq projectile-enable-caching t)
+    ;; projectile cache file location
+    (setq projectile-cache-file (expand-file-name  "projectile.cache" user-emacs-savefile-dir))
+    :commands projectile-ag
+    :config
+    (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+    (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map)
+
+    (setq projectile-completion-system 'helm ; `ido' or `helm' interface?
+          projectile-switch-project-action 'projectile-commander
+          projectile-create-missing-test-files t)
+    (add-to-list 'projectile-globally-ignored-files ".DS_Store")
+
+    (def-projectile-commander-method ?d
+      "Open project root in dired."
+      (projectile-dired))
+
+    (def-projectile-commander-method ?s
+      "Open a *shell* buffer for the project."
+      (projectile-run-shell))
+
+    (def-projectile-commander-method ?c
+      "Run `compile' in the project."
+      (projectile-compile-project nil))
+
+    (def-projectile-commander-method ?F
+      "Git fetch."
+      (magit-status)
+      (call-interactively #'magit-fetch-current)))
+#+END_SRC
+
+Much of the section came from [[http://endlessparentheses.co2m/improving-projectile-with-extra-commands.html][this essay]]. Read it for config details and usage.
+
+*** =Dired= - directory editor
+
+Tell =dired= to stop asking me whether I want to recursively delete or copy,
+since I never respond to that question with =no=.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+#+END_SRC
+
+Enables "Do What I Mean" mode for dired: If I'm in a split frame with two dired
+buffers, the default target to copy (and rename) will be the other window.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq dired-dwim-target t)
+  (setq dired-listing-switches "-alh")
+#+END_SRC
+
+I also want dired to automatically revert, but to be quiet about it. The first
+line actually enables auto-revert for any buffers.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-auto-revert-mode 1)
+  (setq global-auto-revert-non-file-buffers t)
+  (setq auto-revert-verbose nil)
+#+END_SRC
+
+The ability to create a dired buffer based on searching for files in a
+directory tree with =find-name-dired= is fantastic. The [[http://www.masteringemacs.org/articles/2011/03/25/working-multiple-files-dired/][following magic]]
+optimizes this approach:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package find-dired
+     :ensure t
+     :init (setq find-ls-option '("-print0 | xargs -0 ls -od" . "-od")))
+#+END_SRC
+
+The [[http://pragmaticemacs.com/emacs/quickly-preview-images-and-other-files-with-peep-dired/][peep project]] allows you to preview files before loading them into a
+dedicated buffer:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package peep-dired
+    :defer t ; don't access `dired-mode-map' until `peep-dired' is loaded
+    :bind (:map dired-mode-map
+                ("P" . peep-dired)))
+#+END_SRC
+*** =Neotree= - tree layout directory explorer
+
+The [[https://github.com/jaypei/emacs-neotree][NeoTree]] project provides a nice tree layout file explorer, and it gives an
+/ide-like/ look and feel.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package neotree
+    :ensure t
+    :defer t
+    :bind ("C-x t n" . neotree-toggle)
+    :config
+    (setq projectile-switch-project-action 'neotree-projectile-action)
+    (setq neo-show-hidden-files t)
+    (setq neo-smart-open t))
+
+  (global-set-key [f2] 'neotree-toggle)
+  (global-set-key [f8] 'neotree-toggle)
+#+END_SRC
+*** =Winner= - undo and redo window configuration
+
+Change window configuration and then return to the old configuration with
+[[http://www.emacswiki.org/emacs/WinnerMode][winner-mode]]. Use =Control-C Arrow= keys to cycle through window/frame
+configurations. This is handy when something has popped up a buffer that you
+want to look at briefly before returning to whatever you were working on. When
+you're done, press =C-c <left>=.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (winner-mode 1)
 #+END_SRC
-*** =Windmove= : switching between windows
+*** =Windmove= - switching between windows
 
 =Windmove= lets you move between windows with something more natural than
 cycling through =C-x o= (=other-window=).
@@ -457,17 +592,45 @@ A visual replacement for =C-x o=.
 #+end_src
 *** =C-x k= : Quick kill buffer
 
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (defun volatile-kill-buffer ()
-     "Kill current buffer unconditionally."
-     (interactive)
-     (let ((buffer-modified-p nil))
-       (kill-buffer (current-buffer))))
+I rarely want to kill any buffer but the one I'm looking at. And, I usually
+want to kill buffers even if modified unconditionally. [[https://stackoverflow.com/questions/6467002/how-to-kill-buffer-in-emacs-without-answering-confirmation][Code from this
+discussion]].
 
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun kill-this-buffer-volatile ()
+      "Kill current buffer unconditionally, even if it has been modified."
+      (interactive)
+      (set-buffer-modified-p nil)
+      (kill-this-buffer))
+
+  ;; Kill the current visible buffer without confirmation unless the buffer has
+  ;; been modified. In this last case, you have to answer y/n.
+  (global-set-key (kbd "C-x k") 'kill-this-buffer)
   ;; Unconditionally kill unmodified buffers.
-  (global-set-key (kbd "C-x k") 'volatile-kill-buffer)
+  (global-set-key (kbd "C-x K") 'kill-this-buffer-volatile)
+#+END_SRC
+*** =Avy= - fast cursor movement
+
+[[https://github.com/abo-abo/avy][Avy]] enable fast cursor movement to visible text using a char-based decision
+tree. *Avy is fast!*
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package avy
+    :ensure t
+    :init (setq avy-background t)
+    :config
+    (global-set-key (kbd "s-;") 'avy-goto-line)
+    (global-set-key (kbd "s-l") 'avy-goto-line)
+    (global-set-key (kbd "s-.") 'avy-goto-char-timer)
+    (global-set-key (kbd "s-j") 'avy-goto-char-timer)
+    (global-set-key (kbd "s-,") 'avy-pop-mark)
+    (global-set-key (kbd "s-J") 'avy-pop-mark))
 #+END_SRC
 *** =C-a= : Smart beginning of line
+
+This [[http://emacsredux.com/blog/2013/05/22/smarter-navigation-to-the-beginning-of-a-line/][Emacs Redux article]] has a great suggestion for having =C-a= go to the
+beginning of the line's content instead of the actual beginning of the line.
+Hit =C-a= a second to get to the actual beginning.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun my/smarter-move-beginning-of-line (arg)
@@ -497,34 +660,359 @@ A visual replacement for =C-x o=.
   (global-set-key [remap move-beginning-of-line]
                   'my/smarter-move-beginning-of-line)
 #+END_SRC
-*** =Avy= : fast cursor movement
+*** =C-w= and =M-w= : Smart cut and copy
 
-[[https://github.com/abo-abo/avy][Avy]] enable fast cursor movement to visible text using a char-based decision
-tree.
+Here's a [[http://ergoemacs.org/emacs/emacs_copy_cut_current_line.html][function]] to cut current line if there's no text selection:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package avy
-    :ensure t
-    :init (setq avy-background t)
-    :config
-    (global-set-key (kbd "s-;") 'avy-goto-line)
-    (global-set-key (kbd "s-l") 'avy-goto-line)
-    (global-set-key (kbd "s-.") 'avy-goto-char-timer)
-    (global-set-key (kbd "s-j") 'avy-goto-char-timer)
-    (global-set-key (kbd "s-,") 'avy-pop-mark)
-    (global-set-key (kbd "s-J") 'avy-pop-mark))
+  (defun xah-cut-line-or-region ()
+    "Cut current line, or text selection.
+  When `universal-argument' is called first, cut whole buffer (respects `narrow-to-region').
+
+  URL `http://ergoemacs.org/emacs/emacs_copy_cut_current_line.html'
+  Version 2015-06-10"
+    (interactive)
+    (if current-prefix-arg
+        (progn ; not using kill-region because we don't want to include previous kill
+          (kill-new (buffer-string))
+          (delete-region (point-min) (point-max)))
+      (progn (if (use-region-p)
+                 (kill-region (region-beginning) (region-end) t)
+               (kill-region (line-beginning-position) (line-beginning-position 2))))))
+
+  (global-set-key (kbd "C-w") 'xah-cut-line-or-region)
 #+END_SRC
 
-*** =Expand-region= : region selection
-
-[[https://github.com/magnars/expand-region.el][Expand-region]] is something I have to get the hang of too. It gradually expands the
-selection. Handy for Emacs Lisp.
+Here is a [[http://ergoemacs.org/emacs/emacs_copy_cut_current_line.html][function]] copy current line if there is no text selection. If called
+again, it'll append-copy next line. So you can press a key repeatedly to keep
+copying lines.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package expand-region
+  (defun xah-copy-line-or-region ()
+    "Copy current line, or text selection.
+  When called repeatedly, append copy subsequent lines.
+  When `universal-argument' is called first, copy whole buffer (respects `narrow-to-region').
+
+  URL `http://ergoemacs.org/emacs/emacs_copy_cut_current_line.html'
+  Version 2018-09-10"
+    (interactive)
+    (if current-prefix-arg
+        (progn
+          (copy-region-as-kill (point-min) (point-max)))
+      (if (use-region-p)
+          (progn
+            (copy-region-as-kill (region-beginning) (region-end)))
+        (if (eq last-command this-command)
+            (if (eobp)
+                (progn )
+              (progn
+                (kill-append "\n" nil)
+                (kill-append
+                 (buffer-substring-no-properties (line-beginning-position) (line-end-position))
+                 nil)
+                (progn
+                  (end-of-line)
+                  (forward-char))))
+          (if (eobp)
+              (if (eq (char-before) 10 )
+                  (progn )
+                (progn
+                  (copy-region-as-kill (line-beginning-position) (line-end-position))
+                  (end-of-line)))
+            (progn
+              (copy-region-as-kill (line-beginning-position) (line-end-position))
+              (end-of-line)
+              (forward-char)))))))
+
+  (global-set-key (kbd "M-w") 'xah-copy-line-or-region)
+  (global-set-key (kbd "M-[") 'xah-copy-line-or-region)
+#+END_SRC
+*** =M-\= : Smart delete whitespaces around cursor
+
+Here's a function combine most of the [[http://ergoemacs.org/emacs/emacs_shrink_whitespace.html][deleting whitespaces around cursor command into
+single one]]:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun xah-delete-blank-lines ()
+    "Delete all newline around cursor.
+
+  URL `http://ergoemacs.org/emacs/emacs_shrink_whitespace.html'
+  Version 2018-04-02"
+    (interactive)
+    (let ($p3 $p4)
+            (skip-chars-backward "\n")
+            (setq $p3 (point))
+            (skip-chars-forward "\n")
+            (setq $p4 (point))
+            (delete-region $p3 $p4)))
+
+  (defun xah-shrink-whitespaces ()
+    "Remove whitespaces around cursor to just one, or none.
+
+  Shrink any neighboring space tab newline characters to 1 or none.
+  If cursor neighbor has space/tab, toggle between 1 or 0 space.
+  If cursor neighbor are newline, shrink them to just 1.
+  If already has just 1 whitespace, delete it.
+
+  URL `http://ergoemacs.org/emacs/emacs_shrink_whitespace.html'
+  Version 2018-04-02T14:38:04-07:00"
+    (interactive)
+    (let* (
+           ($eol-count 0)
+           ($p0 (point))
+           $p1 ; whitespace begin
+           $p2 ; whitespace end
+           ($charBefore (char-before))
+           ($charAfter (char-after ))
+           ($space-neighbor-p (or (eq $charBefore 32) (eq $charBefore 9) (eq $charAfter 32) (eq $charAfter 9)))
+           $just-1-space-p
+           )
+      (skip-chars-backward " \n\t")
+      (setq $p1 (point))
+      (goto-char $p0)
+      (skip-chars-forward " \n\t")
+      (setq $p2 (point))
+      (goto-char $p1)
+      (while (search-forward "\n" $p2 t )
+        (setq $eol-count (1+ $eol-count)))
+      (setq $just-1-space-p (eq (- $p2 $p1) 1))
+      (goto-char $p0)
+      (cond
+       ((eq $eol-count 0)
+        (if $just-1-space-p
+            (delete-horizontal-space)
+          (progn (delete-horizontal-space)
+                 (insert " "))))
+       ((eq $eol-count 1)
+        (if $space-neighbor-p
+            (delete-horizontal-space)
+          (progn (xah-delete-blank-lines) (insert " "))))
+       ((eq $eol-count 2)
+        (if $space-neighbor-p
+            (delete-horizontal-space)
+          (progn
+            (xah-delete-blank-lines)
+            (insert "\n"))))
+       ((> $eol-count 2)
+        (if $space-neighbor-p
+            (delete-horizontal-space)
+          (progn
+            (goto-char $p2)
+            (search-backward "\n" )
+            (delete-region $p1 (point))
+            (insert "\n"))))
+       (t (progn
+            (message "nothing done. logic error 40873. shouldn't reach here" ))))))
+
+  (global-set-key (kbd "M-\\") 'xah-shrink-whitespaces)
+#+END_SRC
+
+*** =C-k= : Smart kill entire lines
+
+According to [[http://endlessparentheses.com/kill-entire-line-with-prefix-argument.html][this article]], killing arbitrary number of lines of text can be done
+with two keystrokes.
+
+This creates a macro that moves to the beginning of the line and then calls a
+function given to it. Quite an interesting approach:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defmacro bol-with-prefix (function)
+    "Define a new function which calls FUNCTION.
+  Except it moves to beginning of line before calling FUNCTION when
+  called with a prefix argument. The FUNCTION still receives the
+  prefix argument."
+    (let ((name (intern (format "endless/%s-BOL" function))))
+      `(progn
+         (defun ,name (p)
+           ,(format
+             "Call `%s', but move to the beginning of the line when called with a prefix argument."
+             function)
+           (interactive "P")
+           (when p
+             (forward-line 0))
+           (call-interactively ',function))
+         ',name)))
+#+END_SRC
+
+And we re-bind them to functions that use them.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (global-set-key [remap paredit-kill] (bol-with-prefix paredit-kill))
+  (global-set-key [remap sp-kill-hybrid-sexp] (bol-with-prefix sp-kill-hybrid-sexp))
+  (global-set-key [remap org-kill-line] (bol-with-prefix org-kill-line))
+  (global-set-key [remap kill-line] (bol-with-prefix kill-line))
+
+  (global-set-key (kbd "C-k") (bol-with-prefix kill-line))
+#+END_SRC
+
+With this little macro, =C-k= still kills from point, but =C-7 C-k= swallows
+seven whole line. As a bonus, we get the =kill-whole-line= (=C-S-backspace=)
+behavior by doing =C-1 C-k= (I prefer =M-1= to =C-1= for easy stroke.).
+
+*** =Expand-region= - Smart region selection
+
+Wherever you are in a file, and whatever the type of file, you can
+slowly increase a region selection by logical segments by using the
+[[https://github.com/magnars/expand-region.el][expand-region]] project.
+
+However, the normal experience for =expand-region= is interactive, expected to
+be called repeatedly to expand and contract the regions based on syntax, and
+whatnot. Since I am seldom sure what I will select if I give this function a
+numeric prefix, I created a wrapper function that will (when given a number),
+just select the number of lines for the region. Select the current line with a
+0 argument. No argument (well, =lines= is given 1 with no argument), then it
+just calls original =expand-region= (Taken from [[https://github.com/howardabrams/dot-files/blob/master/emacs.org][here]]):
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package expand-region  
+    :ensure t
     :defer t
-    :bind (("C-=" . er/expand-region)
+    :config
+    (defun ha/expand-region (lines)
+      "Prefix-oriented wrapper around Magnar's `er/expand-region'.
+
+  Call with LINES equal to 1 (given no prefix), it expands the
+  region as normal.  When LINES given a positive number, selects
+  the current line and number of lines specified.  When LINES is a
+  negative number, selects the current line and the previous lines
+  specified.  Select the current line if the LINES prefix is zero."
+      (interactive "p")
+      (cond ((= lines 1)   (er/expand-region 1))
+            ((< lines 0)   (ha/expand-previous-line-as-region lines))
+            (t             (ha/expand-next-line-as-region (1+ lines)))))
+
+    (defun ha/expand-next-line-as-region (lines)
+      (message "lines = %d" lines)
+      (beginning-of-line)
+      (set-mark (point))
+      (end-of-line lines))
+
+    (defun ha/expand-previous-line-as-region (lines)
+      (end-of-line)
+      (set-mark (point))
+      (beginning-of-line (1+ lines)))
+
+    :bind (("C-=" . ha/expand-region)     ; wrapped version of `er/expand-region'
            ("C--" . er/contract-region)))
+#+END_SRC
+
+I chose =C-0= instead of =C-1= as the prefix argument to select the current
+line, because It's easier to stroke =C-0= than =C-1=.
+
+Give it a try, and you will know what it will do quickly.
+
+*** =Fancy-narrow= - Smart narrowing
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html#Narrowing][Narrowing]] is one of the fascinating features in Emacs, great for code-reviews
+and other presentations. It works well but still can be better.
+
+This [[http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html][nifty function]] is a nice replacement for many other narrowing keybindings
+that I use, it is smart (/do what I mean/):
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun narrow-or-widen-dwim (p)
+    "If the buffer is narrowed, it widens. Otherwise, it narrows intelligently.
+     Intelligently means: region, subtree, or defun, whichever
+     applies first.
+
+     With prefix P, don't widen, just narrow even if buffer is
+     already narrowed."
+    (interactive "P")
+    (declare (interactive-only))
+    (cond ((and (buffer-narrowed-p) (not p)) (widen))
+          ((region-active-p)
+           (narrow-to-region (region-beginning) (region-end)))
+          ((derived-mode-p 'org-mode) (org-narrow-to-subtree))
+          (t (narrow-to-defun))))
+
+  (global-set-key (kbd "C-x n x") 'narrow-or-widen-dwim)
+#+END_SRC
+
+Unlike =narrow-to-region=, which completely hides text outside the narrowed
+region, this [[https://github.com/Bruce-Connor/fancy-narrow][fancy-narrow]] package simply deemphasizes the text, makes it
+readonly, and makes it unreachable (hightlight instead of narrow). With this
+=fancy-narrow= package, we can define a smart =hightlight-section= function
+with /prefix argument/:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package fancy-narrow
+    :ensure t
+    :config
+    (defun ha/highlight-block ()
+      "Highlights a 'block' in a buffer defined by the first blank
+       line before and after the current cursor position. Uses the
+       'fancy-narrow' mode to high-light the block."
+      (interactive)
+      (let (cur beg end)
+        (setq cur (point))
+        (setq end (or (re-search-forward  "^\s*$" nil t) (point-max)))
+        (goto-char cur)
+        (setq beg (or (re-search-backward "^\s*$" nil t) (point-min)))
+        (fancy-narrow-to-region beg end)
+        (goto-char cur)))
+
+    (defun ha/highlight-section (num)
+      "If some of the buffer is highlighted with the `fancy-narrow'
+       mode, then un-highlight it by calling `fancy-widen'.
+
+       If region is active, call `fancy-narrow-to-region'.
+
+       If NUM is 0, highlight the current block (delimited by blank
+       lines). If NUM is positive or negative, highlight that number
+       of lines.  Otherwise, called `fancy-narrow-to-defun', to
+       highlight current function."
+      (interactive "p")
+      (cond
+       ((fancy-narrow-active-p)  (fancy-widen))
+       ((region-active-p)        (fancy-narrow-to-region (region-beginning) (region-end)))
+       ((= num 0)                (ha/highlight-block))
+       ((= num 1)                (fancy-narrow-to-defun))
+       (t                        (progn (ha/expand-region num)
+                                        (fancy-narrow-to-region (region-beginning) (region-end))
+                                        (setq mark-active nil)))))
+  
+    :bind (("C-x n ." . ha/highlight-section)))
+    ;; :bind (("C-M-+" . ha/highlight-section)
+    ;;        ("C-<f12>" . ha/highlight-section)))
+
+  ;; (use-package fancy-narrow
+  ;;   :ensure t
+  ;;   :config
+  ;;   (defun ha/highlight-block ()
+  ;;     "Highlights a 'block' in a buffer defined by the first blank
+  ;;      line before and after the current cursor position. Uses the
+  ;;      `fancy-narrow' mode to high-light the block."
+  ;;     (interactive)
+  ;;     (let (cur beg end)
+  ;;       (setq cur (point))
+  ;;       (setq end (or (re-search-forward  "^\s*$" nil t) (point-max)))
+  ;;       (goto-char cur)
+  ;;       (setq beg (or (re-search-backward "^\s*$" nil t) (point-min)))
+  ;;       (fancy-narrow-to-region beg end)
+  ;;       (goto-char cur)))
+
+  ;;   (defun ha/highlight-section (num)
+  ;;     "If some of the buffer is highlighted with the `fancy-narrow'
+  ;;      mode, then un-highlight it by calling `fancy-widen'.
+
+  ;;      If region is active, call `fancy-narrow-to-region'.
+
+  ;;      If NUM is 0, call `fancy-narrow-to-defun', to highlight
+  ;;      current function. If NUM is 1, highlight the current
+  ;;      block (delimited by blank lines). Otherwise, highlight that
+  ;;      number of lines."
+  ;;     (interactive "p")
+  ;;     (cond
+  ;;      ((fancy-narrow-active-p)  (fancy-widen))
+  ;;      ((region-active-p)        (fancy-narrow-to-region (region-beginning) (region-end)))
+  ;;      ((= num 0)                (fancy-narrow-to-defun))
+  ;;      ((= num 1)                (ha/highlight-block))
+  ;;      (t                        (progn (er/expand-region num) ; depend on `er/expand-region'
+  ;;                                       (fancy-narrow-to-region (region-beginning) (region-end))
+  ;;                                       (setq mark-active nil)))))
+
+  ;;   ;; highlight-section is smart enough
+  ;;   :bind (("C-x n ." . ha/highlight-section)))
 #+END_SRC
 ** Editing
 *** Coding - always UTF-8
@@ -577,38 +1065,37 @@ is newline. You can enable automatic indentation by binding =RET= to
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq require-final-newline t)
 #+END_SRC
-*** Whitespaces - show and clean
+*** =Whitespace= - show and clean devil
 
 We want to show trailing whitespace. Trailing whitespace is the devil.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (require 'whitespace)
-  ;; ;; Always turn on whitespace mode
-  ;; (global-whitespace-mode -1)
-  ;; (diminish 'global-whitespace-mode "ᗣ")
+  (use-package whitespace
+    :bind ("C-c x w" . whitespace-mode)
+    :diminish whitespace-mode
+    :init
+    ;; Indicate trailing empty lines in the GUI
+    (set-default 'indicate-empty-lines t)
+    (setq show-trailing-whitespace t)
 
-  ;; Indicate trailing empty lines in the GUI
-  (set-default 'indicate-empty-lines t)
-  (setq show-trailing-whitespace t)
+    ;; limit line length                                                                    
+    (setq whitespace-line-column 80)
+    ;; Here are the things that whitespace-mode should highlight
+    (setq whitespace-style '(face tabs empty trailing lines-tail))
 
-  ;; limit line length
-  (setq whitespace-line-column 80)
-  ;; Here are the things that whitespace-mode should highlight
-  (setq whitespace-style '(face tabs empty trailing lines-tail))
+    ;; Display pretty things for newlines and tabs (nothing for spaces)
+    (setq whitespace-display-mappings
+          ;; all numbers are Unicode codepoint in decimal. e.g. (insert-char 182 1)
+          ;; 32 SPACE, 183 MIDDLE DOT
+          '((space-mark nil)
+            ;; 10 LINE FEED
+            ;;(newline-mark 10 [172 10])
+            (newline-mark nil)
+            ;; 9 TAB, MIDDLE DOT
+            (tab-mark 9 [183 9] [92 9])))
 
-  ;; Display pretty things for newlines and tabs (nothing for spaces)
-  (setq whitespace-display-mappings
-        ;; all numbers are Unicode codepoint in decimal. e.g. (insert-char 182 1)
-        ;; 32 SPACE, 183 MIDDLE DOT
-        '((space-mark nil)
-          ;; 10 LINE FEED
-          ;;(newline-mark 10 [172 10])
-          (newline-mark nil)
-          ;; 9 TAB, MIDDLE DOT
-          (tab-mark 9 [183 9] [92 9])))
-
-  ;; Disable it in certain modes where whitespace doesn't make sense.
-  (setq whitespace-global-modes '(not org-mode
+    ;; Disable it in certain modes where whitespace doesn't make sense.
+    (setq whitespace-global-modes '(not org-mode
                                       eshell-mode
                                       shell-mode
                                       web-mode
@@ -616,16 +1103,14 @@ We want to show trailing whitespace. Trailing whitespace is the devil.
                                       dired-mode
                                       emacs-lisp-mode
                                       clojure-mode
-                                      lisp-mode))
-
-  ;; activate whitespace-mode to view all whitespace characters
-  (global-set-key (kbd "C-c t w") 'whitespace-mode)
+                                      lisp-mode)))
 #+END_SRC
 
 When you press =RET= to create a newline and got indented by
 =eletric-indent-mode=, you have appropriate whitespace for indenting. But, if
 you leave the line blank and move to the next line, the whitespace becomes
-useless. =Clean-aindent-mode= helps [[https://www.emacswiki.org/emacs/CleanAutoIndent][clean up unused whitespace]].
+useless. =Clean-aindent-mode= helps [[https://www.emacswiki.org/emacs/CleanAutoIndent][clean up unused whitespace]]. Turn it on in
+=prog-mode= by default.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package clean-aindent-mode
@@ -642,8 +1127,7 @@ useless. =Clean-aindent-mode= helps [[https://www.emacswiki.org/emacs/CleanAutoI
 #+BEGIN_SRC emacs-lisp :tangle yes
   (delete-selection-mode t)
 #+END_SRC
-
-*** =Undo-tree= : visualize your undos and branches
+*** =Undo-tree= - visualize your undos and branches
 
 [[http://www.dr-qubit.org/undo-tree/undo-tree.el][Undo-tree-mode]] lets you use =C-x u= (=undo-tree-visualize=) to visually walk
 through the changes you've made, undo back to a certain point (or redo), and go
@@ -651,6 +1135,7 @@ down different branches.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package undo-tree
+    :ensure t
     :diminish undo-tree-mode
     :init (global-undo-tree-mode)
     :config
@@ -658,45 +1143,36 @@ down different branches.
       (setq undo-tree-visualizer-timestamps t)
       (setq undo-tree-visualizer-diff t)))
 #+END_SRC
-*** =Auto-fill= and =unfill= : Filling
+*** =Auto-fill= - warp long lines
 
-Turn on [[https://www.emacswiki.org/emacs/AutoFillMode][auto-fill-mode]] to fill my paragraphs automatically, instead of =M-q=
-altogether.
+Turn on [[https://www.emacswiki.org/emacs/AutoFillMode][auto-fill-mode]] to warp long lines automatically, instead of =M-q=
+altogether. Sometimes, =toggle-truncate-lines= would be useful.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (setq-default fill-column 79)
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
   (add-hook 'prog-mode-hook 'turn-on-auto-fill)
 
-  (global-set-key (kbd "C-c t q") 'auto-fill-mode)
+  (global-set-key (kbd "C-x t f") 'auto-fill-mode)
+  (global-set-key (kbd "C-x t t") 'toggle-truncate-lines)
 #+END_SRC
+*** Unfill paragraph
 
 Sometimes, l want to join all the lines in a paragraph into a single line,
-Emacs does not have a =unfill-paragraph= command to do the inverse of fill.
-Luckly, [[http://ergoemacs.org/emacs/emacs_unfill-paragraph.html][Xah Lee wrote unfill functions]] for us.
+Emacs does not have a =unfill= command to do the inverse of =fill=. Luckly, [[http://ergoemacs.org/emacs/emacs_unfill-paragraph.html][Xah
+Lee wrote unfill functions]] for us.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun xah-unfill-paragraph ()
     "Replace newline chars in current paragraph by single spaces.
-  This command does the inverse of `fill-paragraph'.
-
-  URL `http://ergoemacs.org/emacs/emacs_unfill-paragraph.html'
-  Version 2016-07-13"
+  This command does the inverse of `fill-paragraph'."
     (interactive)
     (let ((fill-column most-positive-fixnum))
       (fill-paragraph)))
 
-  (defun xah-unfill-region (start end)
-    "Replace newline chars in region by single spaces.
-  This command does the inverse of `fill-region'.
-
-  URL `http://ergoemacs.org/emacs/emacs_unfill-paragraph.html'
-  Version 2016-07-13"
-    (interactive "r")
-    (let ((fill-column most-positive-fixnum))
-      (fill-region start end)))
+  (define-key global-map "\M-Q" 'unfill-paragraph)
 #+END_SRC 
-*** =Hippie-expand= : Text Expansion
+*** =Hippie-expand= - Text Expansion
 
 =Hippie-expand= looks at the word before point and tries to expand it in
 various ways including expanding from a fixed list (like =`expand-abbrev’=),
@@ -719,21 +1195,20 @@ what order is controlled by a configurable list of functions.
 
   (global-set-key (kbd "M-/") 'hippie-expand)
 #+END_SRC
-*** =Company= : Completion for Anything
+*** =Company= - Completion for Anything
 
-[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for "complete
-anything". It uses pluggable back-ends and front-ends to retrieve and display
-completion candidates.
+[[http://company-mode.github.io][Company]] is a text completion framework for Emacs. The name stands for /complete
+anything/. I use =company-mode= for all my auto completion needs.
 
-=Completion= will start automatically after you type a few letters. Use =M-n=
-and =M-p= to select, =<RET>= to complete or =<TAB>= to complete the common
-part. Press =M-(digit)= to quickly complete with one of the first 10
-candidates.
+Completion will start automatically after you type a few letters. Use =M-n= and
+=M-p= to select, =<RET>= to complete or =<TAB>= to complete the common part.
+Press =M-(digit)= to quickly complete with one of the first =10= candidates.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package company
     :ensure t
     :diminish company-mode
+    :bind ("C-:" . company-complete)  ; In case I don't want to wait
     :init
     (add-hook 'after-init-hook 'global-company-mode)
     :config
@@ -747,16 +1222,22 @@ candidates.
     (setq company-tooltip-flip-when-above t))
 #+END_SRC
 
+Take advantage of idle time by displaying some documentation using
+[[https://www.github.com/expez/company-quickhelp][company-quickhelp]] project.
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package company-quickhelp
     :ensure t
     :config
     (company-quickhelp-mode 1))
 #+END_SRC
-*** =Yasnippet= : Code Templates
+
+This also requires [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][pos-tip]].
+
+*** =Yasnippet= - Code Templates
 
 [[https://github.com/joaotavora/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an abbreviation
-and automatically expand it into function templates.
+and automatically expand it into function templates, based on the languages.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package yasnippet
@@ -767,19 +1248,7 @@ and automatically expand it into function templates.
 
 You can view a bunch of predefined snippet [[https://github.com/AndreaCrotti/yasnippet-snippets/tree/master][here]].
 
-*** =Anzu= : enhance isearch & query-replace
-
-=Anzu-mode= enhances =isearch= and =query-replace= by showing total matches and
-current match position.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package anzu
-    :diminish anzu-mode
-    :bind (("M-%" . anzu-query-replace)
-           ("C-M-%" . anzu-query-replace-regexp))
-    :config (global-anzu-mode))
-#+END_SRC
-*** =Flyspell= : Spelling Checking
+*** =Flyspell= - Spelling Checking
 
 I like spell checking with [[https://www.emacswiki.org/emacs/FlySpell][Flyspell]] which does spell-checking on the fly as you
 type using the build-in spell-check settings of ispell.
@@ -812,6 +1281,39 @@ Install ASpell with homebrew first:
                               "--lang=en_US"
                               "--ignore=3")
           ispell-list-command "--list"))
+
+  (global-set-key (kbd "C-x t s") 'flyspell-mode)
+#+END_SRC
+*** =Multiple Cursors= - edit with multiple cursors
+
+[[https://github.com/emacsmirror/multiple-cursors][Multiple-cursors]] is an advanced package enable editing with multiple cursors
+simultaneously. *Multiple-cursors is crazy!* It doesn't have any default
+keybindings, so I set up these:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package multiple-cursors
+    :ensure t
+    :bind (("C-c C-. ."   . mc/mark-all-dwim)
+           ("C-c C-. C-." . mc/mark-all-like-this-dwim)
+           ("C-c C-. n"   . mc/mark-next-like-this)
+           ("C-c C-. C-n" . mc/mark-next-like-this)
+           ("C-c C-. p"   . mc/mark-previous-like-this)
+           ("C-c C-. C-p" . mc/mark-previous-like-this)
+           ("C-c C-. a"   . mc/mark-all-like-this)
+           ("C-c C-. C-a" . mc/mark-all-like-this)
+           ("C-c C-. N"   . mc/mark-next-symbol-like-this)
+           ("C-c C-. C-N" . mc/mark-next-symbol-like-this)
+           ("C-c C-. P"   . mc/mark-previous-symbol-like-this)
+           ("C-c C-. C-P" . mc/mark-previous-symbol-like-this)
+           ("C-c C-. A"   . mc/mark-all-symbols-like-this)
+           ("C-c C-. C-A" . mc/mark-all-symbols-like-this)
+           ("C-c C-. f"   . mc/mark-all-like-this-in-defun)
+           ("C-c C-. C-f" . mc/mark-all-like-this-in-defun)
+           ("C-c C-. l"   . mc/edit-lines)
+           ("C-c C-. C-l" . mc/edit-lines)
+           ("C-c C-. e"   . mc/edit-ends-of-lines)
+           ("C-c C-. C-e" . mc/edit-ends-of-lines)
+           ("C-M-<mouse-1>" . mc/add-cursor-on-click)))
 #+END_SRC
 ** Helm - interactive completion
 *** Helm core - amazing utils used everywhere
@@ -820,8 +1322,8 @@ Install ASpell with homebrew first:
 configure than =ido= in order to get completion in as many places as possible,
 although I prefer ido's way of switching buffers.
 
-l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]].
-*Helm is Amazing!*
+This article: [[http://tuhdo.github.io/helm-intro.html][A Package in a league of its own: Helm]] is worth reading. *Helm is
+Amazing!*
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package helm
@@ -885,6 +1387,23 @@ l learned a lot from this article: [[http://tuhdo.github.io/helm-intro.html][A P
            ("C-c h m" . helm-man-woman)
            ))
 #+END_SRC
+*** Helm-projectile - project maintaining
+
+Read this article [[http://tuhdo.github.io/helm-projectile.html][Exploring large projects with Projectile and Helm Projectile]]
+(or [[https://docs.projectile.mx/en/latest/][the official Projectile Manual]]) See some demos and master the usage. First
+of all, you should keep the command =helm-projectile= (=C-x p h=) in mind. Then
+master the command on directories and files.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package helm-projectile
+    :bind ("C-x p h" . helm-projectile)
+    :init (projectile-global-mode)
+    :config
+    (helm-projectile-on)
+    (setq projectile-completion-system 'helm)
+    ;;(setq projectile-switch-project-action 'helm-projectile-find-file)
+)
+#+END_SRC
 *** Helm-swoop - searching tool
 
 This promises to be a fast way to find things.
@@ -927,15 +1446,19 @@ currently active key bindings interactively searchable with helm.
     :config
     (define-key flyspell-mode-map (kbd "M-S") 'helm-flyspell-correct))
 #+END_SRC
-** Backups
+** Backup settings
 
-This is one of the things people usually want to change right away. By default,
-Emacs saves backup files in the current directory. These are the files ending
-in =~= that are cluttering up your directory lists. The following code stashes
-them all in =~/.emacs.d/backups=, where I can find them with =C-x C-f= if I
-really need to.
+Backup is one of the things people usually want to change right away. By
+default, Emacs saves backup files in the current directory. These are the files
+ending in =~= that are cluttering up your directory lists. The following code
+stashes them all in =~/.emacs.d/backups=, where I can find them with =C-x C-f=
+if I really need to.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;; store all backup files in the backup directory
+  (setq backup-directory-alist
+        `((".*" . ,user-emacs-backup-dir)))
+
   (setq make-backup-files t)
 
   (setq backup-by-copying t)
@@ -945,16 +1468,16 @@ really need to.
   (setq kept-new-versions 6
         kept-old-versions 2)
 
-  ;; store all backup and autosave files in the backup dir
-  (setq backup-directory-alist
-        `((".*" . ,user-emacs-backup-dir)))
-  (setq auto-save-file-name-transforms
-        `((".*" ,user-emacs-backup-dir t)))
-
-  ;; autosave the undo-tree history
+  ;; store the undo-tree history in the backup directory
   (setq undo-tree-history-directory-alist
         `((".*" . ,user-emacs-backup-dir)))
   (setq undo-tree-auto-save-history t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; TODO
+  (setq auto-save-file-name-transforms
+        `((".*" ,user-emacs-autosave-dir t)))
 #+END_SRC
 ** History and temporary files
 *** Recentf
@@ -968,12 +1491,14 @@ Turn it on, then call =recentf-open-files= to open recently opened files fast.
   (setq recentf-save-file (expand-file-name "recentf" user-emacs-savefile-dir))
 
   (setq recentf-max-saved-items 500
-        recentf-max-menu-items 15
+        recentf-max-menu-items 25
         ;; disable recentf-cleanup on Emacs start, because it can cause
         ;; problems with remote files
         recentf-auto-cleanup 'never)
+
+  (global-set-key (kbd "C-c f r") 'recentf-open-files)
 #+END_SRC
-*** Saveplace
+*** Saveplace - save file position
 
 When you visit a file, point goes to the last place where it was when you
 previously visited the same file.
@@ -1016,48 +1541,116 @@ optionally save other histories and other variables as well.
   ;(desktop-save-mode 1)
   (setq desktop-base-file-name (expand-file-name "desktop" user-emacs-savefile-dir))
 #+END_SRC
-*** Projectile
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package projectile
-    :diminish ""
-    :init
-    (setq projectile-cache-file (expand-file-name  "projectile.cache" user-emacs-savefile-dir))
-    (projectile-global-mode t))
-#+END_SRC
 *** Eshell
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'eshell)
   (setq eshell-directory-name (expand-file-name "eshell" user-emacs-savefile-dir))
 #+END_SRC
-** Dired
+** Miscellaneous Settings
+*** Smart Comment
 
-Tell =dired= to stop asking me whether I want to recursively delete or copy,
-since I never respond to that question with =no=.
+The [[https://github.com/paldepind/smart-comment][smart-comment]] project has the nice feature of commenting a line without
+being at the beginning of the line =M-;= (default comment in the middle of the
+line is to split it). Also has the ability (with the =C-u= prefix) to mark
+comments as things to be deleted.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq dired-recursive-copies 'always)
-  (setq dired-recursive-deletes 'always)
+  (use-package smart-comment              ;
+    :bind ("M-;" . smart-comment))
+#+END_SRC
+*** Smart Scan
+
+Use the =M-n= to search the buffer for the word the cursor is currently
+pointing. =M-p= to go backwards. See [[http://www.masteringemacs.org/articles/2011/01/14/effective-editing-movement/][this essay]] for details.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package smartscan
+    :ensure t
+    :bind
+    ("M-n" . smartscan-symbol-go-forward)
+    ("M-p" . smartscan-symbol-go-backward))
+#+END_SRC   
+
+*** Better Searching and Visual Regular Expressions
+
+Searching is quite good in Emacs. The =anzu-mode= enhances =isearch= and
+=query-replace= further by showing total matches and current match position.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package anzu
+    :diminish anzu-mode
+    :bind (("M-%" . anzu-query-replace)
+           ("C-M-%" . anzu-query-replace-regexp))
+    :config (global-anzu-mode))
 #+END_SRC
 
-Enables "Do What I Mean" mode for dired: If I'm in a split frame with two dired
-buffers, the default target to copy (and rename) will be the other window.
+The [[https://github.com/benma/visual-regexp.el][Visual Regular Expressions]] project highlights the matches while you try to
+remember the differences between Perl's regular expressions and Emacs'...
+
+Begin with =C-c r= then type the regexp. To see the highlighted matches, type
+=C-c a= before you hit =RET= to accept it.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (setq dired-dwim-target t)
-  (setq dired-listing-switches "-alh")
+  (use-package visual-regexp
+    :ensure t
+    :init
+    ;; use modern regular expressions instead of Emacs-style regular expressions
+    (use-package visual-regexp-steroids :ensure t)
+
+    :bind (("C-c r" . vr/replace)
+           ("C-c q" . vr/query-replace))
+
+    ;; if you use multiple-cursors, this is for you:
+    :config (use-package  multiple-cursors
+              :bind ("C-c m" . vr/mc-mark)))
 #+END_SRC
+*** Flycheck
 
-I also want dired to automatically revert, but to be quiet about it. The first
-line actually enables auto-revert for any buffers.
+[[https://github.com/flycheck/flycheck][Flycheck]] seems to be quite superior to =Flymake=.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (global-auto-revert-mode 1)
-  (setq global-auto-revert-non-file-buffers t)
-  (setq auto-revert-verbose nil)
+  (use-package flycheck
+    :bind ("C-x t c" . flycheck-mode)
+    :ensure t
+    :diminish flycheck-mode
+    :init
+    (add-hook 'after-init-hook 'global-flycheck-mode)
+    :config
+    (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
 #+END_SRC
 ** Global Key Bindings
+*** Meta Binds
+
+Setting up easy keys for splitting windows. But this means that I can't use
+=M-1=, =M-2=, =M-3= for prefix arguments anymore.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; (global-set-key (kbd "M-1") 'delete-other-windows)
+  ;; (global-set-key (kbd "M-2") 'split-window-below)
+  ;; (global-set-key (kbd "M-3") 'split-window-right)
+#+END_SRC
+*** Toggles Map
+
+Bind shortcuts to some mode /toggle/ functions. Inspired by [[http://endlessparentheses.com/the-toggle-map-and-wizardry.html][this article]], I am
+a wizard now.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (define-prefix-command 'endless/toggle-map)
+  ;; The manual recommends C-c for user keys, but C-x t is
+  ;; always free, whereas C-c t is used by some modes.
+  (define-key ctl-x-map "t" 'endless/toggle-map)
+  ;; build-in packages
+  (define-key endless/toggle-map "d" #'toggle-debug-on-error)
+  (define-key endless/toggle-map "q" #'toggle-debug-on-quit)
+  (define-key endless/toggle-map "f" #'auto-fill-mode)
+  (define-key endless/toggle-map "t" #'toggle-truncate-lines)
+  ;; packages installed by `use-packages'
+  (define-key endless/toggle-map "w" #'whitespace-mode)
+  (define-key endless/toggle-map "s" #'flyspell-mode)
+  (define-key endless/toggle-map "c" #'flycheck-mode)
+#+END_SRC
+*** Miscellaneous
 
 Here are some useful global key bindings.
 
@@ -1066,8 +1659,8 @@ Here are some useful global key bindings.
   (global-set-key (kbd "C-x \\") 'align-regexp)
 
   ;; Font size
-  (global-set-key (kbd "C-+") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
+  ;(global-set-key (kbd "C-+") 'text-scale-increase)
+  ;(global-set-key (kbd "C--") 'text-scale-decrease)
 
   ;; Start eshell or switch to it if it's active.
   (global-set-key (kbd "C-x m") 'eshell)
@@ -1083,19 +1676,6 @@ Here are some useful global key bindings.
 
   ;; replace buffer-menu with ibuffer
   (global-set-key (kbd "C-x C-b") 'ibuffer)
-#+END_SRC
-
-Bind shortcuts to some mode toggle functions.
-
-#+BEGIN_SRC emacs-lisp :tangle yes
-  ;; fullscreen frame toggle
-  (global-set-key (kbd "C-c t f") 'toggle-frame-fullscreen)
-
-  ;; flyspell-mode toggle
-  (global-set-key (kbd "C-c t s") 'flyspell-mode)
-
-  ;; whitespace-mode toggle
-  (global-set-key (kbd "C-c t w") 'whitespace-mode)
 #+END_SRC
 ** Help - =which-key=
 
@@ -1119,15 +1699,20 @@ With the code below from [[http://stackoverflow.com/questions/23793288/cycle-cus
 themes.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package solarized-theme)
-  (use-package color-theme-sanityinc-solarized)
+  (use-package zenburn-theme :defer t)
+  (use-package solarized-theme :defer t)
+  (use-package spacemacs-theme :defer t)
+  (use-package color-theme-sanityinc-solarized :defer t)
 
+  ;; color theme cycle list
   (setq my-themes (list
                    'solarized-light
                    'solarized-dark
-                   'sanityinc-solarized-light
-                   'sanityinc-solarized-dark))
-  (setq curr-theme my-themes)
+                   'spacemacs-light
+                   'spacemacs-dark
+                   ;; 'sanityinc-solarized-light
+                   ;; 'sanityinc-solarized-dark
+                   ))
 
   (defun my-theme-cycle ()
     (interactive)
@@ -1140,6 +1725,24 @@ themes.
   (global-set-key [f12] 'my-theme-cycle)
   (setq curr-theme my-themes)
   (load-theme (car curr-theme) t)
+#+END_SRC
+** Icons
+
+According to [[https://github.com/jaypei/emacs-neotree][this]], install [[https://github.com/domtronn/all-the-icons.el][all-the-icon]] package for neotree's color theme:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package all-the-icons)
+#+END_SRC
+
+In order for the icons to work it is very important that you install the
+Resource Fonts included in this package. Call the following command:
+
+#+BEGIN_SRC org
+  M-x all-the-icons-install-fonts
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 #+END_SRC
 ** Fonts
 
@@ -1167,7 +1770,7 @@ I prefer /Monaco/. And, as a Chinese, l choose /WenQuanYi/ for Chinese charset.
     (set-fontset-font t 'han (font-spec :name "文泉驿等宽微米黑"))
     )
 #+END_SRC
-** =Nyan-mode= : Nyan cat in modeline
+** =Nyan-mode= - Nyan cat in modeline
 
 Let [[https://en.wikipedia.org/wiki/Nyan_Cat][Nyan Cat]] show you your buffer position in mode line. You can scroll the
 buffer by clicking on the Nyan Cat’s rainbow and the space in front of it.
@@ -1176,7 +1779,7 @@ buffer by clicking on the Nyan Cat’s rainbow and the space in front of it.
   (use-package nyan-mode
     :init (nyan-mode))
 #+END_SRC
-** =Rainbow-delimiters= : color delimiters for LISP
+** =Rainbow-delimiters= - color delimiters for LISP
 
 For lisp like languages, I want to witness the full power of colorful
 [[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]]! I will even set them to pastel versions of the rainbow
@@ -1222,7 +1825,7 @@ add clojure, if I ever want to mess with that.
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
   (add-hook 'lisp-mode-hook 'rainbow-delimiters-mode)
 #+END_SRC
-** =Rainbow-mode= : color words for CSS
+** =Rainbow-mode= - color words for CSS
 
 =Rainbow-mode= makes "color words" in my programs appear in the colours they
 describe. Particularly good for CSS and the like.
@@ -1264,8 +1867,7 @@ Make a shell script executable automatically on save.
 #+BEGIN_SRC emacs-lisp :tangle yes
   (add-to-list 'auto-mode-alist '("\\.zsh\\'" . shell-script-mode))
 #+END_SRC
-* Org
-* Git - version control
+* Git - version control system
 ** Git basic settings
 
 I like [[https://github.com/dgutov/diff-hl][diff-hl]]. This mode can highlight uncommitted changes on the left side of
@@ -1321,3 +1923,4 @@ Git is [[http://emacswiki.org/emacs/Git][already part of Emacs]]. However, *[[ht
 
     :bind ("C-x g" . magit-status))
 #+END_SRC
+* Org - plain text system
