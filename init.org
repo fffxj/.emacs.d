@@ -105,11 +105,13 @@ Conventionally, additional per-user Emacs-specific files are placed in
 =.emacs.d= directory in the =HOME= directory. The variable
 =user-emacs-directory= holds that.
 
-I structure the =.emacs.d= directory by putting some sub-directories in it with
-the following function:
+Structure the =.emacs.d= directory by putting some sub-directories in it.
+Following functions make it easy to define the location (whole path) of these
+sub-directories (and files):
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun user-emacs-subdirectory (d) (expand-file-name d user-emacs-directory))
+  (defun user-emacs-file (f) (expand-file-name f user-emacs-directory))
 #+END_SRC
 *** Directory Structure
 
@@ -146,12 +148,12 @@ menu system is "good enough", but I want it in its own file:
 #+END_SRC
 *** Setting up the Load Path
 
-Extra packages not available via the package manager go in my personal stash
-at: =$HOME/.emacs.d/elisp=. As long as they're in a directory in my
-=load-path=, Emacs can find them.
+Extra packages not available via the package manager go in my personal stash at
+=$HOME/.emacs.d/elisp=. As long as they're in a directory in my =load-path=,
+Emacs can find them.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (add-to-list 'load-path (user-emacs-subdirectory "elisp"))
+  (add-to-list 'load-path (expand-file-name "elisp" user-emacs-directory))
 #+END_SRC
 ** Package Management
 *** =ELPA= - Packages Installer and Manager
@@ -217,7 +219,7 @@ and its dependencies work properly.
   (use-package dash :ensure t)            ; a modern list library
   (use-package diminish :ensure t)        ; diminish keeps the modeline tidy
 #+END_SRC
-**  =Exec-PATH= - Environment fixup
+** =Exec-PATH= - Environment fixup
 
 On macOS, Emacs doesn't use the shell PATH if it's not started from the shell
 (started from the GUI). Let's fix that.
@@ -250,20 +252,23 @@ Set keys for Apple keyboard, for Emacs in macOS.
 ** Useful interactive functions
 *** Reload emacs initialization file
 
+Here are the commands I used frequently when I writing this Emacs configuration
+with document:
+
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun my/reload-emacs-init-el-file ()
     (interactive)
-    (load-file "~/.emacs.d/init.el"))
+    (load-file (expand-file-name "init.el" user-emacs-directory)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun my/reload-emacs-init-org-file ()
     (interactive)
-    (org-babel-load-file "~/.emacs.d/init.org"))
+    (org-babel-load-file (expand-file-name "init.org" user-emacs-directory)))
 #+END_SRC
 *** macOS swap Meta and Super
 
-Swap the mapping of =Meta= and =Super= if necessary.
+Swap the mapping of =Meta= and =Super= if necessary:
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (defun prelude-swap-meta-and-super ()
@@ -280,7 +285,7 @@ Swap the mapping of =Meta= and =Super= if necessary.
       (setq mac-option-modifier 'meta)
       (message "Command is now bound to SUPER and Option is bound to META.")))
 
-  ;; can still use Command to expand even though Meta and Super swaped
+  ;; can still use `Command' to expand even though Meta and Super swaped
   (global-set-key (kbd "s-/") 'hippie-expand) 
 #+END_SRC
 
@@ -304,6 +309,48 @@ pretty straightforward:
       (when filename
         (kill-new filename)
         (message "Copied buffer file name '%s' to the clipboard." filename))))
+#+END_SRC
+*** Open File in external app
+
+Here's a command to [[http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html][open the current file or marked dired files in external
+app]]. (as if you double-clicked the file on desktop) It's useful for image
+files, PDF file, video, audio files.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun xah-open-in-external-app (&optional @fname)
+    "Open the current file or dired marked files in external app.
+  The app is chosen from your OS's preference.
+
+  When called in emacs lisp, if @fname is given, open that.
+
+  URL `http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html'
+  Version 2019-01-18"
+    (interactive)
+    (let* (
+           ($file-list
+            (if @fname
+                (progn (list @fname))
+              (if (string-equal major-mode "dired-mode")
+                  (dired-get-marked-files)
+                (list (buffer-file-name)))))
+           ($do-it-p (if (<= (length $file-list) 5)
+                         t
+                       (y-or-n-p "Open more than 5 files? "))))
+      (when $do-it-p
+        (cond
+         ((string-equal system-type "windows-nt")
+          (mapc
+           (lambda ($fpath)
+             (w32-shell-execute "open" (replace-regexp-in-string "/" "\\" $fpath t t))) $file-list))
+         ((string-equal system-type "darwin")
+          (mapc
+           (lambda ($fpath)
+             (shell-command
+              (concat "open " (shell-quote-argument $fpath))))  $file-list))
+         ((string-equal system-type "gnu/linux")
+          (mapc
+           (lambda ($fpath) (let ((process-connection-type nil))
+                              (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 #+END_SRC
 ** General user interface and appearance
 *** Startup screen and errors reporting
@@ -1119,8 +1166,17 @@ useless. =Clean-aindent-mode= helps [[https://www.emacswiki.org/emacs/CleanAutoI
 #+END_SRC
 *** Insert closing parens automagically
 
+[[https://github.com/Fuco1/smartparens][Smartparents]] is a minor mode for dealing with pairs, such as automatically
+insert pairs, wrap, unwrap and rewrap pairs,
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (electric-pair-mode 1)
+  (use-package smartparens
+    :ensure t
+    :defer t
+    :diminish ""
+    :init
+    (smartparens-global-mode)
+    (require 'smartparens-config))  
 #+END_SRC
 *** Delete the selection with a keypress
 
@@ -1238,15 +1294,17 @@ This also requires [[https://github.com/pitkali/pos-tip/blob/master/pos-tip.el][
 
 [[https://github.com/joaotavora/yasnippet][YASnippet]] is a template system for Emacs. It allows you to type an abbreviation
 and automatically expand it into function templates, based on the languages.
+You can view a bunch of predefined snippet from the [[https://github.com/AndreaCrotti/yasnippet-snippets][yasnippet snippets project]].
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package yasnippet
+    :ensure
     :diminish t
-    :init
-    (yas-global-mode 1))
+    :init 
+    (yas-global-mode 1)
+    :config
+    (add-to-list 'yas-snippet-dirs (expand-file-name "snippets" user-emacs-directory)))
 #+END_SRC
-
-You can view a bunch of predefined snippet [[https://github.com/AndreaCrotti/yasnippet-snippets/tree/master][here]].
 
 *** =Flyspell= - Spelling Checking
 
@@ -1480,7 +1538,7 @@ if I really need to.
         `((".*" ,user-emacs-autosave-dir t)))
 #+END_SRC
 ** History and temporary files
-*** Recentf
+*** Recentf - recent files
 
 =Recentf-mode= is a minor mode that builds a list of recently opened files.
 Turn it on, then call =recentf-open-files= to open recently opened files fast.
@@ -1505,10 +1563,10 @@ previously visited the same file.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'saveplace)
-  (save-place-mode 1) 
+  (save-place-mode 1)
   (setq save-place-file (expand-file-name "saveplace" user-emacs-savefile-dir))
 #+END_SRC
-*** Savehist
+*** Savehist - save history
 
 By default, =Savehist= mode saves only your minibuffer histories, but you can
 optionally save other histories and other variables as well.
@@ -1527,6 +1585,9 @@ optionally save other histories and other variables as well.
           regexp-search-ring))
 #+END_SRC
 *** Bookmarks
+
+=Bookmarks= lets you easily open frequently needed files. It is similar to
+browser's bookmark. Read this [[http://ergoemacs.org/emacs/bookmark.html][article]] about the usage.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (require 'bookmark)
@@ -1556,7 +1617,7 @@ line is to split it). Also has the ability (with the =C-u= prefix) to mark
 comments as things to be deleted.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package smart-comment              ;
+  (use-package smart-comment
     :bind ("M-;" . smart-comment))
 #+END_SRC
 *** Smart Scan
@@ -1574,8 +1635,20 @@ pointing. =M-p= to go backwards. See [[http://www.masteringemacs.org/articles/20
 
 *** Better Searching and Visual Regular Expressions
 
-Searching is quite good in Emacs. The =anzu-mode= enhances =isearch= and
-=query-replace= further by showing total matches and current match position.
+Searching is quite good in Emacs. Let's add a few extra keys:
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (bind-keys :map isearch-mode-map
+             ;; ("<left>"  . isearch-repeat-backward)
+             ;; ("<right>" . isearch-repeat-forward)
+             ;; ("<up>"    . isearch-ring-retreat)
+             ;; ("<down>"  . isearch-ring-advance)
+             ("C-p"     . isearch-ring-retreat)
+             ("C-n"     . isearch-ring-advance))
+#+END_SRC
+
+The [[https://github.com/syohex/emacs-anzu][anzu]] package enhances =query-replace= and =query-replace-regexp= by showing
+total matches and current match position.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package anzu
@@ -1601,7 +1674,7 @@ Begin with =C-c r= then type the regexp. To see the highlighted matches, type
     :bind (("C-c r" . vr/replace)
            ("C-c q" . vr/query-replace))
 
-    ;; if you use multiple-cursors, this is for you:
+    ;; if you use `multiple-cursors', this is for you:
     :config (use-package  multiple-cursors
               :bind ("C-c m" . vr/mc-mark)))
 #+END_SRC
@@ -1649,6 +1722,7 @@ a wizard now.
   (define-key endless/toggle-map "w" #'whitespace-mode)
   (define-key endless/toggle-map "s" #'flyspell-mode)
   (define-key endless/toggle-map "c" #'flycheck-mode)
+  (define-key endless/toggle-map "g" #'git-timemachine)
 #+END_SRC
 *** Miscellaneous
 
@@ -1677,7 +1751,7 @@ Here are some useful global key bindings.
   ;; replace buffer-menu with ibuffer
   (global-set-key (kbd "C-x C-b") 'ibuffer)
 #+END_SRC
-** Help - =which-key=
+** Keys Cheat Sheet - =which-key=
 
 Many command sequences may be logical, but who can remember them all? Don't
 worry. [[https://github.com/justbur/emacs-which-key][Which-key]] can display the key bindings following your currently entered
@@ -1706,10 +1780,10 @@ themes.
 
   ;; color theme cycle list
   (setq my-themes (list
-                   'solarized-light
-                   'solarized-dark
                    'spacemacs-light
                    'spacemacs-dark
+                   'solarized-light
+                   'solarized-dark
                    ;; 'sanityinc-solarized-light
                    ;; 'sanityinc-solarized-dark
                    ))
@@ -1862,10 +1936,10 @@ Make a shell script executable automatically on save.
             'executable-make-buffer-file-executable-if-script-p)
 #+END_SRC
 
-=.zsh= file is shell script too.
+Files with =.zsh= extension is shell script too.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (add-to-list 'auto-mode-alist '("\\.zsh\\'" . shell-script-mode))
+  (add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
 #+END_SRC
 * Git - version control system
 ** Git basic settings
@@ -1892,11 +1966,12 @@ I want to have special mode for Git's =gitconfig= and =gitignore= file:
     :ensure t)
 #+END_SRC
 
-Finally, I want to play with [[https://gitlab.com/pidu/git-timemachine/blob/master/README.md][Git Time Machine]] project for stepping backward
-through the version history of a file:
+Finally, I want to play with [[https://gitlab.com/pidu/git-timemachine/blob/master/README.md][Git Time Machine]] project for viewing the different
+version history of a file with =p= and =n=.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package git-timemachine)
+  (use-package git-timemachine
+    :bind ("C-x t g" . git-timemachine))
 #+END_SRC
 ** Magit
 
