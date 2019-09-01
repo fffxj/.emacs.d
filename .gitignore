@@ -15,8 +15,9 @@ elpa/
 url/
 eshell/
 games/
-
+ido.last
 projectile-bookmarks.eld
+.mc-lists.el
 saveplace
 recentf
 savehist
